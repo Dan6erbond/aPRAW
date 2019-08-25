@@ -17,6 +17,7 @@ aPRAW is an open-source framework which means you can contribute as well! Follow
  - Use the Google Style docstring format.
  - Store data in JSON, INI or YAML format to eliminate dependencies for other formats.
  - Create an `__init__.py` file for sub-modules.
+ - Don't use f-strings as they aren't supported in older versions of Python.
 
 ## Roadmap
 - [ ] Full coverage of Reddit's API.
