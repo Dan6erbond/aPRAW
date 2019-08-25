@@ -1,0 +1,158 @@
+{
+    "kind": "UserList",
+    "data": {
+        "children": [
+            {
+                "name": "EquivalentSelf",
+                "author_flair_text": "Mod",
+                "mod_permissions": [
+                    "all"
+                ],
+                "date": 1546319222.0,
+                "rel_id": "rb_14e61we",
+                "id": "t2_wgxciqd",
+                "author_flair_css_class": null
+            },
+            {
+                "name": "Dan6erbond",
+                "author_flair_text": "Mod",
+                "mod_permissions": [
+                    "all"
+                ],
+                "date": 1546336934.0,
+                "rel_id": "rb_14efst3",
+                "id": "t2_11qzch",
+                "author_flair_css_class": null
+            },
+            {
+                "name": "jwnskanzkwk",
+                "author_flair_text": null,
+                "mod_permissions": [
+                    "wiki",
+                    "posts",
+                    "mail",
+                    "config",
+                    "flair"
+                ],
+                "date": 1547493961.0,
+                "rel_id": "rb_152lyez",
+                "id": "t2_qdf0q82",
+                "author_flair_css_class": null
+            },
+            {
+                "name": "mrcarpetmanager",
+                "author_flair_text": "Mod",
+                "mod_permissions": [
+                    "wiki",
+                    "posts",
+                    "access",
+                    "mail",
+                    "flair"
+                ],
+                "date": 1547904328.0,
+                "rel_id": "rb_15ay8wx",
+                "id": "t2_x5q0ex3",
+                "author_flair_css_class": null
+            },
+            {
+                "name": "-AnUngratefulChild-",
+                "author_flair_text": "Mod",
+                "mod_permissions": [
+                    "wiki",
+                    "posts",
+                    "mail",
+                    "flair"
+                ],
+                "date": 1547926213.0,
+                "rel_id": "rb_15bg46z",
+                "id": "t2_14koidvf",
+                "author_flair_css_class": null
+            },
+            {
+                "name": "ChasmOfDarkness",
+                "author_flair_text": null,
+                "mod_permissions": [
+                    "wiki",
+                    "posts",
+                    "mail",
+                    "flair"
+                ],
+                "date": 1549506842.0,
+                "rel_id": "rb_1678am0",
+                "id": "t2_bb3hvwg",
+                "author_flair_css_class": null
+            },
+            {
+                "name": "RepostProtecter",
+                "author_flair_text": null,
+                "mod_permissions": [
+                    "wiki",
+                    "posts",
+                    "mail",
+                    "flair"
+                ],
+                "date": 1549797429.0,
+                "rel_id": "rb_16ctfdc",
+                "id": "t2_2wruu4yk",
+                "author_flair_css_class": null
+            },
+            {
+                "name": "TheManlyShepard",
+                "author_flair_text": null,
+                "mod_permissions": [
+                    "wiki",
+                    "posts",
+                    "mail",
+                    "flair"
+                ],
+                "date": 1549982338.0,
+                "rel_id": "rb_16gn95a",
+                "id": "t2_ynt8wql",
+                "author_flair_css_class": null
+            },
+            {
+                "name": "dry-soup",
+                "author_flair_text": "Mod",
+                "mod_permissions": [
+                    "wiki",
+                    "posts",
+                    "mail",
+                    "flair"
+                ],
+                "date": 1550065985.0,
+                "rel_id": "rb_16icail",
+                "id": "t2_1ego50h9",
+                "author_flair_css_class": null
+            },
+            {
+                "name": "SwiftCross",
+                "author_flair_text": null,
+                "mod_permissions": [
+                    "wiki",
+                    "posts",
+                    "mail",
+                    "flair"
+                ],
+                "date": 1550511100.0,
+                "rel_id": "rb_16qqyau",
+                "id": "t2_z5jpj",
+                "author_flair_css_class": null
+            },
+            {
+                "name": "TheBanhammerBot",
+                "author_flair_text": null,
+                "mod_permissions": [
+                    "wiki",
+                    "posts",
+                    "access",
+                    "mail",
+                    "config"
+                ],
+                "date": 1552372164.0,
+                "rel_id": "rb_17qpal1",
+                "id": "t2_38lk96i0",
+                "author_flair_css_class": null
+            }
+        ]
+    }
+}

@@ -1,0 +1,135 @@
+{
+    "conversation": {
+        "isAuto": true,
+        "objIds": [
+            {
+                "id": "e06y0",
+                "key": "messages"
+            }
+        ],
+        "isRepliable": true,
+        "lastUserUpdate": null,
+        "isInternal": false,
+        "lastModUpdate": "2019-07-04T12:13:34.623962+00:00",
+        "lastUpdated": "2019-07-04T12:13:34.623962+00:00",
+        "authors": [
+            {
+                "isMod": true,
+                "isAdmin": false,
+                "name": "Dan6erbond",
+                "isOp": true,
+                "isParticipant": false,
+                "isHidden": true,
+                "id": 63404657,
+                "isDeleted": false
+            }
+        ],
+        "owner": {
+            "displayName": "JealousAsFuck",
+            "type": "subreddit",
+            "id": "t5_ovu12"
+        },
+        "id": "8t6pl",
+        "isHighlighted": false,
+        "subject": "/u/Jack7119 has been removed as a moderator from r/JealousAsFuck",
+        "participant": {},
+        "state": 0,
+        "lastUnread": null,
+        "numMessages": 1
+    },
+    "messages": {
+        "e06y0": {
+            "body": "<!-- SC_OFF --><div class=\"md\"><p>Jack7119: You have been removed as a moderator from <a href=\"/r/JealousAsFuck\">r/JealousAsFuck</a>.  If you have a question regarding your removal, you can contact the moderator team for <a href=\"/r/JealousAsFuck\">r/JealousAsFuck</a> by replying to this message.</p>\n</div><!-- SC_ON -->",
+            "author": {
+                "isMod": true,
+                "isAdmin": false,
+                "name": "Dan6erbond",
+                "isOp": true,
+                "isParticipant": false,
+                "isHidden": true,
+                "id": 63404657,
+                "isDeleted": false
+            },
+            "isInternal": false,
+            "date": "2019-07-04T12:13:34.623962+00:00",
+            "bodyMarkdown": "Jack7119: You have been removed as a moderator from r/JealousAsFuck.  If you have a question regarding your removal, you can contact the moderator team for r/JealousAsFuck by replying to this message.",
+            "id": "e06y0"
+        }
+    },
+    "user": {
+        "recentComments": {
+            "t1_ejexdsk": {
+                "comment": "I\u2019m just a little lost on what you were saying",
+                "date": "2019-03-26T13:12:25.448472+00:00",
+                "permalink": "https://www.reddit.com/r/JealousAsFuck/comments/arau9w/jackson_pollock_no5_1948_guess_the_price_for_an/ejexdsk/",
+                "title": "Jackson Pollock \u2013 No.5, 1948. Guess the price for an OG Pollock... well you were prob far off this one is worth 140 million USD I can fucking do this art pisses me off and makes me so jealous of artists!"
+            },
+            "t1_eh2mwdj": {
+                "comment": "I will buddy I don\u2019t appreciate toxic ness in my comments tho ",
+                "date": "2019-02-23T01:21:09.666189+00:00",
+                "permalink": "https://www.reddit.com/r/JealousAsFuck/comments/arau9w/jackson_pollock_no5_1948_guess_the_price_for_an/eh2mwdj/",
+                "title": "Jackson Pollock \u2013 No.5, 1948. Guess the price for an OG Pollock... well you were prob far off this one is worth 140 million USD I can fucking do this art pisses me off and makes me so jealous of artists!"
+            },
+            "t1_ehlgtwb": {
+                "comment": "\u201cFantastic\u201d is a subjective term ",
+                "date": "2019-03-02T00:58:47.791791+00:00",
+                "permalink": "https://www.reddit.com/r/JealousAsFuck/comments/arau9w/jackson_pollock_no5_1948_guess_the_price_for_an/ehlgtwb/",
+                "title": "Jackson Pollock \u2013 No.5, 1948. Guess the price for an OG Pollock... well you were prob far off this one is worth 140 million USD I can fucking do this art pisses me off and makes me so jealous of artists!"
+            }
+        },
+        "muteStatus": {
+            "isMuted": false,
+            "endDate": null,
+            "reason": ""
+        },
+        "name": "Jack7119",
+        "created": "2019-01-17T14:40:00.101322+00:00",
+        "banStatus": {
+            "endDate": null,
+            "reason": "",
+            "isBanned": false,
+            "isPermanent": false
+        },
+        "isSuspended": false,
+        "isShadowBanned": false,
+        "recentPosts": {
+            "t3_atjwtq": {
+                "date": "2019-02-22T16:57:22.069505+00:00",
+                "permalink": "https://www.reddit.com/r/JealousAsFuck/comments/atjwtq/trueeee/",
+                "title": "Trueeee"
+            },
+            "t3_atyqn1": {
+                "date": "2019-02-23T18:59:09.161119+00:00",
+                "permalink": "https://www.reddit.com/r/JealousAsFuck/comments/atyqn1/oh_my_gosh/",
+                "title": "Oh my gosh"
+            },
+            "t3_atjxru": {
+                "date": "2019-02-22T16:59:31.965180+00:00",
+                "permalink": "https://www.reddit.com/r/JealousAsFuck/comments/atjxru/tlc_and_itll_be_evenpertier/",
+                "title": "TLC and it\u2019ll be evenpertier"
+            }
+        },
+        "recentConvos": {
+            "8t6pl": {
+                "date": "0001-01-01T00:00:00+00:00",
+                "permalink": "https://mod.reddit.com/mail/perma/8t6pl",
+                "id": "8t6pl",
+                "subject": "/u/Jack7119 has been removed as a moderator from r/JealousAsFuck"
+            },
+            "6mvtn": {
+                "date": "2019-01-28T16:48:37.537440+00:00",
+                "permalink": "https://mod.reddit.com/mail/perma/6mvtn",
+                "id": "6mvtn",
+                "subject": "Need a Mod?"
+            },
+            "6pf1h": {
+                "date": "0001-01-01T00:00:00+00:00",
+                "permalink": "https://mod.reddit.com/mail/perma/6pf1h",
+                "id": "6pf1h",
+                "subject": "invitation to moderate /r/JealousAsFuck"
+            }
+        },
+        "id": "t2_30n0uwnm"
+    },
+    "modActions": {}
+}

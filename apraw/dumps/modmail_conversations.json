@@ -1,0 +1,359 @@
+{
+    "conversations": {
+        "8ncdq": {
+            "isAuto": true,
+            "objIds": [
+                {
+                    "id": "dr2gy",
+                    "key": "messages"
+                }
+            ],
+            "isRepliable": true,
+            "lastUserUpdate": "2019-06-22T21:37:20.671746+00:00",
+            "isInternal": false,
+            "lastModUpdate": "2019-06-22T21:07:19.780217+00:00",
+            "lastUpdated": "2019-06-22T21:37:20.671746+00:00",
+            "authors": [
+                {
+                    "isMod": false,
+                    "isAdmin": false,
+                    "name": "[deleted]",
+                    "isOp": false,
+                    "isParticipant": false,
+                    "isHidden": false,
+                    "id": "",
+                    "isDeleted": true
+                },
+                {
+                    "isMod": true,
+                    "isAdmin": false,
+                    "name": "jwnskanzkwk",
+                    "isOp": false,
+                    "isParticipant": false,
+                    "isHidden": true,
+                    "id": 57407629250,
+                    "isDeleted": false
+                },
+                {
+                    "isMod": false,
+                    "isAdmin": false,
+                    "name": "[deleted]",
+                    "isOp": false,
+                    "isParticipant": false,
+                    "isHidden": false,
+                    "id": "",
+                    "isDeleted": true
+                },
+                {
+                    "isMod": true,
+                    "isAdmin": false,
+                    "name": "EquivalentSelf",
+                    "isOp": true,
+                    "isParticipant": false,
+                    "isHidden": true,
+                    "id": 70680505045,
+                    "isDeleted": false
+                }
+            ],
+            "owner": {
+                "displayName": "JealousAsFuck",
+                "type": "subreddit",
+                "id": "t5_ovu12"
+            },
+            "id": "8ncdq",
+            "isHighlighted": false,
+            "subject": "/u/MrsDonaldTrump9 has been removed as a moderator from r/JealousAsFuck",
+            "participant": {
+                "isMod": false,
+                "isAdmin": false,
+                "name": "[deleted]",
+                "isOp": false,
+                "isParticipant": false,
+                "isHidden": false,
+                "id": "",
+                "isDeleted": true
+            },
+            "state": 1,
+            "lastUnread": null,
+            "numMessages": 4
+        },
+        "8t6pl": {
+            "isAuto": true,
+            "objIds": [
+                {
+                    "id": "e06y0",
+                    "key": "messages"
+                }
+            ],
+            "isRepliable": true,
+            "lastUserUpdate": null,
+            "isInternal": false,
+            "lastModUpdate": "2019-07-04T12:13:34.623962+00:00",
+            "lastUpdated": "2019-07-04T12:13:34.623962+00:00",
+            "authors": [
+                {
+                    "isMod": true,
+                    "isAdmin": false,
+                    "name": "Dan6erbond",
+                    "isOp": true,
+                    "isParticipant": false,
+                    "isHidden": true,
+                    "id": 63404657,
+                    "isDeleted": false
+                }
+            ],
+            "owner": {
+                "displayName": "JealousAsFuck",
+                "type": "subreddit",
+                "id": "t5_ovu12"
+            },
+            "id": "8t6pl",
+            "isHighlighted": false,
+            "subject": "/u/Jack7119 has been removed as a moderator from r/JealousAsFuck",
+            "participant": {
+                "isMod": false,
+                "isAdmin": false,
+                "name": "Jack7119",
+                "isOp": false,
+                "isParticipant": true,
+                "isHidden": true,
+                "id": 236484656338,
+                "isDeleted": false
+            },
+            "state": 0,
+            "lastUnread": null,
+            "numMessages": 1
+        },
+        "8n6r3": {
+            "isAuto": false,
+            "objIds": [
+                {
+                    "id": "dqrfk",
+                    "key": "messages"
+                }
+            ],
+            "isRepliable": true,
+            "lastUserUpdate": "2019-06-22T00:35:26.362196+00:00",
+            "isInternal": false,
+            "lastModUpdate": "2019-06-22T11:36:21.256567+00:00",
+            "lastUpdated": "2019-06-22T11:36:21.256567+00:00",
+            "authors": [
+                {
+                    "isMod": true,
+                    "isAdmin": false,
+                    "name": "jwnskanzkwk",
+                    "isOp": false,
+                    "isParticipant": false,
+                    "isHidden": false,
+                    "id": 57407629250,
+                    "isDeleted": false
+                },
+                {
+                    "isMod": false,
+                    "isAdmin": false,
+                    "name": "[deleted]",
+                    "isOp": false,
+                    "isParticipant": false,
+                    "isHidden": false,
+                    "id": "",
+                    "isDeleted": true
+                },
+                {
+                    "isMod": false,
+                    "isAdmin": false,
+                    "name": "neatbuilding",
+                    "isOp": true,
+                    "isParticipant": true,
+                    "isHidden": false,
+                    "id": 286410431635,
+                    "isDeleted": false
+                }
+            ],
+            "owner": {
+                "displayName": "JealousAsFuck",
+                "type": "subreddit",
+                "id": "t5_ovu12"
+            },
+            "id": "8n6r3",
+            "isHighlighted": false,
+            "subject": "/u/MrsDonaldTrump9's account has been compromised",
+            "participant": {
+                "isMod": false,
+                "isAdmin": false,
+                "name": "neatbuilding",
+                "isOp": true,
+                "isParticipant": true,
+                "isHidden": false,
+                "id": 286410431635,
+                "isDeleted": false
+            },
+            "state": 1,
+            "lastUnread": null,
+            "numMessages": 3
+        },
+        "6x6kb": {
+            "isAuto": false,
+            "objIds": [
+                {
+                    "id": "b6xoe",
+                    "key": "messages"
+                }
+            ],
+            "isRepliable": true,
+            "lastUserUpdate": "2019-02-26T11:16:13.648308+00:00",
+            "isInternal": false,
+            "lastModUpdate": "2019-02-26T07:43:16.905317+00:00",
+            "lastUpdated": "2019-02-26T11:16:13.648308+00:00",
+            "authors": [
+                {
+                    "isMod": false,
+                    "isAdmin": false,
+                    "name": "JimmyTheChick",
+                    "isOp": true,
+                    "isParticipant": true,
+                    "isHidden": false,
+                    "id": 184431359317,
+                    "isDeleted": false
+                },
+                {
+                    "isMod": true,
+                    "isAdmin": false,
+                    "name": "EquivalentSelf",
+                    "isOp": false,
+                    "isParticipant": false,
+                    "isHidden": false,
+                    "id": 70680505045,
+                    "isDeleted": false
+                },
+                {
+                    "isMod": false,
+                    "isAdmin": false,
+                    "name": "JimmyTheChick",
+                    "isOp": true,
+                    "isParticipant": true,
+                    "isHidden": false,
+                    "id": 184431359317,
+                    "isDeleted": false
+                },
+                {
+                    "isMod": true,
+                    "isAdmin": false,
+                    "name": "Dan6erbond",
+                    "isOp": false,
+                    "isParticipant": false,
+                    "isHidden": false,
+                    "id": 63404657,
+                    "isDeleted": false
+                },
+                {
+                    "isMod": false,
+                    "isAdmin": false,
+                    "name": "JimmyTheChick",
+                    "isOp": true,
+                    "isParticipant": true,
+                    "isHidden": false,
+                    "id": 184431359317,
+                    "isDeleted": false
+                }
+            ],
+            "owner": {
+                "displayName": "JealousAsFuck",
+                "type": "subreddit",
+                "id": "t5_ovu12"
+            },
+            "id": "6x6kb",
+            "isHighlighted": false,
+            "subject": "Questions about moderating",
+            "participant": {
+                "isMod": false,
+                "isAdmin": false,
+                "name": "JimmyTheChick",
+                "isOp": true,
+                "isParticipant": true,
+                "isHidden": false,
+                "id": 184431359317,
+                "isDeleted": false
+            },
+            "state": 1,
+            "lastUnread": null,
+            "numMessages": 5
+        }
+    },
+    "messages": {
+        "dr2gy": {
+            "body": "<!-- SC_OFF --><div class=\"md\"><p>What did he do? My brothers friend had my laptop and deleted all the posts. all I know is I now moderate no subreddits</p>\n</div><!-- SC_ON -->",
+            "author": {
+                "isMod": false,
+                "isAdmin": false,
+                "name": "[deleted]",
+                "isOp": false,
+                "isParticipant": false,
+                "isHidden": false,
+                "id": "",
+                "isDeleted": true
+            },
+            "isInternal": false,
+            "date": "2019-06-22T21:37:20.671746+00:00",
+            "bodyMarkdown": "What did he do? My brothers friend had my laptop and deleted all the posts. all I know is I now moderate no subreddits",
+            "id": "dr2gy"
+        },
+        "b6xoe": {
+            "body": "<!-- SC_OFF --><div class=\"md\"><p>No, I haven&#39;t been added yet</p>\n</div><!-- SC_ON -->",
+            "author": {
+                "isMod": false,
+                "isAdmin": false,
+                "name": "JimmyTheChick",
+                "isOp": true,
+                "isParticipant": true,
+                "isHidden": false,
+                "id": 184431359317,
+                "isDeleted": false
+            },
+            "isInternal": false,
+            "date": "2019-02-26T11:16:13.648308+00:00",
+            "bodyMarkdown": "No, I haven't been added yet",
+            "id": "b6xoe"
+        },
+        "e06y0": {
+            "body": "<!-- SC_OFF --><div class=\"md\"><p>Jack7119: You have been removed as a moderator from <a href=\"/r/JealousAsFuck\">r/JealousAsFuck</a>.  If you have a question regarding your removal, you can contact the moderator team for <a href=\"/r/JealousAsFuck\">r/JealousAsFuck</a> by replying to this message.</p>\n</div><!-- SC_ON -->",
+            "author": {
+                "isMod": true,
+                "isAdmin": false,
+                "name": "Dan6erbond",
+                "isOp": true,
+                "isParticipant": false,
+                "isHidden": true,
+                "id": 63404657,
+                "isDeleted": false
+            },
+            "isInternal": false,
+            "date": "2019-07-04T12:13:34.623962+00:00",
+            "bodyMarkdown": "Jack7119: You have been removed as a moderator from r/JealousAsFuck.  If you have a question regarding your removal, you can contact the moderator team for r/JealousAsFuck by replying to this message.",
+            "id": "e06y0"
+        },
+        "dqrfk": {
+            "body": "<!-- SC_OFF --><div class=\"md\"><p>Thanks for informing us</p>\n</div><!-- SC_ON -->",
+            "author": {
+                "isMod": true,
+                "isAdmin": false,
+                "name": "jwnskanzkwk",
+                "isOp": false,
+                "isParticipant": false,
+                "isHidden": false,
+                "id": 57407629250,
+                "isDeleted": false
+            },
+            "isInternal": false,
+            "date": "2019-06-22T11:36:21.256567+00:00",
+            "bodyMarkdown": "Thanks for informing us",
+            "id": "dqrfk"
+        }
+    },
+    "viewerId": "t2_11qzch",
+    "conversationIds": [
+        "8t6pl",
+        "8ncdq",
+        "8n6r3",
+        "6x6kb"
+    ]
+}
