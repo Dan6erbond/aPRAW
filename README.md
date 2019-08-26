@@ -1,7 +1,7 @@
 # aPRAW
 Asynchronous Python Reddit API Wrapper by [Dan6erbond](https://dan6erbond.github.io)
 
-**aPRAW** is an asynchronous API wrapper written for the Reddit API that builds on the idea of [PRAW](https://github.com/praw-dev/praw) in many ways. It follows a very similar design, but adds features such as unlimited listings and, most importantly, support for asynchronous requests. This allows the library to be used in scenarios where the requests can take longer (such as with those unlimited listings) and not block other tasks.
+**aPRAW** is an asynchronous API wrapper written for the Reddit API that builds on the idea of [PRAW](https://github.com/praw-dev/praw) in many ways. It follows a very similar design, but adds features such as unlimited listings and, most importantly, support for asynchronous requests. This allows the library to be used in scenarios where the requests can take longer (such as with those unlimited listings and streams) and not block other tasks.
 
 ## Key Features
  - Asynchronous HTTPS requests to the Reddit API.
