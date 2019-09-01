@@ -23,9 +23,15 @@ async def test_reddit(reddit):
 
 async def test_redditor(reddit):
     redditor = await reddit.redditor("dan6erbond")
-    print(await redditor.message("test", "test"))
-    async for sub in redditor.moderated_subreddits():
-        print(sub)
+    # print(await redditor.message("test", "test"))
+    # async for sub in redditor.moderated_subreddits():
+        # print(sub)
+    async for c in redditor.comments():
+        s = await c.submission()
+        print(await s.subreddit())
+
+    async for s in redditor.submissions():
+        print(await s.subreddit())
 
 
 async def test_submission(reddit):
@@ -77,6 +83,7 @@ async def test_subreddits(reddit):
         ids.append(s.id)
         print("{}:".format(len(ids)), s, "Subscribers:", s.subscribers)
 
+
 async def test_modmail(reddit):
     subreddit = await reddit.subreddit("jealousasfuck")
     async for c in subreddit.modmail.conversations():
@@ -92,10 +99,6 @@ tests = [test_subscan, test_reddit, test_redditor, test_subreddit, test_subreddi
 
 async def run_tests():
     reddit = apraw.Reddit("D6B")
-    # subreddit = await reddit.subreddit("jealousasfuck")
-    # print(json.dumps(await subreddit.modmail.conversations(), indent=4))
-    # conversation = await reddit.get_request("/api/mod/conversations/{}".format("8t6pl"))
-    # print(json.dumps(conversation, indent=4))
     i = 0
     for test in tests:
         print("{}:".format(i), test)
