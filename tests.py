@@ -4,21 +4,29 @@ import re
 import apraw
 import async_subscan
 import subscan
+from datetime import datetime
 
 
 async def test_subscan(reddit):
     print("Async")
+    time_started = datetime.now()
     async for sub in async_subscan.get_eligible():
-        print(sub)
+        if await sub.is_dead():
+            print(sub)
+    print(datetime.now() - time_started)
+    '''
     print("Normal")
     for sub in subscan.get_eligible():
         print(sub)
+        '''
 
 
 async def test_reddit(reddit):
-    print(await reddit.get_request_headers())
-    print(await reddit.message("dan6erbond", "test", "test"))
-    print(await reddit.message("/r/jealousasfuck", "test", "test"))
+    # print(await reddit.get_request_headers())
+    # print(await reddit.message("dan6erbond", "test", "test"))
+    # print(await reddit.message("/r/jealousasfuck", "test", "test"))
+    print(await reddit.submission("db8k9e"))
+    await reddit.submission(url="https://www.reddit.com/r/RandomActsOfGaming/comments/db8k9e/uplay_ghost_recon_wildlands")
 
 
 async def test_redditor(reddit):
@@ -39,6 +47,16 @@ async def test_submission(reddit):
     async for s in subreddit.new(1):
         print(await s.author())
         print(await s.subreddit())
+    s = await reddit.submission("db8k9e")
+    print(s.title)
+    i = 0
+    ids = set()
+    async for c in s.comments(limit=None):
+        i += 1
+        ids.add(c.id)
+
+    print("Comments found:", i)
+    print("Unique comments:", len(ids))
 
 
 async def test_comment(reddit):
@@ -46,6 +64,7 @@ async def test_comment(reddit):
     async for s in subreddit.new(1):
         async for c in s.comments():
             print(await c.author())
+            c._submission = None
             sub = await c.submission()
             print(sub.id == s.id)
             break
@@ -55,6 +74,7 @@ async def test_subreddit(reddit):
     # subreddit = await reddit.subreddit("test")
     # print(await subreddit.message("test", "test"))
     subreddit = await reddit.subreddit("jealousasfuck")
+    '''
     ids = list()
     duplicates = False
     async for s in subreddit.new(None):
@@ -66,6 +86,8 @@ async def test_subreddit(reddit):
         print("Test passed.")
     else:
         print("Test failed.")
+        '''
+    await subreddit.mod.log()
     # async for mod in subreddit.moderators():
     # print(dir(await mod.redditor()))
 
