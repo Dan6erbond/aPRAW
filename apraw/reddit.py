@@ -1,17 +1,18 @@
+import configparser
 from datetime import datetime
 from datetime import timedelta
 
-import configparser
 import aiohttp
 
-from .subreddits import Subreddits
-from .subreddit import Subreddit
 from .redditor import Redditor
+from .submission import Submission
+from .subreddit import Subreddit
 
 
 class Reddit:
 
-    def __init__(self, praw_key="", username="", password="", client_id="", client_secret="", user_agent="aPRAW by Dan6erbond"):
+    def __init__(self, praw_key="", username="", password="", client_id="", client_secret="",
+                 user_agent="aPRAW by Dan6erbond"):
         if praw_key != "":
             config = configparser.ConfigParser()
             config.read("praw.ini")
@@ -36,6 +37,7 @@ class Reddit:
         self.message_kind = "t4"
         self.subreddit_kind = "t5"
         self.award_kind = "t6"
+        self.modaction_kind = "modaction"
 
         self.subreddits = Subreddits(self)
 
@@ -65,12 +67,14 @@ class Reddit:
             "User-Agent": self.user_agent
         }
 
-    async def get_request(self, endpoint, **kwargs):
+    async def get_request(self, endpoint="", **kwargs):
         kwargs["raw_json"] = 1
         params = ["{}={}".format(k, kwargs[k]) for k in kwargs]
+
         url = "https://oauth.reddit.com{}?{}".format(endpoint, "&".join(params))
 
         async with aiohttp.ClientSession() as session:
+            # print(url)
             headers = await self.get_request_headers()
             async with session.get(url, headers=headers) as resp:
                 return await resp.json()
@@ -85,17 +89,24 @@ class Reddit:
             if len(req["data"]["children"]) <= 0:
                 break
             for i in req["data"]["children"]:
-                if i["kind"] in [self.link_kind, self.subreddit_kind]:
+                if i["kind"] in [self.link_kind, self.subreddit_kind, self.comment_kind]:
                     last = i["data"]["name"]
+                elif i["kind"] == self.modaction_kind:
+                    last = i["data"]["id"]
+
                 if limit is not None: limit -= 1
                 yield i
             if limit is not None and limit < 1:
                 break
 
-    async def post_request(self, endpoint, data, **kwargs):
+    async def post_request(self, endpoint="", url="", data={}, **kwargs):
         kwargs["raw_json"] = 1
         params = ["{}={}".format(k, kwargs[k]) for k in kwargs]
-        url = "https://oauth.reddit.com{}?{}".format(endpoint, "&".join(params))
+
+        if endpoint != "":
+            url = "https://oauth.reddit.com{}?{}".format(endpoint, "&".join(params))
+        elif url != "":
+            url = "{}?{}".format(url, "&".join(params))
 
         async with aiohttp.ClientSession() as session:
             headers = await self.get_request_headers()
@@ -109,6 +120,16 @@ class Reddit:
         except Exception as e:
             # print("No Subreddit data loaded from:", resp)
             return None
+
+    async def submission(self, id="", url=""):
+        if id != "":
+            id = self.link_kind + "_" + id.replace(self.link_kind + "_", "")
+            link = await self.get_request("/api/info", id=id)
+            return Submission(self, link["data"]["children"][0]["data"])
+        elif url != "":
+            link = await self.get_request("/api/info", url=url)
+            return Submission(self, link["data"]["children"][0]["data"])
+
 
     async def redditor(self, username):
         resp = await self.get_request("/user/{}/about".format(username))
@@ -125,5 +146,16 @@ class Reddit:
             "to": to
         }
         if from_sr != "": data["from_sr"] = from_sr
-        resp = await self.post_request("/api/compose", data)
+        resp = await self.post_request("/api/compose", data=data)
         return resp["success"]
+
+
+class Subreddits:
+
+    def __init__(self, reddit):
+        self.reddit = reddit
+
+    async def new(self, limit=25, **kwargs):
+        async for s in self.reddit.get_listing("/subreddits/new", limit, **kwargs):
+            if s["kind"] == self.reddit.subreddit_kind:
+                yield Subreddit(self.reddit, s["data"])
