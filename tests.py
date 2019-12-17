@@ -96,14 +96,15 @@ async def test_subreddit(reddit):
     async for ma in subreddit.mod.log():
         print(ma)
 
+    subreddit = await reddit.subreddit("askreddit")
     ids = list()
     async for s in subreddit.stream.submissions():
+        print(s.id)
         if s.id in ids:
             print("Duplicate found:", s.id)
             print(len(ids), " submissions found.")
             break
         ids.append(s.id)
-        print(s)
     # async for mod in subreddit.moderators():
     # print(dir(await mod.redditor()))
 

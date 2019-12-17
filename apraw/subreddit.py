@@ -58,30 +58,32 @@ class SubredditStream():
         # TODO: implement
         pass
 
-    async def submissions(self, limit=100, max_wait=16, **kwargs):
-        while True:
-            wait = 0
-            ids = list()
+    async def submissions(self, max_wait=16, **kwargs):
+        wait = 0
+        ids = list()
 
+        while True:
             found = False
-            async for s in self.subreddit.new(limit, **kwargs):
+            async for s in self.subreddit.new(100, **kwargs):
                 if s.id in ids:
                     break
+                if len(ids) >= 301:
+                    ids = ids[1:]
                 ids.append(s.id)
                 found = True
                 yield s
 
-            ids = ids[:100]
-
             if found:
-                wait = 0
+                wait = 1
+            else:
+                wait*=2
+                if wait > max_wait:
+                    wait = 1
 
+            print(wait)
             await asyncio.sleep(wait)
 
-            if not found:
-                wait**2
-                if wait > max_wait:
-                    wait = 0
+
 
 
 class SubredditModerator():
