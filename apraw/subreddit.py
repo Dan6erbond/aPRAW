@@ -38,6 +38,8 @@ class Subreddit:
         async for s in self.reddit.get_listing("/r/{}/new".format(self.display_name), limit, **kwargs):
             if s["kind"] == self.reddit.link_kind:
                 yield Submission(self.reddit, s["data"], subreddit=self)
+            else:
+                print(s)
 
     async def moderators(self, **kwargs):
         req = await self.reddit.get_request("/r/{}/about/moderators".format(self.display_name), **kwargs)
@@ -56,7 +58,7 @@ class SubredditStream():
         # TODO: implement
         pass
 
-    async def submissions(self, limit=100, max_wait=15, **kwargs):
+    async def submissions(self, limit=100, max_wait=16, **kwargs):
         while True:
             wait = 0
             ids = list()
@@ -77,7 +79,7 @@ class SubredditStream():
             await asyncio.sleep(wait)
 
             if not found:
-                wait += 1
+                wait**2
                 if wait > max_wait:
                     wait = 0
 
@@ -149,7 +151,7 @@ class SubredditModeration:
     async def log(self, limit=25, **kwargs):
         async for l in self.subreddit.reddit.get_listing("/r/{}/about/log".format(self.subreddit.display_name),
                                                          limit, **kwargs):
-            print(ModAction(l["data"], self.subreddit))
+            yield ModAction(l["data"], self.subreddit)
 
 
 class ModAction:

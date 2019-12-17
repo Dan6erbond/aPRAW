@@ -80,7 +80,7 @@ async def test_subreddit(reddit):
     # subreddit = await reddit.subreddit("test")
     # print(await subreddit.message("test", "test"))
     subreddit = await reddit.subreddit("jealousasfuck")
-    '''
+
     ids = list()
     duplicates = False
     async for s in subreddit.new(None):
@@ -92,9 +92,17 @@ async def test_subreddit(reddit):
         print("Test passed.")
     else:
         print("Test failed.")
-        '''
-    await subreddit.mod.log()
+
+    async for ma in subreddit.mod.log():
+        print(ma)
+
+    ids = list()
     async for s in subreddit.stream.submissions():
+        if s.id in ids:
+            print("Duplicate found:", s.id)
+            print(len(ids), " submissions found.")
+            break
+        ids.append(s.id)
         print(s)
     # async for mod in subreddit.moderators():
     # print(dir(await mod.redditor()))
