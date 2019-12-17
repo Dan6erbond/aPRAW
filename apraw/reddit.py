@@ -121,15 +121,33 @@ class Reddit:
             # print("No Subreddit data loaded from:", resp)
             return None
 
+    async def info(self, id="", url=""):
+        # TODO: implement
+        pass
+
     async def submission(self, id="", url=""):
         if id != "":
             id = self.link_kind + "_" + id.replace(self.link_kind + "_", "")
             link = await self.get_request("/api/info", id=id)
-            return Submission(self, link["data"]["children"][0]["data"])
+            if link["data"]["children"][0]["kind"] == self.link_kind:
+                return Submission(self, link["data"]["children"][0]["data"])
         elif url != "":
             link = await self.get_request("/api/info", url=url)
-            return Submission(self, link["data"]["children"][0]["data"])
+            if link["data"]["children"][0]["kind"] == self.link_kind:
+                return Submission(self, link["data"]["children"][0]["data"])
+        return None
 
+    async def comment(self, id="", url=""):
+        if id != "":
+            id = self.comment_kind + "_" + id.replace(self.comment_kind + "_", "")
+            comment = await self.get_request("/api/info", id=id)
+            if comment["data"]["children"][0]["kind"] == self.comment_kind:
+                return Comment(self, comment["data"]["children"][0]["data"])
+        elif url != "":
+            comment = await self.get_request("/api/info", url=url)
+            if comment["data"]["children"][0]["kind"] == self.comment_kind:
+                return Comment(self, comment["data"]["children"][0]["data"])
+        return None
 
     async def redditor(self, username):
         resp = await self.get_request("/user/{}/about".format(username))

@@ -30,6 +30,10 @@ class Subreddit:
     def __str__(self):
         return self.display_name
 
+    async def comments(self, limit=25, **kwargs):
+        # TODO: implement
+        pass
+
     async def new(self, limit=25, **kwargs):
         async for s in self.reddit.get_listing("/r/{}/new".format(self.display_name), limit, **kwargs):
             if s["kind"] == self.reddit.link_kind:
