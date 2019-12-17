@@ -1,10 +1,9 @@
 import asyncio
 import re
+from datetime import datetime
 
 import apraw
 import async_subscan
-import subscan
-from datetime import datetime
 
 
 async def test_subscan(reddit):
@@ -26,14 +25,15 @@ async def test_reddit(reddit):
     # print(await reddit.message("dan6erbond", "test", "test"))
     # print(await reddit.message("/r/jealousasfuck", "test", "test"))
     print(await reddit.submission("db8k9e"))
-    await reddit.submission(url="https://www.reddit.com/r/RandomActsOfGaming/comments/db8k9e/uplay_ghost_recon_wildlands")
+    await reddit.submission(
+        url="https://www.reddit.com/r/RandomActsOfGaming/comments/db8k9e/uplay_ghost_recon_wildlands")
 
 
 async def test_redditor(reddit):
     redditor = await reddit.redditor("dan6erbond")
     # print(await redditor.message("test", "test"))
     # async for sub in redditor.moderated_subreddits():
-        # print(sub)
+    # print(sub)
     async for c in redditor.comments():
         s = await c.submission()
         print(await s.subreddit())
@@ -88,6 +88,8 @@ async def test_subreddit(reddit):
         print("Test failed.")
         '''
     await subreddit.mod.log()
+    async for s in subreddit.stream.submissions():
+        print(s)
     # async for mod in subreddit.moderators():
     # print(dir(await mod.redditor()))
 
@@ -125,6 +127,7 @@ async def run_tests():
     for test in tests:
         print("{}:".format(i), test)
         i += 1
+
     while True:
         i = input("Select a test to run: ")
         try:

@@ -1,3 +1,4 @@
+import asyncio
 from datetime import datetime
 
 from .comment import Comment
@@ -11,6 +12,7 @@ class Subreddit:
         self.data = data
         self.mod = SubredditModeration(self)
         self.modmail = SubredditModmail(self)
+        self.stream = SubredditStream(self)
 
         self.id = data["id"]
         self.created_utc = datetime.utcfromtimestamp(data["created_utc"])
@@ -50,22 +52,30 @@ class SubredditStream():
         # TODO: implement
         pass
 
-    async def submissions(self, limit=25, max_wait=5, **kwargs):
+    async def submissions(self, limit=100, max_wait=15, **kwargs):
         while True:
-            wait = 1
+            wait = 0
             ids = list()
 
-            async for s in self.subreddit.new():
+            found = False
+            async for s in self.subreddit.new(limit, **kwargs):
                 if s.id in ids:
                     break
                 ids.append(s.id)
+                found = True
                 yield s
 
             ids = ids[:100]
-            asyncio.sleep(wait)
-            wait += 1
-            if wait > max_wait:
-                wait = 1
+
+            if found:
+                wait = 0
+
+            await asyncio.sleep(wait)
+
+            if not found:
+                wait += 1
+                if wait > max_wait:
+                    wait = 0
 
 
 class SubredditModerator():
