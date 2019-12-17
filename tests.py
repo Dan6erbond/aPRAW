@@ -50,13 +50,19 @@ async def test_submission(reddit):
     s = await reddit.submission("db8k9e")
     print(s.title)
     i = 0
+    parent_i = 0
     ids = set()
-    async for c in s.comments(limit=None):
+    async for c in s.comments():
+        if c.link_id != s.name:
+            print(c)
+        if c.parent_id == s.name:
+            parent_i += 1
         i += 1
         ids.add(c.id)
 
     print("Comments found:", i)
     print("Unique comments:", len(ids))
+    print("Parent-level comments:", parent_i)
 
 
 async def test_comment(reddit):

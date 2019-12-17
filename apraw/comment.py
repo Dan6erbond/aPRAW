@@ -14,6 +14,7 @@ class Comment:
 
         self.edited = data["edited"]
         self.archived = data["archived"]
+        self.link_id = data["link_id"]
         self.parent_id = data["parent_id"]
         self.score = data["score"]
         self.body = data["body"]
