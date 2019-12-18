@@ -1,9 +1,12 @@
+from .endpoints import API_PATH
+
+
 class SubredditModmail:
     def __init__(self, subreddit):
         self.subreddit = subreddit
 
     async def conversations(self):
-        req = await self.subreddit.reddit.get_request("/api/mod/conversations", entity=self.subreddit.display_name)
+        req = await self.subreddit.reddit.get_request(API_PATH["modmail_conversations"], entity=self.subreddit.display_name)
         for id in req["conversations"]:
             yield ModmailConversation(self.subreddit.reddit, req["conversations"][id])
 
@@ -46,7 +49,7 @@ class ModmailConversation:
 
     async def full_data(self):
         if self._data is None:
-            self._data = await self.reddit.get_request("/api/mod/conversations/{}".format(self.id))
+            self._data = await self.reddit.get_request(API_PATH["modmail_conversation"].format(self.id))
         return self._data
 
 class ModmailMessage:
@@ -69,3 +72,4 @@ class ModmailMessage:
             else:
                 return None
         return self._author
+        

@@ -1,5 +1,8 @@
 from datetime import datetime
 
+from .endpoints import API_PATH
+
+
 class Comment:
 
     def __init__(self, reddit, data, submission=None, author=None):
@@ -31,7 +34,7 @@ class Comment:
 
     async def submission(self):
         if self._submission is None:
-            link = await self.reddit.get_request("/api/info", id=self.data["link_id"])
+            link = await self.reddit.get_request(API_PATH["info"], id=self.data["link_id"])
             from .submission import Submission
             self._submission = Submission(self.reddit, link["data"]["children"][0]["data"])
         return self._submission
