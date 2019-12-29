@@ -2,6 +2,8 @@ from datetime import datetime
 
 from .comment import Comment
 
+from .endpoints import API_PATH
+
 
 class Submission:
 
@@ -39,7 +41,7 @@ class Submission:
     async def full_data(self):
         if self._full_data is None:
             sub = await self.subreddit()
-            self._full_data = await self.reddit.get_request("/r/{}/comments/{}".format(sub.display_name, self.id))
+            self._full_data = await self.reddit.get_request(API_PATH["subreddit"].format(sub.display_name, self.id))
         return self._full_data
 
     async def comments(self, reload=False, **kwargs):
@@ -62,7 +64,7 @@ class Submission:
             cs = children[:100]
             children = children[100:]
 
-            data = await self.reddit.get_request("/api/morechildren", children=",".join(cs), link_id=self.name)
+            data = await self.reddit.get_request(API_PATH["morechildren"], children=",".join(cs), link_id=self.name)
             for l in data["jquery"]:
                 for _l in l:
                     if isinstance(_l, list):
@@ -83,3 +85,4 @@ class Submission:
         if self._author is None:
             self._author = await self.reddit.redditor(self.data["author"])
         return self._author
+        
