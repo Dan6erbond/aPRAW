@@ -14,7 +14,7 @@ aPRAW is an open-source framework which means you can contribute as well! Follow
  - Class names must be pascal-case. (eg. `ClassName`)
  - Use the OOP approach; create classes when it makes sense.
  - Document as much as you can, preferably with inline comments.
- - Use the Google Style docstring format.
+ - Use the reST docstring format.
  - Store data in JSON, INI or YAML format to eliminate dependencies for other formats.
  - Create an `__init__.py` file for sub-modules.
  - Don't use f-strings as they aren't supported in older versions of Python.
