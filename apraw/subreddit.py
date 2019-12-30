@@ -13,13 +13,6 @@ class Subreddit:
         self.mod = SubredditModeration(self)
         self.modmail = SubredditModmail(self)
 
-        from .listing_generator import ListingGenerator
-        self.comments = ListingGenerator(self.reddit, API_PATH["subreddit"].format(self.display_name) + "/comments")
-        self.new = ListingGenerator(self.reddit, API_PATH["subreddit"].format(self.display_name) + "/new")
-        self.hot = ListingGenerator(self.reddit, API_PATH["subreddit"].format(self.display_name) + "/hot")
-        self.rising = ListingGenerator(self.reddit, API_PATH["subreddit"].format(self.display_name) + "/rising")
-        self.top = ListingGenerator(self.reddit, API_PATH["subreddit"].format(self.display_name) + "/top")
-
         self.id = data["id"]
         self.created_utc = datetime.utcfromtimestamp(data["created_utc"])
 
@@ -33,19 +26,15 @@ class Subreddit:
         self.user_is_subscribed = data["user_is_subscriber"]
         self.user_is_moderator = data["user_is_moderator"]
 
+        from .listing_generator import ListingGenerator
+        self.comments = ListingGenerator(self.reddit, "/r/{}/comments".format(self.display_name))
+        self.new = ListingGenerator(self.reddit, "/r/{}/new".format(self.display_name))
+        self.hot = ListingGenerator(self.reddit, "/r/{}/hot".format(self.display_name))
+        self.rising = ListingGenerator(self.reddit, "/r/{}/rising".format(self.display_name))
+        self.top = ListingGenerator(self.reddit, "/r/{}/top".format(self.display_name))
+
     def __str__(self):
         return self.display_name
-
-    async def comments(self, limit=25, **kwargs):
-        # TODO: implement
-        pass
-
-    async def new(self, limit=25, **kwargs):
-        async for s in self.reddit.get_listing("/r/{}/new".format(self.display_name), limit, **kwargs):
-            if s["kind"] == self.reddit.link_kind:
-                yield Submission(self.reddit, s["data"], subreddit=self)
-            else:
-                print(s)
 
     async def moderators(self, **kwargs):
         req = await self.reddit.get_request("/r/{}/about/moderators".format(self.display_name), **kwargs)

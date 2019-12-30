@@ -83,19 +83,23 @@ async def test_subreddit(reddit):
 
     ids = list()
     duplicates = False
-    async for s in subreddit.new.get(None):
+    async for s in subreddit.new(None):
         if s.id in ids:
             duplicates = True
             break
-        print(type(s))
+        # print(type(s))
         ids.append(s.id)
     if len(ids) > 0 and not duplicates:
-        print("Test passed.")
+        print("Test passed, {} posts returned.".format(len(ids)))
     else:
-        print("Test failed.")
+        print("Test failed, {} posts returned.".format(len(ids)))
 
+    ids = list()
     async for ma in subreddit.mod.log():
-        print(ma)
+        ids.append(ma.id)
+    print("{} mod actions returned.".format(len(ids)))
+
+    return
 
     subreddit = await reddit.subreddit("askreddit")
     ids = list()

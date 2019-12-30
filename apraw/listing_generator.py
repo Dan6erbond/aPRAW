@@ -13,8 +13,10 @@ class ListingGenerator:
         self.max_wait = max_wait
         self.kind_filter = kind_filter
 
-    async def get(self, limit, **kwargs):
+    async def get(self, limit=25, **kwargs):
+        reddit = self.reddit
         last = None
+
         while True:
             kwargs["limit"] = limit if limit is not None else 100
             if last is not None:
@@ -34,7 +36,7 @@ class ListingGenerator:
                     continue
 
                 if i["kind"] == reddit.link_kind:
-                    yield Submission(self.reddit, i["data"])
+                    yield Submission(reddit, i["data"])
                 elif i["kind"] == reddit.subreddit_kind:
                     yield Subreddit(self.reddit, i["data"])
                 elif i["kind"] == reddit.comment_kind:
@@ -43,6 +45,8 @@ class ListingGenerator:
                     yield ModAction(self.reddit, i["data"])
             if limit is not None and limit < 1:
                 break
+
+    __call__ = get
 
     async def stream(self, **kwargs):
         wait = 0
@@ -66,5 +70,4 @@ class ListingGenerator:
                 if wait > self.max_wait:
                     wait = 1
 
-            print(wait)
             await asyncio.sleep(wait)

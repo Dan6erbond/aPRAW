@@ -5,7 +5,6 @@ from datetime import timedelta
 
 import aiohttp
 
-from .endpoints import API_PATH
 from .redditor import Redditor
 from .submission import Submission
 from .subreddit import Subreddit
@@ -42,7 +41,6 @@ class Reddit:
         self.modaction_kind = "modaction"
 
         self.subreddits = Subreddits(self)
-        self.user = User(self)
 
         self.access_data = None
         self.token_expires = datetime.now()
