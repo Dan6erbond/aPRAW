@@ -117,7 +117,7 @@ class Reddit:
                 return await resp.json()
 
     async def subreddit(self, display_name):
-        resp = await self.get_request(API_PATH["subreddit_about"].format(subreddit=display_name))
+        resp = await self.get_request("/r/{}/about".format(display_name))
         try:
             return Subreddit(self, resp["data"])
         except Exception as e:
@@ -143,17 +143,17 @@ class Reddit:
     async def comment(self, id="", url=""):
         if id != "":
             id = self.comment_kind + "_" + id.replace(self.comment_kind + "_", "")
-            comment = await self.get_request(API_PATH["info"], id=id)
+            comment = await self.get_request("/api/info", id=id)
             if comment["data"]["children"][0]["kind"] == self.comment_kind:
                 return Comment(self, comment["data"]["children"][0]["data"])
         elif url != "":
-            comment = await self.get_request(API_PATH["info"], url=url)
+            comment = await self.get_request("/api/info", url=url)
             if comment["data"]["children"][0]["kind"] == self.comment_kind:
                 return Comment(self, comment["data"]["children"][0]["data"])
         return None
 
     async def redditor(self, username):
-        resp = await self.get_request(API_PATH["user_about"].format(username))
+        resp = await self.get_request("/user/{}/about".format(username))
         try:
             return Redditor(self, resp["data"])
         except Exception as e:
@@ -167,7 +167,7 @@ class Reddit:
             "to": to
         }
         if from_sr != "": data["from_sr"] = from_sr
-        resp = await self.post_request(API_PATH["compose"], data=data)
+        resp = await self.post_request("/api/compose", data=data)
         return resp["success"]
 
 
@@ -176,51 +176,7 @@ class Subreddits:
     def __init__(self, reddit):
         self.reddit = reddit
 
-    async def default(self, limit=25, **kwargs):
-        async for s in self.reddit.get_listing(API_PATH["subreddits_default"], limit, **kwargs):
-            if s["kind"] == self.reddit.subreddit_kind:
-                yield Subreddit(self.reddit, s["data"])
-
-    async def gold(self, limit=25, **kwargs):
-        async for s in self.reddit.get_listing(API_PATH["subreddits_gold"], limit, **kwargs):
-            if s["kind"] == self.reddit.subreddit_kind:
-                yield Subreddit(self.reddit, s["data"])
-
     async def new(self, limit=25, **kwargs):
-        async for s in self.reddit.get_listing(API_PATH["subreddits_new"], limit, **kwargs):
-            if s["kind"] == self.reddit.subreddit_kind:
-                yield Subreddit(self.reddit, s["data"])
-
-    async def popular(self, limit=25, **kwargs):
-        async for s in self.reddit.get_listing(API_PATH["subreddits_popular"], limit, **kwargs):
-            if s["kind"] == self.reddit.subreddit_kind:
-                yield Subreddit(self.reddit, s["data"])
-
-    async def search(self, limit=25, **kwargs):
-        async for s in self.reddit.get_listing(API_PATH["subreddits_search"], limit, **kwargs):
-            if s["kind"] == self.reddit.subreddit_kind:
-                yield Subreddit(self.reddit, s["data"])
-
-
-class User:
-
-    def __init__(self, reddit):
-        self.reddit = reddit
-
-    async def __call__(self, username):
-        return await self.reddit.redditor(username)
-
-    async def mine_contributor(self, limit=25, **kwargs):
-        async for s in self.reddit.get_listing(API_PATH["my_contributor"], limit, **kwargs):
-            if s["kind"] == self.reddit.subreddit_kind:
-                yield Subreddit(self.reddit, s["data"])
-
-    async def mine_moderator(self, limit=25, **kwargs):
-        async for s in self.reddit.get_listing(API_PATH["my_moderator"], limit, **kwargs):
-            if s["kind"] == self.reddit.subreddit_kind:
-                yield Subreddit(self.reddit, s["data"])
-
-    async def mine_subscriber(self, limit=25, **kwargs):
-        async for s in self.reddit.get_listing(API_PATH["my_subreddits"], limit, **kwargs):
+        async for s in self.reddit.get_listing("/subreddits/new", limit, **kwargs):
             if s["kind"] == self.reddit.subreddit_kind:
                 yield Subreddit(self.reddit, s["data"])

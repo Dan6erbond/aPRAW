@@ -4,9 +4,6 @@ from .subreddit import Subreddit
 from .submission import Submission
 from .comment import Comment
 
-from .endpoints import API_PATH
-
-
 class Redditor:
     def __init__(self, reddit, data):
         self.reddit = reddit
@@ -55,7 +52,7 @@ class Redditor:
         return self.name
 
     async def moderated_subreddits(self, **kwargs):
-        req = await self.reddit.get_request(API_PATH["moderated"].format(self), **kwargs)
+        req = await self.reddit.get_request("/user/{}/moderated_subreddits".format(self), **kwargs)
         for s in req["data"]:
             yield await self.reddit.subreddit(s["sr"])
 
@@ -63,12 +60,11 @@ class Redditor:
         return await self.reddit.message(self.name, subject, text, from_sr)
 
     async def comments(self, limit=25, **kwargs):
-        async for s in self.reddit.get_listing(API_PATH["user"].format(self.name) + "comments", limit, **kwargs):
+        async for s in self.reddit.get_listing("/user/{}/comments".format(self.name), limit, **kwargs):
             if s["kind"] == self.reddit.comment_kind:
                 yield Comment(self.reddit, s["data"])
 
     async def submissions(self, limit=25, **kwargs):
-        async for s in self.reddit.get_listing(API_PATH["user"].format(self.name) + "submitted", limit, **kwargs):
+        async for s in self.reddit.get_listing("/user/{}/submitted".format(self.name), limit, **kwargs):
             if s["kind"] == self.reddit.link_kind:
                 yield Submission(self.reddit, s["data"])
-                

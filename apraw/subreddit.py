@@ -1,12 +1,9 @@
 import asyncio
 from datetime import datetime
-from prawcore import Redirect
 
 from .comment import Comment
 from .modmail import SubredditModmail
 from .submission import Submission
-
-from .endpoints import API_PATH
 
 
 class Subreddit:
@@ -39,14 +36,57 @@ class Subreddit:
     def __str__(self):
         return self.display_name
 
+    async def comments(self, limit=25, **kwargs):
+        # TODO: implement
+        pass
+
+    async def new(self, limit=25, **kwargs):
+        async for s in self.reddit.get_listing("/r/{}/new".format(self.display_name), limit, **kwargs):
+            if s["kind"] == self.reddit.link_kind:
+                yield Submission(self.reddit, s["data"], subreddit=self)
+            else:
+                print(s)
+
     async def moderators(self, **kwargs):
-        req = await self.reddit.get_request(API_PATH["list_moderator"].format(self.display_name), **kwargs)
+        req = await self.reddit.get_request("/r/{}/about/moderators".format(self.display_name), **kwargs)
         for u in req["data"]["children"]:
             yield SubredditModerator(self.reddit, u)
 
     async def message(self, subject, text, from_sr=""):
         return await self.reddit.message("/r/" + self.display_name, subject, text, from_sr)
 
+class SubredditStream():
+    def __init__(self, subreddit):
+        self.subreddit = subreddit
+
+    async def comments(self):
+        # TODO: implement
+        pass
+
+    async def submissions(self, max_wait=16, **kwargs):
+        wait = 0
+        ids = list()
+
+        while True:
+            found = False
+            async for s in self.subreddit.new(100, **kwargs):
+                if s.id in ids:
+                    break
+                if len(ids) >= 301:
+                    ids = ids[1:]
+                ids.append(s.id)
+                found = True
+                yield s
+
+            if found:
+                wait = 1
+            else:
+                wait *= 2
+                if wait > max_wait:
+                    wait = 1
+
+            print(wait)
+            await asyncio.sleep(wait)
 
 class SubredditModerator():
     def __init__(self, reddit, data):
@@ -73,7 +113,7 @@ class SubredditModeration:
         self.subreddit = subreddit
 
     async def reports(self, limit=25, **kwargs):
-        async for s in self.subreddit.reddit.get_listing(API_PATH["about_reports"].format(self.subreddit.display_name),
+        async for s in self.subreddit.reddit.get_listing("/r/{}/about/reports".format(self.subreddit.display_name),
                                                          limit, **kwargs):
             if s["kind"] == self.subreddit.reddit.link_kind:
                 yield Submission(self.subreddit.reddit, s["data"], subreddit=self.subreddit)
@@ -81,7 +121,7 @@ class SubredditModeration:
                 yield Comment(self.subreddit.reddit, s["data"])
 
     async def spam(self, limit=25, **kwargs):
-        async for s in self.subreddit.reddit.get_listing(API_PATH["about_spam"].format(self.subreddit.display_name),
+        async for s in self.subreddit.reddit.get_listing("/r/{}/about/spam".format(self.subreddit.display_name),
                                                          limit, **kwargs):
             if s["kind"] == self.subreddit.reddit.link_kind:
                 yield Submission(self.subreddit.reddit, s["data"], subreddit=self.subreddit)
@@ -89,7 +129,7 @@ class SubredditModeration:
                 yield Comment(self.subreddit.reddit, s["data"])
 
     async def modqueue(self, limit=25, **kwargs):
-        async for s in self.subreddit.reddit.get_listing(API_PATH["about_modqueue"].format(self.subreddit.display_name),
+        async for s in self.subreddit.reddit.get_listing("/r/{}/about/modqueue".format(self.subreddit.display_name),
                                                          limit, **kwargs):
             if s["kind"] == self.subreddit.reddit.link_kind:
                 yield Submission(self.subreddit.reddit, s["data"], subreddit=self.subreddit)
@@ -97,7 +137,7 @@ class SubredditModeration:
                 yield Comment(self.subreddit.reddit, s["data"])
 
     async def unmoderated(self, limit=25, **kwargs):
-        async for s in self.subreddit.reddit.get_listing(API_PATH["about_unmoderated"].format(self.subreddit.display_name),
+        async for s in self.subreddit.reddit.get_listing("/r/{}/about/unmoderated".format(self.subreddit.display_name),
                                                          limit, **kwargs):
             if s["kind"] == self.subreddit.reddit.link_kind:
                 yield Submission(self.subreddit.reddit, s["data"], subreddit=self.subreddit)
@@ -105,7 +145,7 @@ class SubredditModeration:
                 yield Comment(self.subreddit.reddit, s["data"])
 
     async def edited(self, limit=25, **kwargs):
-        async for s in self.subreddit.reddit.get_listing(API_PATH["about_edited"].format(self.subreddit.display_name),
+        async for s in self.subreddit.reddit.get_listing("/r/{}/about/edited".format(self.subreddit.display_name),
                                                          limit, **kwargs):
             if s["kind"] == self.subreddit.reddit.link_kind:
                 yield Submission(self.subreddit.reddit, s["data"], subreddit=self.subreddit)
@@ -113,14 +153,13 @@ class SubredditModeration:
                 yield Comment(self.subreddit.reddit, s["data"])
 
     async def log(self, limit=25, **kwargs):
-        async for l in self.subreddit.reddit.get_listing(API_PATH["about_log"].format(self.subreddit.display_name),
+        async for l in self.subreddit.reddit.get_listing("/r/{}/about/log".format(self.subreddit.display_name),
                                                          limit, **kwargs):
-            yield ModAction(self.subreddit.reddit, l["data"], self.subreddit)
+            yield ModAction(l["data"], self.subreddit)
 
 
 class ModAction:
-    def __init__(self, reddit, data, subreddit=None):
-        self.reddit = reddit
+    def __init__(self, data, subreddit=None):
         self.data = data
         self.subreddit = subreddit
 
@@ -140,4 +179,4 @@ class ModAction:
         self.target_fullname = data["target_fullname"]
 
     async def mod(self):
-        return await self.reddit.redditor(self.mod)
+        return await self.subreddit.reddit.redditor(self.mod)
