@@ -83,10 +83,11 @@ async def test_subreddit(reddit):
 
     ids = list()
     duplicates = False
-    async for s in subreddit.new(None):
+    async for s in subreddit.new.get(None):
         if s.id in ids:
             duplicates = True
             break
+        print(type(s))
         ids.append(s.id)
     if len(ids) > 0 and not duplicates:
         print("Test passed.")
@@ -98,7 +99,7 @@ async def test_subreddit(reddit):
 
     subreddit = await reddit.subreddit("askreddit")
     ids = list()
-    async for s in subreddit.stream.submissions():
+    async for s in subreddit.new.stream():
         print(s.id)
         if s.id in ids:
             print("Duplicate found:", s.id)

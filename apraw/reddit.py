@@ -1,14 +1,14 @@
 import configparser
+import logging
 from datetime import datetime
 from datetime import timedelta
 
 import aiohttp
 
+from .endpoints import API_PATH
 from .redditor import Redditor
 from .submission import Submission
 from .subreddit import Subreddit
-
-from .endpoints import API_PATH
 
 
 class Reddit:
@@ -42,6 +42,7 @@ class Reddit:
         self.modaction_kind = "modaction"
 
         self.subreddits = Subreddits(self)
+        self.user = User(self)
 
         self.access_data = None
         self.token_expires = datetime.now()
@@ -73,7 +74,7 @@ class Reddit:
         kwargs["raw_json"] = 1
         params = ["{}={}".format(k, kwargs[k]) for k in kwargs]
 
-        url = "https://oauth.reddit.com{}?{}".format(endpoint, "&".join(params))
+        url = "https://oauth.reddit.com/{}?{}".format(endpoint, "&".join(params))
 
         async with aiohttp.ClientSession() as session:
             # print(url)
@@ -106,7 +107,7 @@ class Reddit:
         params = ["{}={}".format(k, kwargs[k]) for k in kwargs]
 
         if endpoint != "":
-            url = "https://oauth.reddit.com{}?{}".format(endpoint, "&".join(params))
+            url = "https://oauth.reddit.com/{}?{}".format(endpoint, "&".join(params))
         elif url != "":
             url = "{}?{}".format(url, "&".join(params))
 
@@ -116,11 +117,11 @@ class Reddit:
                 return await resp.json()
 
     async def subreddit(self, display_name):
-        resp = await self.get_request(API_PATH["subreddit_about"].format(display_name))
+        resp = await self.get_request(API_PATH["subreddit_about"].format(subreddit=display_name))
         try:
             return Subreddit(self, resp["data"])
         except Exception as e:
-            # print("No Subreddit data loaded from:", resp)
+            logging.error(e)
             return None
 
     async def info(self, id="", url=""):
@@ -201,10 +202,13 @@ class Subreddits:
                 yield Subreddit(self.reddit, s["data"])
 
 
-class user:
+class User:
 
     def __init__(self, reddit):
         self.reddit = reddit
+
+    async def __call__(self, username):
+        return await self.reddit.redditor(username)
 
     async def mine_contributor(self, limit=25, **kwargs):
         async for s in self.reddit.get_listing(API_PATH["my_contributor"], limit, **kwargs):

@@ -15,7 +15,13 @@ class Subreddit:
         self.data = data
         self.mod = SubredditModeration(self)
         self.modmail = SubredditModmail(self)
-        self.stream = SubredditStream(self)
+
+        from .listing_generator import ListingGenerator
+        self.comments = ListingGenerator(self.reddit, API_PATH["subreddit"].format(self.display_name) + "/comments")
+        self.new = ListingGenerator(self.reddit, API_PATH["subreddit"].format(self.display_name) + "/new")
+        self.hot = ListingGenerator(self.reddit, API_PATH["subreddit"].format(self.display_name) + "/hot")
+        self.rising = ListingGenerator(self.reddit, API_PATH["subreddit"].format(self.display_name) + "/rising")
+        self.top = ListingGenerator(self.reddit, API_PATH["subreddit"].format(self.display_name) + "/top")
 
         self.id = data["id"]
         self.created_utc = datetime.utcfromtimestamp(data["created_utc"])
@@ -33,20 +39,6 @@ class Subreddit:
     def __str__(self):
         return self.display_name
 
-    async def new_comments(self, limit=25, **kwargs):
-        async for c in self.reddit.get_listing(API_PATH["subreddit"].format(self.display_name) + "/new", limit, **kwargs):
-            if s["kind"] == self.reddit.comment_kind:
-                yield Comment(self.reddit, s["data"], subreddit=self)
-            else:
-                print(c)
-
-    async def new_submissions(self, limit=25, **kwargs):
-        async for s in self.reddit.get_listing(API_PATH["subreddit"].format(self.display_name) + "/new", limit, **kwargs):
-            if s["kind"] == self.reddit.link_kind:
-                yield Submission(self.reddit, s["data"], subreddit=self)
-            else:
-                print(s)
-
     async def moderators(self, **kwargs):
         req = await self.reddit.get_request(API_PATH["list_moderator"].format(self.display_name), **kwargs)
         for u in req["data"]["children"]:
@@ -54,61 +46,6 @@ class Subreddit:
 
     async def message(self, subject, text, from_sr=""):
         return await self.reddit.message("/r/" + self.display_name, subject, text, from_sr)
-
-
-class SubredditStream():
-    def __init__(self, subreddit):
-        self.subreddit = subreddit
-
-    async def comments(self, max_wait=16, **kwargs):
-        wait = 0
-        ids = list()
-
-        while True:
-            found = False
-            async for s in self.subreddit.new_comments(100, **kwargs):
-                if s.id in ids:
-                    break
-                if len(ids) >= 301:
-                    ids = ids[1:]
-                ids.append(s.id)
-                found = True
-                yield s
-
-            if found:
-                wait = 1
-            else:
-                wait*=2
-                if wait > max_wait:
-                    wait = 1
-
-            print(wait)
-            await asyncio.sleep(wait)
-
-    async def submissions(self, max_wait=16, **kwargs):
-        wait = 0
-        ids = list()
-
-        while True:
-            found = False
-            async for s in self.subreddit.new_submissions(100, **kwargs):
-                if s.id in ids:
-                    break
-                if len(ids) >= 301:
-                    ids = ids[1:]
-                ids.append(s.id)
-                found = True
-                yield s
-
-            if found:
-                wait = 1
-            else:
-                wait*=2
-                if wait > max_wait:
-                    wait = 1
-
-            print(wait)
-            await asyncio.sleep(wait)
 
 
 class SubredditModerator():
@@ -178,25 +115,12 @@ class SubredditModeration:
     async def log(self, limit=25, **kwargs):
         async for l in self.subreddit.reddit.get_listing(API_PATH["about_log"].format(self.subreddit.display_name),
                                                          limit, **kwargs):
-            yield ModAction(l["data"], self.subreddit)
-
-    async def sticky(self, **kwargs):
-        try:
-            s = yield self.reddit.get_request(API_PATH["about_sticky"].format(self.subreddit.display_name), **kwargs)
-            return await Submission(self.subreddit.reddit, s["data"], subreddit=self.subreddit)
-        except Exception as e:
-            # print("No sticky for r/{}.".format(self.subreddit.display_name))
-            return None
-
-    async def stylesheet(self, **kwargs):
-        return await self.reddit.get_request(API_PATH["about_stylesheet"].format(self.subreddit.display_name), **kwargs)
-
-    async def traffic(self, **kwargs):
-        return await self.reddit.get_request(API_PATH["about_traffic"].format(self.subreddit.display_name), **kwargs)
+            yield ModAction(self.subreddit.reddit, l["data"], self.subreddit)
 
 
 class ModAction:
-    def __init__(self, data, subreddit=None):
+    def __init__(self, reddit, data, subreddit=None):
+        self.reddit = reddit
         self.data = data
         self.subreddit = subreddit
 
@@ -216,4 +140,4 @@ class ModAction:
         self.target_fullname = data["target_fullname"]
 
     async def mod(self):
-        return await self.subreddit.reddit.redditor(self.mod)
+        return await self.reddit.redditor(self.mod)
