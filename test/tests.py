@@ -24,9 +24,9 @@ async def test_reddit(reddit):
     # print(await reddit.get_request_headers())
     # print(await reddit.message("dan6erbond", "test", "test"))
     # print(await reddit.message("/r/jealousasfuck", "test", "test"))
-    print(await reddit.submission("db8k9e"))
+    print(await reddit.submission("h7mna9"))
     await reddit.submission(
-        url="https://www.reddit.com/r/RandomActsOfGaming/comments/db8k9e/uplay_ghost_recon_wildlands")
+        url="https://www.reddit.com/r/aPRAWTest/comments/h7mna9/test_post")
 
 
 async def test_redditor(reddit):
@@ -157,10 +157,9 @@ async def run_tests():
             else:
                 print("No test found at position {}!".format(i))
         except Exception as e:
-            s = re.search("^(\d+)$", i)
-            if s is None:
-                break
+            break
 
 
-loop = asyncio.get_event_loop()
-loop.run_until_complete(run_tests())
+if __name__ == "__main__":
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(run_tests())
