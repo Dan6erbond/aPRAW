@@ -131,3 +131,4 @@ praw.ini
 /async_subscan.py
 /subreddit.py
 /subscan.py
+/.vscode

@@ -1,0 +1,19 @@
+# @name getToken
+POST https://www.reddit.com/api/v1/access_token?grant_type=client_credentials
+Content-Type: application/json
+Authorization: Basic {{client_id}}:{{client_secret}}
+
+{
+  "username": "{{username}}",
+  "password": "{{password}}"
+}
+
+###
+
+@commentId = fulsybg
+
+# @name getComment
+GET https://oauth.reddit.com/api/info?id=t1_{{commentId}}
+User-Agent: {{user_agent}}
+Content-Type: application/json
+Authorization: {{getToken.response.body.token_type}} {{getToken.response.body.access_token}}
