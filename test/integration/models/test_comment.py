@@ -13,10 +13,12 @@ class CommentTest(unittest.IsolatedAsyncioTestCase):
         self._comment = await self._reddit.comment("fulsybg")
 
     async def test_comment_author(self):
-        self.assertEqual(await self._comment.author().username, "Dan6erbond")
+        author = await self._comment.author()
+        self.assertEqual(author.name, "Dan6erbond")
 
     async def test_comment_submission(self):
-        self.assertEqual(await self._comment.submission().id, "h7mna9")
+        submission = await self._comment.submission()
+        self.assertEqual(submission.id, "h7mna9")
 
 
 if __name__ == "__main__":
