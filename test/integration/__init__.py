@@ -1,1 +1,1 @@
-from .test_reddit import RedditTest
+from .reddit_test import RedditTest
