@@ -1,6 +1,8 @@
 from datetime import datetime
 
 from .subreddit import Subreddit
+from .submission import Submission
+from .comment import Comment
 
 class Redditor:
     def __init__(self, reddit, data):
@@ -38,7 +40,6 @@ class Redditor:
             self.is_suspended = True
 
         if "subreddit" in data and data["subreddit"] is not None:
-            from .subreddit import Subreddit
             sub = data["subreddit"]
             sub["id"] = sub["name"].replace("t5_", "")
             if "created_utc" not in sub: sub["created_utc"] = data["created_utc"]
@@ -57,3 +58,13 @@ class Redditor:
 
     async def message(self, subject, text, from_sr=""):
         return await self.reddit.message(self.name, subject, text, from_sr)
+
+    async def comments(self, limit=25, **kwargs):
+        async for s in self.reddit.get_listing("/user/{}/comments".format(self.name), limit, **kwargs):
+            if s["kind"] == self.reddit.comment_kind:
+                yield Comment(self.reddit, s["data"])
+
+    async def submissions(self, limit=25, **kwargs):
+        async for s in self.reddit.get_listing("/user/{}/submitted".format(self.name), limit, **kwargs):
+            if s["kind"] == self.reddit.link_kind:
+                yield Submission(self.reddit, s["data"])

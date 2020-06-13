@@ -127,7 +127,8 @@ dmypy.json
 login.py
 __pycache__
 praw.ini
-async_subreddit.py
-async_subscan.py
-subreddit.py
-subscan.py
+/async_subreddit.py
+/async_subscan.py
+/subreddit.py
+/subscan.py
+/.vscode

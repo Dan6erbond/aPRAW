@@ -1,0 +1,20 @@
+{
+  'kind': 'modaction',
+  'data': {
+    'description': None,
+    'target_body': None,
+    'mod_id36': '14koidvf',
+    'created_utc': 1569189983.0,
+    'subreddit': 'JealousAsFuck',
+    'target_title': 'Loving the “Max” life. I babysit him. He’s an only child.',
+    'target_permalink': '/r/JealousAsFuck/comments/d5229o/loving_the_max_life_i_babysit_him_hes_an_only/',
+    'subreddit_name_prefixed': 'r/JealousAsFuck',
+    'details': 'remove',
+    'action': 'removelink',
+    'target_author': 'ireoleary',
+    'target_fullname': 't3_d5229o',
+    'sr_id36': 'ovu12',
+    'id': 'ModAction_36fc95f2-dd85-11e9-80bc-0ea1cbe31d64',
+    'mod': '-AnUngratefulChild-'
+  }
+}
