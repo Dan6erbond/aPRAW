@@ -1,14 +1,10 @@
 import configparser
 import logging
-from datetime import datetime
-from datetime import timedelta
+from datetime import datetime, timedelta
 
 import aiohttp
 
-from .redditor import Redditor
-from .submission import Submission
-from .subreddit import Subreddit
-from .comment import Subreddit
+from .models import Comment, Redditor, Submission, Subreddit
 
 
 class Reddit:
@@ -55,12 +51,15 @@ class Reddit:
                 "password": self.password
             }
 
-            auth = aiohttp.BasicAuth(login=self.client_id, password=self.client_secret)
+            auth = aiohttp.BasicAuth(
+                login=self.client_id,
+                password=self.client_secret)
             async with aiohttp.ClientSession(auth=auth) as session:
                 async with session.post(url, data=data) as resp:
                     if resp.status == 200:
                         self.access_data = await resp.json()
-                        self.token_expires = datetime.now() + timedelta(seconds=self.access_data["expires_in"])
+                        self.token_expires = datetime.now(
+                        ) + timedelta(seconds=self.access_data["expires_in"])
                     else:
                         raise Exception("Invalid user data.")
 
@@ -73,7 +72,8 @@ class Reddit:
         kwargs["raw_json"] = 1
         params = ["{}={}".format(k, kwargs[k]) for k in kwargs]
 
-        url = "https://oauth.reddit.com/{}?{}".format(endpoint, "&".join(params))
+        url = "https://oauth.reddit.com/{}?{}".format(
+            endpoint, "&".join(params))
 
         async with aiohttp.ClientSession() as session:
             # print(url)
@@ -91,12 +91,14 @@ class Reddit:
             if len(req["data"]["children"]) <= 0:
                 break
             for i in req["data"]["children"]:
-                if i["kind"] in [self.link_kind, self.subreddit_kind, self.comment_kind]:
+                if i["kind"] in [self.link_kind,
+                                 self.subreddit_kind, self.comment_kind]:
                     last = i["data"]["name"]
                 elif i["kind"] == self.modaction_kind:
                     last = i["data"]["id"]
 
-                if limit is not None: limit -= 1
+                if limit is not None:
+                    limit -= 1
                 yield i
             if limit is not None and limit < 1:
                 break
@@ -106,7 +108,8 @@ class Reddit:
         params = ["{}={}".format(k, kwargs[k]) for k in kwargs]
 
         if endpoint != "":
-            url = "https://oauth.reddit.com/{}?{}".format(endpoint, "&".join(params))
+            url = "https://oauth.reddit.com/{}?{}".format(
+                endpoint, "&".join(params))
         elif url != "":
             url = "{}?{}".format(url, "&".join(params))
 
@@ -141,7 +144,8 @@ class Reddit:
 
     async def comment(self, id="", url=""):
         if id != "":
-            id = self.comment_kind + "_" + id.replace(self.comment_kind + "_", "")
+            id = self.comment_kind + "_" + \
+                id.replace(self.comment_kind + "_", "")
             comment = await self.get_request("/api/info", id=id)
             if comment["data"]["children"][0]["kind"] == self.comment_kind:
                 return Comment(self, comment["data"]["children"][0]["data"])
@@ -165,7 +169,8 @@ class Reddit:
             "text": text,
             "to": to
         }
-        if from_sr != "": data["from_sr"] = from_sr
+        if from_sr != "":
+            data["from_sr"] = from_sr
         resp = await self.post_request("/api/compose", data=data)
         return resp["success"]
 
