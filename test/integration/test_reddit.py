@@ -7,7 +7,7 @@ class RedditTest(unittest.IsolatedAsyncioTestCase):
     def __init__(self, *args, **kwargs):
         super(RedditTest, self).__init__(*args, **kwargs)
 
-        self.reddit = apraw.Reddit("D6B")
+        self.reddit = apraw.Reddit("APB")
 
     async def test_reddit_subreddit(self):
         subreddit = await self.reddit.subreddit("aPRAWTest")
