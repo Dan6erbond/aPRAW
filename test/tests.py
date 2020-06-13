@@ -142,7 +142,7 @@ tests = [test_subscan, test_reddit, test_redditor, test_subreddit, test_subreddi
 
 
 async def run_tests():
-    reddit = apraw.Reddit("D6B")
+    reddit = apraw.Reddit("APB")
     i = 0
     for test in tests:
         print("{}:".format(i), test)
