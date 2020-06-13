@@ -22,5 +22,5 @@ aPRAW is an open-source framework which means you can contribute as well! Follow
 ## Roadmap
 - [ ] Full coverage of Reddit's API.
 - [ ] PyPi release.
-- [ ] Never-ending streams.
+- [x] Never-ending streams.
 - [ ] Useful helper functions.
