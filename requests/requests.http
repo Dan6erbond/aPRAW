@@ -1,12 +1,10 @@
 # @name getToken
-POST https://www.reddit.com/api/v1/access_token?grant_type=client_credentials
-Content-Type: application/json
+POST https://www.reddit.com/api/v1/access_token
+User-Agent: {{user_agent}}
+Content-Type: application/x-www-form-urlencoded
 Authorization: Basic {{client_id}}:{{client_secret}}
 
-{
-  "username": "{{username}}",
-  "password": "{{password}}"
-}
+grant_type=password&username={{username}}&password={{password}}
 
 ###
 
