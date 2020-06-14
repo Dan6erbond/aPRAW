@@ -132,3 +132,4 @@ praw.ini
 /subreddit.py
 /subscan.py
 /.vscode
+build.zip
