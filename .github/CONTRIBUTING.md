@@ -6,6 +6,7 @@ If you're reading this, first of all, thank you for considering to contribute to
  - [Questions](#i-dont-want-to-read-all-this-i-just-have-a-question)
  - [Reporting Bugs](#reporting-bugs)
  - [Pull Requests](#submitting-pull-requests)
+   - [Tests](#tests)
    - [Commit Guidelines](#git-commit-guidelines)
    - [Code Guidelines](#code-guidelines)
 
@@ -36,7 +37,19 @@ Please be aware of a couple of things when filing bug reports:
 
 If you're here and have some additions to make to the code, awesome! Submitting a pull request is pretty simple, just follow some guidelines and try to keep everything consistent. This project follows most of the PEP-8 guidelines.
 
-Make sure your pull requests focus on single issues or features, so that tests can be performed quickly. Write test cases with the PyUnit testing framework and use the `IsolatedAsyncTestCase` if you're testing asynchronous code.
+Make sure your pull requests focus on single issues or features, so that tests can be performed quickly. Tests will be ran automatically through GitHub CI Actions. A Linter (`flake8`) will also be ran during this process.
+
+### Tests
+
+Write test cases with the PyTest framework and use the `reddit` fixture if you need access to an authenticated client like so:
+
+```python
+# can be async due to the usage of the `pytest-asyncio` fixture library
+# `reddit` argument is being fed dynamically by a fixture in `conftest.py`
+async def test_case(self, reddit):
+    subreddit = await self._reddit.subreddit("aPRAWTest")
+    assert subreddit.description == "Testing subreddit for aPRAW."
+```
 
 ### Git Commit Guidelines
 
