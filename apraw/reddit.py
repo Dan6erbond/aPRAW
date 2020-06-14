@@ -193,29 +193,32 @@ class RequestHandler:
         }
 
     def update(self, data):
-        self.auth.ratelimit_remaining = int(float(data["x-ratelimit-remaining"]))
+        self.auth.ratelimit_remaining = int(
+            float(data["x-ratelimit-remaining"]))
         self.auth.ratelimit_used = int(data["x-ratelimit-used"])
 
         self.auth.ratelimit_reset = datetime.now()
         + timedelta(seconds=int(data["x-ratelimit-reset"]))
 
-    async def check_ratelimit(self):
-        if (self.auth.ratelimit_remaining < 5):
+    def check_ratelimit(func):
+        async def execute_request(self, *args, **kwargs):
             id = datetime.now().strftime('%Y%m%d%H%M%S')
-
-            execution_time = self.auth.ratelimit_reset
-            + timedelta(seconds=len(self.queue))
-            wait_time = (execution_time - datetime.now()).total_seconds()
-
             self.queue.append(id)
 
-            asyncio.sleep(wait_time)
+            if (self.auth.ratelimit_remaining < 5):
+                execution_time = self.auth.ratelimit_reset
+                + timedelta(seconds=len(self.queue))
+                wait_time = (execution_time - datetime.now()).total_seconds()
+                asyncio.sleep(wait_time)
 
+            result = await func(self, *args, **kwargs)
             self.queue.remove(id)
+            return result
 
+        return execute_request
+
+    @check_ratelimit
     async def get_request(self, endpoint="", **kwargs):
-        await self.check_ratelimit()
-
         kwargs["raw_json"] = 1
         params = ["{}={}".format(k, kwargs[k]) for k in kwargs]
 
@@ -227,9 +230,8 @@ class RequestHandler:
                 self.update(resp.headers)
                 return await resp.json()
 
+    @check_ratelimit
     async def post_request(self, endpoint="", url="", data={}, **kwargs):
-        await self.check_ratelimit()
-
         kwargs["raw_json"] = 1
         params = ["{}={}".format(k, kwargs[k]) for k in kwargs]
 
