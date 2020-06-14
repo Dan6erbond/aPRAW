@@ -1,13 +1,17 @@
 import asyncio
+from typing import *
+
+import apraw
 
 from .comment import Comment
 from .submission import Submission
-from .subreddit import Subreddit, ModAction
+from .subreddit import ModAction, Subreddit
 
 
 class ListingGenerator:
 
-    def __init__(self, reddit, endpoint, max_wait=16, kind_filter=[]):
+    def __init__(self, reddit: apraw.Reddit, endpoint: str,
+                 max_wait: int = 16, kind_filter: List[str] = []):
         self.reddit = reddit
         self.endpoint = endpoint
         self.max_wait = max_wait
@@ -25,14 +29,17 @@ class ListingGenerator:
             if len(req["data"]["children"]) <= 0:
                 break
             for i in req["data"]["children"]:
-                if i["kind"] in [reddit.link_kind, reddit.subreddit_kind, reddit.comment_kind]:
+                if i["kind"] in [reddit.link_kind,
+                                 reddit.subreddit_kind, reddit.comment_kind]:
                     last = i["data"]["name"]
                 elif i["kind"] == reddit.modaction_kind:
                     last = i["data"]["id"]
 
-                if limit is not None: limit -= 1
+                if limit is not None:
+                    limit -= 1
 
-                if len(self.kind_filter) > 0 and i["kind"] not in self.kind_filter:
+                if len(
+                        self.kind_filter) > 0 and i["kind"] not in self.kind_filter:
                     continue
 
                 if i["kind"] == reddit.link_kind:
