@@ -1,30 +1,20 @@
-import unittest
-
-import apraw
+import pytest
 
 
-class SubredditTest(unittest.IsolatedAsyncioTestCase):
-    def __init__(self, *args, **kwargs):
-        super(SubredditTest, self).__init__(*args, **kwargs)
+class TestSubreddit:
+    @pytest.mark.asyncio
+    async def test_subreddit_id(self, reddit):
+        subreddit = await reddit.subreddit("aprawtest")
+        assert subreddit.id == "2rcbck"
 
-        self._reddit = apraw.Reddit("APB")
-
-    async def asyncSetUp(self):
-        self._subreddit = await self._reddit.subreddit("aprawtest")
-
-    async def test_subreddit_id(self):
-        print(self._subreddit.id)
-
-    async def test_subreddit_moderators(self):
+    @pytest.mark.asyncio
+    async def test_subreddit_moderators(self, reddit):
+        subreddit = await reddit.subreddit("aprawtest")
         moderator_found = False
 
-        async for moderator in self._subreddit.moderators():
+        async for moderator in subreddit.moderators():
             if moderator.name.lower() == "aprawbot":
                 moderator_found = True
                 break
 
-        self.assertTrue(moderator_found)
-
-
-if __name__ == "__main__":
-    unittest.main()
+        assert moderator_found
