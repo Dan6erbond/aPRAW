@@ -10,7 +10,8 @@ from .models import Comment, Redditor, Submission, Subreddit
 
 class Reddit:
 
-    def __init__(self, praw_key="", username="", password="", client_id="", client_secret="",
+    def __init__(self, praw_key: str = "", username: str = "", password: str = "",
+                 client_id: str = "", client_secret: str = "",
                  user_agent="aPRAW by Dan6erbond"):
         if praw_key != "":
             config = configparser.ConfigParser()
@@ -178,7 +179,7 @@ class Reddit:
 
 class Subreddits:
 
-    def __init__(self, reddit):
+    def __init__(self, reddit: Reddit):
         self.reddit = reddit
 
     async def new(self, limit=25, **kwargs):
