@@ -1,4 +1,4 @@
-#### Functions to port for use in Banhammer
+#### Functions to port for use in [Banhammer.py](https://github.com/Dan6erbond/Banhammer.py)
 
 **`banhammer.Subreddit.__init__()`**
 
