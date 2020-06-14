@@ -5,7 +5,7 @@ class TestSubreddit:
     @pytest.mark.asyncio
     async def test_subreddit_id(self, reddit):
         subreddit = await reddit.subreddit("aprawtest")
-        print(subreddit.id)
+        assert subreddit.id == "2rcbck"
 
     @pytest.mark.asyncio
     async def test_subreddit_moderators(self, reddit):
