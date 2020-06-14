@@ -73,7 +73,7 @@ If you have any questions regarding aPRAW and its usage...
    
 ### Contributing
    
-Of course, aPRAW is open-source under the GPLv3 license and all additions and bug reports in the form of issues and pull requests are welcome! For further information, view the [contribution guidelines](.github/CONTRIBUTING.MD) and have fun coding!
+Of course, aPRAW is open-source under the GPLv3 license and all additions and bug reports in the form of issues and pull requests are welcome! For further information, view the [contribution guidelines](.github/CONTRIBUTING.md) and have fun coding!
 
 ## Documentation
 
