@@ -1,6 +1,7 @@
 import asyncio
 from datetime import datetime
 
+from ..endpoints import API_PATH
 from .comment import Comment
 from .modmail import SubredditModmail
 from .submission import Submission
@@ -27,22 +28,29 @@ class Subreddit:
         self.user_is_moderator = data["user_is_moderator"]
 
         from .listing_generator import ListingGenerator
-        self.comments = ListingGenerator(self.reddit, "/r/{}/comments".format(self.display_name))
-        self.new = ListingGenerator(self.reddit, "/r/{}/new".format(self.display_name))
-        self.hot = ListingGenerator(self.reddit, "/r/{}/hot".format(self.display_name))
-        self.rising = ListingGenerator(self.reddit, "/r/{}/rising".format(self.display_name))
-        self.top = ListingGenerator(self.reddit, "/r/{}/top".format(self.display_name))
+        self.comments = ListingGenerator(
+            self.reddit, API_PATH["subreddit_comments"].format(
+                sub=self.display_name))
+        self.new = ListingGenerator(self.reddit,
+                                    API_PATH["subreddit_new"].format(sub=self.display_name))
+        self.hot = ListingGenerator(self.reddit,
+                                    API_PATH["subreddit_hot"].format(sub=self.display_name))
+        self.rising = ListingGenerator(
+            self.reddit, API_PATH["subreddit_rising"].format(sub=self.display_name))
+        self.top = ListingGenerator(self.reddit,
+                                    API_PATH["subreddit_top"].format(sub=self.display_name))
 
     def __str__(self):
         return self.display_name
 
     async def moderators(self, **kwargs):
-        req = await self.reddit.get_request("/r/{}/about/moderators".format(self.display_name), **kwargs)
+        req = await self.reddit.get_request(API_PATH["subreddit_moderators"].format(sub=self.display_name), **kwargs)
         for u in req["data"]["children"]:
             yield SubredditModerator(self.reddit, u)
 
     async def message(self, subject, text, from_sr=""):
-        return await self.reddit.message("/r/" + self.display_name, subject, text, from_sr)
+        return await self.reddit.message(API_PATH["subreddit"].format(sub=self.display_name), subject, text, from_sr)
+
 
 class SubredditStream():
     def __init__(self, subreddit):
@@ -77,6 +85,7 @@ class SubredditStream():
             print(wait)
             await asyncio.sleep(wait)
 
+
 class SubredditModerator():
     def __init__(self, reddit, data):
         self.reddit = reddit
@@ -102,7 +111,7 @@ class SubredditModeration:
         self.subreddit = subreddit
 
     async def reports(self, limit=25, **kwargs):
-        async for s in self.subreddit.reddit.get_listing("/r/{}/about/reports".format(self.subreddit.display_name),
+        async for s in self.subreddit.reddit.get_listing(API_PATH["subreddit_reports"].format(sub=self.subreddit.display_name),
                                                          limit, **kwargs):
             if s["kind"] == self.subreddit.reddit.link_kind:
                 yield Submission(self.subreddit.reddit, s["data"], subreddit=self.subreddit)
@@ -110,7 +119,7 @@ class SubredditModeration:
                 yield Comment(self.subreddit.reddit, s["data"])
 
     async def spam(self, limit=25, **kwargs):
-        async for s in self.subreddit.reddit.get_listing("/r/{}/about/spam".format(self.subreddit.display_name),
+        async for s in self.subreddit.reddit.get_listing(API_PATH["subreddit_spam"].format(sub=self.subreddit.display_name),
                                                          limit, **kwargs):
             if s["kind"] == self.subreddit.reddit.link_kind:
                 yield Submission(self.subreddit.reddit, s["data"], subreddit=self.subreddit)
@@ -118,7 +127,7 @@ class SubredditModeration:
                 yield Comment(self.subreddit.reddit, s["data"])
 
     async def modqueue(self, limit=25, **kwargs):
-        async for s in self.subreddit.reddit.get_listing("/r/{}/about/modqueue".format(self.subreddit.display_name),
+        async for s in self.subreddit.reddit.get_listing(API_PATH["subreddit_modqueue"].format(sub=self.subreddit.display_name),
                                                          limit, **kwargs):
             if s["kind"] == self.subreddit.reddit.link_kind:
                 yield Submission(self.subreddit.reddit, s["data"], subreddit=self.subreddit)
@@ -126,7 +135,7 @@ class SubredditModeration:
                 yield Comment(self.subreddit.reddit, s["data"])
 
     async def unmoderated(self, limit=25, **kwargs):
-        async for s in self.subreddit.reddit.get_listing("/r/{}/about/unmoderated".format(self.subreddit.display_name),
+        async for s in self.subreddit.reddit.get_listing(API_PATH["subreddit_unmoderated"].format(sub=self.subreddit.display_name),
                                                          limit, **kwargs):
             if s["kind"] == self.subreddit.reddit.link_kind:
                 yield Submission(self.subreddit.reddit, s["data"], subreddit=self.subreddit)
@@ -134,7 +143,7 @@ class SubredditModeration:
                 yield Comment(self.subreddit.reddit, s["data"])
 
     async def edited(self, limit=25, **kwargs):
-        async for s in self.subreddit.reddit.get_listing("/r/{}/about/edited".format(self.subreddit.display_name),
+        async for s in self.subreddit.reddit.get_listing(API_PATH["subreddit_edited"].format(sub=self.subreddit.display_name),
                                                          limit, **kwargs):
             if s["kind"] == self.subreddit.reddit.link_kind:
                 yield Submission(self.subreddit.reddit, s["data"], subreddit=self.subreddit)
@@ -142,7 +151,7 @@ class SubredditModeration:
                 yield Comment(self.subreddit.reddit, s["data"])
 
     async def log(self, limit=25, **kwargs):
-        async for l in self.subreddit.reddit.get_listing("/r/{}/about/log".format(self.subreddit.display_name),
+        async for l in self.subreddit.reddit.get_listing(API_PATH["subreddit_log"].format(sub=self.subreddit.display_name),
                                                          limit, **kwargs):
             yield ModAction(l["data"], self.subreddit)
 

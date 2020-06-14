@@ -4,6 +4,7 @@ from datetime import datetime, timedelta
 
 import aiohttp
 
+from .endpoints import API_PATH, BASE_URL
 from .models import Comment, Redditor, Submission, Subreddit
 
 
@@ -72,7 +73,7 @@ class Reddit:
         kwargs["raw_json"] = 1
         params = ["{}={}".format(k, kwargs[k]) for k in kwargs]
 
-        url = "https://oauth.reddit.com/{}?{}".format(
+        url = BASE_URL.format(
             endpoint, "&".join(params))
 
         async with aiohttp.ClientSession() as session:
@@ -108,7 +109,7 @@ class Reddit:
         params = ["{}={}".format(k, kwargs[k]) for k in kwargs]
 
         if endpoint != "":
-            url = "https://oauth.reddit.com/{}?{}".format(
+            url = BASE_URL.format(
                 endpoint, "&".join(params))
         elif url != "":
             url = "{}?{}".format(url, "&".join(params))
@@ -119,7 +120,7 @@ class Reddit:
                 return await resp.json()
 
     async def subreddit(self, display_name):
-        resp = await self.get_request("/r/{}/about".format(display_name))
+        resp = await self.get_request(API_PATH["subreddit_about"].format(sub=display_name))
         try:
             return Subreddit(self, resp["data"])
         except Exception as e:
@@ -133,11 +134,11 @@ class Reddit:
     async def submission(self, id="", url=""):
         if id != "":
             id = self.link_kind + "_" + id.replace(self.link_kind + "_", "")
-            link = await self.get_request("/api/info", id=id)
+            link = await self.get_request(API_PATH["info"], id=id)
             if link["data"]["children"][0]["kind"] == self.link_kind:
                 return Submission(self, link["data"]["children"][0]["data"])
         elif url != "":
-            link = await self.get_request("/api/info", url=url)
+            link = await self.get_request(API_PATH["info"], url=url)
             if link["data"]["children"][0]["kind"] == self.link_kind:
                 return Submission(self, link["data"]["children"][0]["data"])
         return None
@@ -146,17 +147,17 @@ class Reddit:
         if id != "":
             id = self.comment_kind + "_" + \
                 id.replace(self.comment_kind + "_", "")
-            comment = await self.get_request("/api/info", id=id)
+            comment = await self.get_request(API_PATH["info"], id=id)
             if comment["data"]["children"][0]["kind"] == self.comment_kind:
                 return Comment(self, comment["data"]["children"][0]["data"])
         elif url != "":
-            comment = await self.get_request("/api/info", url=url)
+            comment = await self.get_request(API_PATH["info"], url=url)
             if comment["data"]["children"][0]["kind"] == self.comment_kind:
                 return Comment(self, comment["data"]["children"][0]["data"])
         return None
 
     async def redditor(self, username):
-        resp = await self.get_request("/user/{}/about".format(username))
+        resp = await self.get_request(API_PATH["user_about"].format(user=username))
         try:
             return Redditor(self, resp["data"])
         except Exception as e:
@@ -171,7 +172,7 @@ class Reddit:
         }
         if from_sr != "":
             data["from_sr"] = from_sr
-        resp = await self.post_request("/api/compose", data=data)
+        resp = await self.post_request(API_PATH["compose"], data=data)
         return resp["success"]
 
 
@@ -181,6 +182,6 @@ class Subreddits:
         self.reddit = reddit
 
     async def new(self, limit=25, **kwargs):
-        async for s in self.reddit.get_listing("/subreddits/new", limit, **kwargs):
+        async for s in self.reddit.get_listing(API_PATH["subreddits_new"], limit, **kwargs):
             if s["kind"] == self.reddit.subreddit_kind:
                 yield Subreddit(self.reddit, s["data"])
