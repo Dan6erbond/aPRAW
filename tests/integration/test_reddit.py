@@ -1,30 +1,23 @@
-import unittest
-
-import apraw
+import pytest
 
 
-class RedditTest(unittest.IsolatedAsyncioTestCase):
-    def __init__(self, *args, **kwargs):
-        super(RedditTest, self).__init__(*args, **kwargs)
+class TestReddit:
+    @pytest.mark.asyncio
+    async def test_reddit_subreddit(self, reddit):
+        subreddit = await reddit.subreddit("aPRAWTest")
+        assert subreddit.description == "Testing subreddit for aPRAW."
 
-        self._reddit = apraw.Reddit("APB")
+    @pytest.mark.asyncio
+    async def test_reddit_submission(self, reddit):
+        submission = await reddit.submission("h7mna9")
+        assert submission.title == "Test Post"
 
-    async def test_reddit_subreddit(self):
-        subreddit = await self._reddit.subreddit("aPRAWTest")
-        self.assertEqual(subreddit.description, "Testing subreddit for aPRAW.")
+    @pytest.mark.asyncio
+    async def test_reddit_comment(self, reddit):
+        comment = await reddit.comment("fulsybg")
+        assert comment.body == "This is a test comment."
 
-    async def test_reddit_submission(self):
-        submission = await self._reddit.submission("h7mna9")
-        self.assertEqual(submission.title, "Test Post")
-
-    async def test_reddit_comment(self):
-        comment = await self._reddit.comment("fulsybg")
-        self.assertEqual(comment.body, "This is a test comment.")
-
-    async def test_reddit_redditor(self):
-        redditor = await self._reddit.redditor("Dan6erbond")
-        self.assertEqual(redditor.id, "11qzch")
-
-
-if __name__ == "__main__":
-    unittest.main()
+    @pytest.mark.asyncio
+    async def test_reddit_redditor(self, reddit):
+        redditor = await reddit.redditor("Dan6erbond")
+        assert redditor.id == "11qzch"
