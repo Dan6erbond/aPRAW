@@ -5,9 +5,8 @@ name: Test Python
 
 on:
   push:
-    branches: [ master ]
-  pull_request:
-    branches: [ master ]
+    branches-ignore:
+      - '**'
 
 jobs:
   build:
