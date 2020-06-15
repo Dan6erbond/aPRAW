@@ -41,7 +41,7 @@ class ListingGenerator:
                 elif i["kind"] == reddit.subreddit_kind:
                     yield Subreddit(self.reddit, i["data"])
                 elif i["kind"] == reddit.comment_kind:
-                    yield Comment(self.reddit, i["data"])
+                    yield Comment(self.reddit, i["data"], subreddit=self.subreddit)
                 elif i["kind"] == reddit.modaction_kind:
                     yield ModAction(i["data"], self.subreddit)
                 else:
