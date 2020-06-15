@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 import aiohttp
 
 from .endpoints import API_PATH, BASE_URL
-from .models import Comment, Redditor, Submission, Subreddit, ListingGenerator
+from .models import *
 
 
 class Reddit:
@@ -17,19 +17,19 @@ class Reddit:
             config = configparser.ConfigParser()
             config.read("praw.ini")
 
-            self.auth = Auth(
-                config[praw_key]["username"],
-                config[praw_key]["password"],
-                config[praw_key]["client_id"],
-                config[praw_key]["client_secret"],
-                config[praw_key]["user_agent"] if "user_agent" in config[praw_key] else user_agent)
+            self.user = User(self,
+                             config[praw_key]["username"],
+                             config[praw_key]["password"],
+                             config[praw_key]["client_id"],
+                             config[praw_key]["client_secret"],
+                             config[praw_key]["user_agent"] if "user_agent" in config[praw_key] else user_agent)
         else:
-            self.auth = Auth(
-                username,
-                password,
-                client_id,
-                client_secret,
-                user_agent)
+            self.user = User(self,
+                             username,
+                             password,
+                             client_id,
+                             client_secret,
+                             user_agent)
 
         self.comment_kind = "t1"
         self.account_kind = "t2"
@@ -40,7 +40,7 @@ class Reddit:
         self.modaction_kind = "modaction"
 
         self.subreddits = ListingGenerator(self, API_PATH["subreddits_new"])
-        self.request_handler = RequestHandler(self.auth)
+        self.request_handler = RequestHandler(self.user)
 
     async def get_request(self, endpoint="", **kwargs):
         return await self.request_handler.get_request(endpoint, **kwargs)
@@ -116,66 +116,44 @@ class Reddit:
         return resp["success"]
 
 
-class Auth:
-
-    def __init__(self, username, password, client_id,
-                 client_secret, user_agent):
-        self.username = username
-        self.password = password
-        self.client_id = client_id
-        self.client_secret = client_secret
-        self.user_agent = user_agent
-
-        if self.username == "" or self.password == "" or self.client_id == "" or self.client_secret == "":
-            raise Exception(
-                "No login information given or login information incomplete.")
-
-        self.access_data = None
-        self.token_expires = datetime.now()
-
-        self.ratelimit_remaining = 0
-        self.ratelimit_used = 0
-        self.ratelimit_reset = datetime.now()
-
-
 class RequestHandler:
 
-    def __init__(self, auth):
-        self.auth = auth
+    def __init__(self, user):
+        self.user = user
         self.queue = []
 
     async def get_request_headers(self):
-        if self.auth.token_expires <= datetime.now():
+        if self.user.token_expires <= datetime.now():
             url = "https://www.reddit.com/api/v1/access_token"
             data = {
                 "grant_type": "password",
-                "username": self.auth.username,
-                "password": self.auth.password
+                "username": self.user.username,
+                "password": self.user.password
             }
 
             auth = aiohttp.BasicAuth(
-                login=self.auth.client_id,
-                password=self.auth.client_secret)
+                login=self.user.client_id,
+                password=self.user.client_secret)
             async with aiohttp.ClientSession(auth=auth) as session:
                 async with session.post(url, data=data) as resp:
                     if resp.status == 200:
-                        self.auth.access_data = await resp.json()
-                        self.auth.token_expires = datetime.now()
-                        + timedelta(seconds=self.auth.access_data["expires_in"])
+                        self.user.access_data = await resp.json()
+                        self.user.token_expires = datetime.now()
+                        + timedelta(seconds=self.user.access_data["expires_in"])
                     else:
                         raise Exception("Invalid user data.")
 
         return {
-            "Authorization": "{} {}".format(self.auth.access_data["token_type"], self.auth.access_data["access_token"]),
-            "User-Agent": self.auth.user_agent
+            "Authorization": "{} {}".format(self.user.access_data["token_type"], self.user.access_data["access_token"]),
+            "User-Agent": self.user.user_agent
         }
 
     def update(self, data):
-        self.auth.ratelimit_remaining = int(
+        self.user.ratelimit_remaining = int(
             float(data["x-ratelimit-remaining"]))
-        self.auth.ratelimit_used = int(data["x-ratelimit-used"])
+        self.user.ratelimit_used = int(data["x-ratelimit-used"])
 
-        self.auth.ratelimit_reset = datetime.now()
+        self.user.ratelimit_reset = datetime.now()
         + timedelta(seconds=int(data["x-ratelimit-reset"]))
 
     def check_ratelimit(func):
@@ -183,8 +161,8 @@ class RequestHandler:
             id = datetime.now().strftime('%Y%m%d%H%M%S')
             self.queue.append(id)
 
-            if (self.auth.ratelimit_remaining < 5):
-                execution_time = self.auth.ratelimit_reset
+            if (self.user.ratelimit_remaining < 5):
+                execution_time = self.user.ratelimit_reset
                 + timedelta(seconds=len(self.queue))
                 wait_time = (execution_time - datetime.now()).total_seconds()
                 asyncio.sleep(wait_time)

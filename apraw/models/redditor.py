@@ -14,30 +14,9 @@ class Redditor:
         self.name = data["name"]
 
         if "is_suspended" not in data or not data["is_suspended"]:
-            self.id = data["id"]
-            self.is_suspended = False
-            self.created_utc = datetime.utcfromtimestamp(data["created_utc"])
-
-            self.is_employee = data["is_employee"]
-            # self.has_visited_new_profile = data["has_visited_new_profile"]
-            self.is_friend = data["is_friend"]
-            # self.pref_no_profanity = data["pref_no_profanity"]
-            # self.has_external_account = data["has_external_account"]
-            # self.is_sponsor = data["is_sponsor"]
-            # self.has_gold_subscription = data["has_gold_subscription"]
-            # self.num_friends = data["num_friends"]
-            self.verified = data["verified"]
-            # self.over18 = data["over_18"] if "over18" in data else data["subreddit"]["over_18"] if "over_18" in data["subreddit"] else False
-            self.is_gold = data["is_gold"]
-            self.is_mod = data["is_mod"]
-            self.has_verified_email = data["has_verified_email"]
-            # self.pref_video_autoplay = data["pref_video_autoplay"]
-            # self.in_chat = data["in_chat"]
-            # self.in_redesign_beta = data["in_redesign_beta"]
-            # self.pref_nightmode = data["pref_nightmode"]
-
-            self.link_karma = data["link_karma"]
-            self.comment_karma = data["comment_karma"]
+            for key in data:
+                if not hasattr(self, key):
+                    setattr(self, key, data[key])
         else:
             self.is_suspended = True
 

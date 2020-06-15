@@ -6,6 +6,8 @@ BASE_URL = "https://oauth.reddit.com{}?{}"
 API_PATH = {
     "compose"              : "/api/compose",
     "info"                 : "/api/info",
+    "me"                   : "/api/v1/me",
+    "me_karma"             : "/api/v1/me/karma",
     "moderated"            : "/user/{user}/moderated_subreddits",
     "modmail_conversation" : "/api/mod/conversations/{id}",
     "modmail_conversations": "/api/mod/conversations",
