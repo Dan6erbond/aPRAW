@@ -14,40 +14,47 @@ class ListingGenerator:
         self.kind_filter = kind_filter
         self.subreddit = subreddit
 
+    @classmethod
+    def get_listing_generator(cls, reddit, endpoint, max_wait=16, kind_filter=[], subreddit=None):
+        async def get_listing(limit=25, **kwargs):
+            last = None
+
+            while True:
+                kwargs["limit"] = limit if limit is not None else 100
+                if last is not None:
+                    kwargs["after"] = last
+                req = await reddit.get_request(endpoint, **kwargs)
+                if len(req["data"]["children"]) <= 0:
+                    break
+                for i in req["data"]["children"]:
+                    if i["kind"] in [reddit.link_kind, reddit.subreddit_kind, reddit.comment_kind]:
+                        last = i["data"]["name"]
+                    elif i["kind"] == reddit.modaction_kind:
+                        last = i["data"]["id"]
+
+                    if limit is not None: limit -= 1
+
+                    if kind_filter and i["kind"] not in kind_filter:
+                        continue
+
+                    if i["kind"] == reddit.link_kind:
+                        yield Submission(reddit, i["data"], subreddit=subreddit)
+                    elif i["kind"] == reddit.subreddit_kind:
+                        yield Subreddit(reddit, i["data"])
+                    elif i["kind"] == reddit.comment_kind:
+                        yield Comment(reddit, i["data"], subreddit=subreddit)
+                    elif i["kind"] == reddit.modaction_kind:
+                        yield ModAction(i["data"], subreddit)
+                    else:
+                        yield i
+                if limit is not None and limit < 1:
+                    break
+
+        return get_listing
+
     async def get(self, limit=25, **kwargs):
-        reddit = self.reddit
-        last = None
-
-        while True:
-            kwargs["limit"] = limit if limit is not None else 100
-            if last is not None:
-                kwargs["after"] = last
-            req = await reddit.get_request(self.endpoint, **kwargs)
-            if len(req["data"]["children"]) <= 0:
-                break
-            for i in req["data"]["children"]:
-                if i["kind"] in [reddit.link_kind, reddit.subreddit_kind, reddit.comment_kind]:
-                    last = i["data"]["name"]
-                elif i["kind"] == reddit.modaction_kind:
-                    last = i["data"]["id"]
-
-                if limit is not None: limit -= 1
-
-                if self.kind_filter and i["kind"] not in self.kind_filter:
-                    continue
-
-                if i["kind"] == reddit.link_kind:
-                    yield Submission(reddit, i["data"], subreddit=self.subreddit)
-                elif i["kind"] == reddit.subreddit_kind:
-                    yield Subreddit(self.reddit, i["data"])
-                elif i["kind"] == reddit.comment_kind:
-                    yield Comment(self.reddit, i["data"], subreddit=self.subreddit)
-                elif i["kind"] == reddit.modaction_kind:
-                    yield ModAction(i["data"], self.subreddit)
-                else:
-                    yield i
-            if limit is not None and limit < 1:
-                break
+        async for i in ListingGenerator.get_listing_generator(**vars(self))(limit, **kwargs):
+            yield i
 
     __call__ = get
 
