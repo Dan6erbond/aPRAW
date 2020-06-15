@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 import aiohttp
 
 from .endpoints import API_PATH, BASE_URL
-from .models import Comment, Redditor, Submission, Subreddit
+from .models import Comment, Redditor, Submission, Subreddit, ListingGenerator
 
 
 class Reddit:
@@ -48,6 +48,9 @@ class Reddit:
     async def post_request(self, endpoint="", url="", data={}, **kwargs):
         return await self.request_handler.post_request(endpoint, url, data, **kwargs)
 
+    def get_listing_generator(self, endpoint, max_wait=16, kind_filter=[]):
+        return ListingGenerator.get_listing_generator(self, endpoint, max_wait, kind_filter)
+
     async def subreddit(self, display_name):
         resp = await self.get_request(API_PATH["subreddit_about"].format(sub=display_name))
         try:
@@ -57,26 +60,17 @@ class Reddit:
             return None
 
     async def info(self, id="", ids=[], url=""):
-        if id:
-            res = await self.get_request(API_PATH["info"], id=id)
-            if res["data"]["children"][0]["kind"] == self.link_kind:
-                yield Submission(self, res["data"]["children"][0]["data"])
-            elif res["data"]["children"][0]["kind"] == self.comment_kind:
-                yield Comment(self, res["data"]["children"][0]["data"])
-        elif ids:
-            res = await self.get_request(API_PATH["info"], id=",".join(ids))
+        listing_generator = self.get_listing_generator(API_PATH["info"])
 
-            for item in res["data"]["children"]:
-                if item["kind"] == self.link_kind:
-                    yield Submission(self, item["data"])
-                elif item["kind"] == self.comment_kind:
-                    yield Comment(self, item["data"])
+        if id:
+            async for i in listing_generator(id=id):
+                yield i
+        elif ids:
+            async for i in listing_generator(None, id=",".join(ids)):
+                yield i
         elif url:
-            res = await self.get_request(API_PATH["info"], url=url)
-            if res["data"]["children"][0]["kind"] == self.link_kind:
-                yield Submission(self, res["data"]["children"][0]["data"])
-            elif res["data"]["children"][0]["kind"] == self.comment_kind:
-                yield Comment(self, res["data"]["children"][0]["data"])
+            async for i in listing_generator(url=url):
+                yield i
         else: yield None
 
     async def submission(self, id="", url=""):
@@ -126,9 +120,8 @@ class Subreddits:
         self.reddit = reddit
 
     async def new(self, limit=25, **kwargs):
-        async for s in self.reddit.get_listing(API_PATH["subreddits_new"], limit, **kwargs):
-            if s["kind"] == self.reddit.subreddit_kind:
-                yield Subreddit(self.reddit, s["data"])
+        async for i in self.reddit.get_listing_generator(API_PATH["subreddits_new"])(limit, **kwargs):
+            yield i
 
 
 class Auth:
