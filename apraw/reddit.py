@@ -45,28 +45,6 @@ class Reddit:
     async def get_request(self, endpoint="", **kwargs):
         return await self.request_handler.get_request(endpoint, **kwargs)
 
-    async def get_listing(self, endpoint, limit, **kwargs):
-        last = None
-        while True:
-            kwargs["limit"] = limit if limit is not None else 100
-            if last is not None:
-                kwargs["after"] = last
-            req = await self.get_request(endpoint, **kwargs)
-            if len(req["data"]["children"]) <= 0:
-                break
-            for i in req["data"]["children"]:
-                if i["kind"] in [self.link_kind,
-                                 self.subreddit_kind, self.comment_kind]:
-                    last = i["data"]["name"]
-                elif i["kind"] == self.modaction_kind:
-                    last = i["data"]["id"]
-
-                if limit is not None:
-                    limit -= 1
-                yield i
-            if limit is not None and limit < 1:
-                break
-
     async def post_request(self, endpoint="", url="", data={}, **kwargs):
         return await self.request_handler.post_request(endpoint, url, data, **kwargs)
 
