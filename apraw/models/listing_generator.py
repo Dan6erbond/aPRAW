@@ -7,11 +7,12 @@ from .subreddit import Subreddit, ModAction
 
 class ListingGenerator:
 
-    def __init__(self, reddit, endpoint, max_wait=16, kind_filter=[]):
+    def __init__(self, reddit, endpoint, max_wait=16, kind_filter=[], subreddit=None):
         self.reddit = reddit
         self.endpoint = endpoint
         self.max_wait = max_wait
         self.kind_filter = kind_filter
+        self.subreddit = subreddit
 
     async def get(self, limit=25, **kwargs):
         reddit = self.reddit
@@ -32,17 +33,19 @@ class ListingGenerator:
 
                 if limit is not None: limit -= 1
 
-                if len(self.kind_filter) > 0 and i["kind"] not in self.kind_filter:
+                if self.kind_filter and i["kind"] not in self.kind_filter:
                     continue
 
                 if i["kind"] == reddit.link_kind:
-                    yield Submission(reddit, i["data"])
+                    yield Submission(reddit, i["data"], subreddit=self.subreddit)
                 elif i["kind"] == reddit.subreddit_kind:
                     yield Subreddit(self.reddit, i["data"])
                 elif i["kind"] == reddit.comment_kind:
                     yield Comment(self.reddit, i["data"])
                 elif i["kind"] == reddit.modaction_kind:
-                    yield ModAction(self.reddit, i["data"])
+                    yield ModAction(i["data"], self.subreddit)
+                else:
+                    yield i
             if limit is not None and limit < 1:
                 break
 

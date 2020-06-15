@@ -51,6 +51,16 @@ class Redditor:
         else:
             self.subreddit = None
 
+        from .listing_generator import ListingGenerator
+        self.comments = ListingGenerator(
+            self.reddit,
+            API_PATH["user_comments"].format(
+                user=self))
+        self.submissions = ListingGenerator(
+            self.reddit,
+            API_PATH["user_submissions"].format(
+                user=self))
+
     def __str__(self):
         return self.name
 
@@ -61,13 +71,3 @@ class Redditor:
 
     async def message(self, subject, text, from_sr=""):
         return await self.reddit.message(self.name, subject, text, from_sr)
-
-    async def comments(self, limit=25, **kwargs):
-        async for s in self.reddit.get_listing(API_PATH["user_comments"].format(user=self), limit, **kwargs):
-            if s["kind"] == self.reddit.comment_kind:
-                yield Comment(self.reddit, s["data"])
-
-    async def submissions(self, limit=25, **kwargs):
-        async for s in self.reddit.get_listing(API_PATH["user_submissions"].format(user=self), limit, **kwargs):
-            if s["kind"] == self.reddit.link_kind:
-                yield Submission(self.reddit, s["data"])
