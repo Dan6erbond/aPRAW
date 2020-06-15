@@ -23,3 +23,13 @@ class TestReddit:
     async def test_reddit_redditor(self, reddit: apraw.Reddit):
         redditor = await reddit.redditor("Dan6erbond")
         assert redditor.id == "11qzch"
+
+    @pytest.mark.asyncio
+    async def test_reddit_subreddits(self, reddit: apraw.Reddit):
+        subreddit = None
+
+        async for sub in reddit.subreddits():
+            subreddit = sub
+            break
+
+        assert isinstance(subreddit, apraw.models.subreddit.Subreddit)

@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 import aiohttp
 
 from .endpoints import API_PATH, BASE_URL
-from .models import Comment, Redditor, Submission, Subreddit
+from .models import Comment, Redditor, Submission, Subreddit, ListingGenerator
 
 
 class Reddit:
@@ -39,36 +39,18 @@ class Reddit:
         self.award_kind = "t6"
         self.modaction_kind = "modaction"
 
-        self.subreddits = Subreddits(self)
+        self.subreddits = ListingGenerator(self, API_PATH["subreddits_new"])
         self.request_handler = RequestHandler(self.auth)
 
     async def get_request(self, endpoint="", **kwargs):
         return await self.request_handler.get_request(endpoint, **kwargs)
 
-    async def get_listing(self, endpoint, limit, **kwargs):
-        last = None
-        while True:
-            kwargs["limit"] = limit if limit is not None else 100
-            if last is not None:
-                kwargs["after"] = last
-            req = await self.get_request(endpoint, **kwargs)
-            if len(req["data"]["children"]) <= 0:
-                break
-            for i in req["data"]["children"]:
-                if i["kind"] in [self.link_kind,
-                                 self.subreddit_kind, self.comment_kind]:
-                    last = i["data"]["name"]
-                elif i["kind"] == self.modaction_kind:
-                    last = i["data"]["id"]
-
-                if limit is not None:
-                    limit -= 1
-                yield i
-            if limit is not None and limit < 1:
-                break
-
     async def post_request(self, endpoint="", url="", data={}, **kwargs):
         return await self.request_handler.post_request(endpoint, url, data, **kwargs)
+
+    def get_listing_generator(self, endpoint, max_wait=16, kind_filter=[]):
+        return ListingGenerator.get_listing_generator(
+            self, endpoint, max_wait, kind_filter)
 
     async def subreddit(self, display_name):
         resp = await self.get_request(API_PATH["subreddit_about"].format(sub=display_name))
@@ -78,33 +60,40 @@ class Reddit:
             logging.error(e)
             return None
 
-    async def info(self, id="", url=""):
-        # TODO: implement
-        pass
+    async def info(self, id="", ids=[], url=""):
+        listing_generator = self.get_listing_generator(API_PATH["info"])
+
+        if id:
+            async for i in listing_generator(id=id):
+                yield i
+        elif ids:
+            async for i in listing_generator(None, id=",".join(ids)):
+                yield i
+        elif url:
+            async for i in listing_generator(url=url):
+                yield i
+        else:
+            yield None
 
     async def submission(self, id="", url=""):
         if id != "":
             id = self.link_kind + "_" + id.replace(self.link_kind + "_", "")
-            link = await self.get_request(API_PATH["info"], id=id)
-            if link["data"]["children"][0]["kind"] == self.link_kind:
-                return Submission(self, link["data"]["children"][0]["data"])
+            async for link in self.info(id):
+                return link
         elif url != "":
-            link = await self.get_request(API_PATH["info"], url=url)
-            if link["data"]["children"][0]["kind"] == self.link_kind:
-                return Submission(self, link["data"]["children"][0]["data"])
+            async for link in self.info(url=url):
+                return link
         return None
 
     async def comment(self, id="", url=""):
         if id != "":
             id = self.comment_kind + "_" + \
                 id.replace(self.comment_kind + "_", "")
-            comment = await self.get_request(API_PATH["info"], id=id)
-            if comment["data"]["children"][0]["kind"] == self.comment_kind:
-                return Comment(self, comment["data"]["children"][0]["data"])
+            async for comment in self.info(id):
+                return comment
         elif url != "":
-            comment = await self.get_request(API_PATH["info"], url=url)
-            if comment["data"]["children"][0]["kind"] == self.comment_kind:
-                return Comment(self, comment["data"]["children"][0]["data"])
+            async for comment in self.info(url=url):
+                return comment
         return None
 
     async def redditor(self, username):
@@ -125,17 +114,6 @@ class Reddit:
             data["from_sr"] = from_sr
         resp = await self.post_request(API_PATH["compose"], data=data)
         return resp["success"]
-
-
-class Subreddits:
-
-    def __init__(self, reddit):
-        self.reddit = reddit
-
-    async def new(self, limit=25, **kwargs):
-        async for s in self.reddit.get_listing(API_PATH["subreddits_new"], limit, **kwargs):
-            if s["kind"] == self.reddit.subreddit_kind:
-                yield Subreddit(self.reddit, s["data"])
 
 
 class Auth:

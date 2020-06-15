@@ -13,3 +13,9 @@ class TestComment:
         comment = await reddit.comment("fulsybg")
         submission = await comment.submission()
         assert submission.id == "h7mna9"
+
+    @pytest.mark.asyncio
+    async def test_comment_subreddit(self, reddit):
+        comment = await reddit.comment("fulsybg")
+        subreddit = await comment.subreddit()
+        assert subreddit.display_name.lower() == "aprawtest"
