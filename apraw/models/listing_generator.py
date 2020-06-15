@@ -44,6 +44,8 @@ class ListingGenerator:
                     yield Comment(self.reddit, i["data"])
                 elif i["kind"] == reddit.modaction_kind:
                     yield ModAction(i["data"], self.subreddit)
+                else:
+                    yield i
             if limit is not None and limit < 1:
                 break
 
