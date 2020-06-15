@@ -56,33 +56,48 @@ class Reddit:
             logging.error(e)
             return None
 
-    async def info(self, id="", url=""):
-        # TODO: implement
-        pass
+    async def info(self, id="", ids=[], url=""):
+        if id:
+            res = await self.get_request(API_PATH["info"], id=id)
+            if res["data"]["children"][0]["kind"] == self.link_kind:
+                yield Submission(self, res["data"]["children"][0]["data"])
+            elif res["data"]["children"][0]["kind"] == self.comment_kind:
+                yield Comment(self, res["data"]["children"][0]["data"])
+        elif ids:
+            res = await self.get_request(API_PATH["info"], id=",".join(ids))
+
+            for item in res["data"]["children"]:
+                if item["kind"] == self.link_kind:
+                    yield Submission(self, item["data"])
+                elif item["kind"] == self.comment_kind:
+                    yield Comment(self, item["data"])
+        elif url:
+            res = await self.get_request(API_PATH["info"], url=url)
+            if res["data"]["children"][0]["kind"] == self.link_kind:
+                yield Submission(self, res["data"]["children"][0]["data"])
+            elif res["data"]["children"][0]["kind"] == self.comment_kind:
+                yield Comment(self, res["data"]["children"][0]["data"])
+        else: yield None
 
     async def submission(self, id="", url=""):
         if id != "":
             id = self.link_kind + "_" + id.replace(self.link_kind + "_", "")
-            link = await self.get_request(API_PATH["info"], id=id)
-            if link["data"]["children"][0]["kind"] == self.link_kind:
-                return Submission(self, link["data"]["children"][0]["data"])
+            async for link in self.info(id):
+                return link
         elif url != "":
-            link = await self.get_request(API_PATH["info"], url=url)
-            if link["data"]["children"][0]["kind"] == self.link_kind:
-                return Submission(self, link["data"]["children"][0]["data"])
+            async for link in self.info(url=url):
+                return link
         return None
 
     async def comment(self, id="", url=""):
         if id != "":
             id = self.comment_kind + "_" + \
                 id.replace(self.comment_kind + "_", "")
-            comment = await self.get_request(API_PATH["info"], id=id)
-            if comment["data"]["children"][0]["kind"] == self.comment_kind:
-                return Comment(self, comment["data"]["children"][0]["data"])
+            async for comment in self.info(id):
+                return comment
         elif url != "":
-            comment = await self.get_request(API_PATH["info"], url=url)
-            if comment["data"]["children"][0]["kind"] == self.comment_kind:
-                return Comment(self, comment["data"]["children"][0]["data"])
+            async for comment in self.info(url=url):
+                return comment
         return None
 
     async def redditor(self, username):
