@@ -2,6 +2,7 @@ import asyncio
 from datetime import datetime
 
 from ..endpoints import API_PATH
+from ..utils import snake_case_keys
 from .comment import Comment
 from .modmail import SubredditModmail
 from .submission import Submission
@@ -12,18 +13,14 @@ class Subreddit:
         self.reddit = reddit
         self.data = data
 
-        self.id = data["id"]
         self.created_utc = datetime.utcfromtimestamp(data["created_utc"])
-
-        self.display_name = data["display_name"]
-        self.public_description = data["public_description"]
-        self.description = data["description"]
-        self.subscribers = data["subscribers"]
         self.quarantine = data["quarantine"] if "quarantine" in data else False
-        self.subreddit_type = data["subreddit_type"]
-        self.over18 = data["over18"] if "over18" in data else data["over_18"] if "over_18" in data else False
-        self.user_is_subscribed = data["user_is_subscriber"]
-        self.user_is_moderator = data["user_is_moderator"]
+
+        ignore = ["quarantine"]
+        d = snake_case_keys(data)
+        for key in d:
+            if not hasattr(self, key) and key not in ignore:
+                setattr(self, key, d[key])
 
         self.mod = SubredditModeration(self)
         self.modmail = SubredditModmail(self)
@@ -58,13 +55,13 @@ class SubredditModerator():
         self.reddit = reddit
         self.data = data
 
-        self.id = data["id"]
-
-        self.name = data["name"]
-        self.author_flair_text = data["author_flair_text"]
-        self.author_flair_css_class = data["author_flair_css_class"]
-        self.mod_permissions = data["mod_permissions"]
         self.added = data["date"]
+
+        ignore = ["date"]
+        d = snake_case_keys(data)
+        for key in d:
+            if not hasattr(self, key) and key not in ignore:
+                setattr(self, key, d[key])
 
     def __str__(self):
         return self.name
@@ -109,20 +106,12 @@ class ModAction:
         self.data = data
         self.subreddit = subreddit
 
-        self.id = data["id"]
-
         self.created_utc = datetime.utcfromtimestamp(data["created_utc"])
 
-        self.mod = data["mod"]
-        self.description = data["description"]
-        self.details = data["details"]
-        self.action = data["action"]
-
-        self.target_body = data["target_body"]
-        self.target_title = data["target_title"]
-        self.target_permalink = data["target_permalink"]
-        self.target_author = data["target_author"]
-        self.target_fullname = data["target_fullname"]
+        d = snake_case_keys(data)
+        for key in d:
+            if not hasattr(self, key):
+                setattr(self, key, d[key])
 
     async def mod(self):
         return await self.subreddit.reddit.redditor(self.mod)

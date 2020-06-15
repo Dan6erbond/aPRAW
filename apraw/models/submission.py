@@ -1,12 +1,14 @@
 from datetime import datetime
 
 from ..endpoints import API_PATH
+from ..utils import snake_case_keys
 from .comment import Comment
 
 
 class Submission:
 
-    def __init__(self, reddit, data, full_data=None, subreddit=None, author=None):
+    def __init__(self, reddit, data, full_data=None,
+                 subreddit=None, author=None):
         self.reddit = reddit
         self.data = data
 
@@ -15,27 +17,13 @@ class Submission:
         self._subreddit = subreddit
         self._author = author
 
-        self.id = data["id"]
         self.created_utc = datetime.utcfromtimestamp(data["created_utc"])
-
-        self.name = data["name"]
-        self.title = data["title"]
-        self.selftext = data["selftext"]
-        self.media = data["media"]
-        self.over18 = data["over_18"]
-        self.is_video = data["is_video"]
         self.original_content = data["is_original_content"]
-        self.score = data["score"]
-        self.stickied = data["stickied"]
-        self.archived = data["archived"]
-        self.locked = data["locked"]
-        self.permalink = data["permalink"]
-        self.url = data["url"]
 
-        self.pinned = data["pinned"] # indicates if the post is pinned on the user's profile
-
-        self.user_reports = data["user_reports"]
-        self.mod_reports = data["mod_reports"]
+        d = snake_case_keys(data)
+        for key in d:
+            if not hasattr(self, key):
+                setattr(self, key, d[key])
 
     async def full_data(self):
         if self._full_data is None:
@@ -50,7 +38,11 @@ class Submission:
 
             for c in fd[1]["data"]["children"]:
                 if c["kind"] == self.reddit.comment_kind:
-                    self._comments.append(Comment(self.reddit, c["data"], submission=self))
+                    self._comments.append(
+                        Comment(
+                            self.reddit,
+                            c["data"],
+                            submission=self))
                 if c["kind"] == "more":
                     self._comments.extend(await self.morechildren(c["data"]["children"]))
         for c in self._comments:
@@ -70,8 +62,13 @@ class Submission:
                         for cl in _l:
                             if isinstance(cl, list):
                                 for c in cl:
-                                    if isinstance(c, dict) and "kind" in c and c["kind"] == self.reddit.comment_kind:
-                                        comments.append(Comment(self.reddit, c["data"], submission=self))
+                                    if isinstance(
+                                            c, dict) and "kind" in c and c["kind"] == self.reddit.comment_kind:
+                                        comments.append(
+                                            Comment(
+                                                self.reddit,
+                                                c["data"],
+                                                submission=self))
 
         return comments
 

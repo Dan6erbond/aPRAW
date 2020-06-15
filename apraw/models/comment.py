@@ -1,11 +1,13 @@
 from datetime import datetime
 
 from ..endpoints import API_PATH
+from ..utils import snake_case_keys
 
 
 class Comment:
 
-    def __init__(self, reddit, data, submission=None, author=None, subreddit=None):
+    def __init__(self, reddit, data, submission=None,
+                 author=None, subreddit=None):
         self.reddit = reddit
         self.data = data
 
@@ -13,22 +15,16 @@ class Comment:
         self._author = author
         self._subreddit = subreddit
 
-        self.id = data["id"]
         self.created_utc = datetime.utcfromtimestamp(data["created_utc"])
-
-        self.edited = data["edited"]
-        self.archived = data["archived"]
-        self.link_id = data["link_id"]
-        self.parent_id = data["parent_id"]
         self.subreddit_name = data["subreddit"]
-        self.subreddit_id = data["subreddit_id"]
-        self.score = data["score"]
-        self.body = data["body"]
-        self.is_submitter = data["is_submitter"]
         self.url = "https://www.reddit.com" + data["permalink"]
 
-        self.user_reports = data["user_reports"]
-        self.mod_reports = data["mod_reports"]
+        ignore = ["subreddit"]
+
+        d = snake_case_keys(data)
+        for key in d:
+            if not hasattr(self, key) and key not in ignore:
+                setattr(self, key, d[key])
 
     async def author(self):
         if self._author is None:

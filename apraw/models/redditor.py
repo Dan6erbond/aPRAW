@@ -1,6 +1,7 @@
 from datetime import datetime
 
 from ..endpoints import API_PATH
+from ..utils import snake_case_keys
 from .comment import Comment
 from .submission import Submission
 from .subreddit import Subreddit
@@ -11,21 +12,22 @@ class Redditor:
         self.reddit = reddit
         self.data = data
 
-        self.name = data["name"]
-
         if "is_suspended" not in data or not data["is_suspended"]:
-            for key in data:
-                if not hasattr(self, key):
-                    setattr(self, key, data[key])
+            self.is_suspended = False
+            self.created_utc = datetime.utcfromtimestamp(data["created_utc"])
         else:
             self.is_suspended = True
 
-        if "subreddit" in data and data["subreddit"] is not None:
+        d = snake_case_keys(data)
+        for key in d:
+            if not hasattr(self, key):
+                setattr(self, key, d[key])
+
+        if "subreddit" in data and data["subreddit"]:
             sub = data["subreddit"]
             sub["id"] = sub["name"].replace("t5_", "")
             if "created_utc" not in sub:
                 sub["created_utc"] = data["created_utc"]
-            # sub["over18"] = self.over18
             self.subreddit = Subreddit(self.reddit, sub)
         else:
             self.subreddit = None
