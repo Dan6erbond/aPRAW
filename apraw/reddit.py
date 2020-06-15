@@ -187,7 +187,7 @@ class RequestHandler:
                     else:
                         raise Exception(
                             "Invalid user data.\nUsername: {}\nPassword: {}\nClient ID: {}\nClient Secret: {}".format(
-                                self.auth.username.upper(), self.auth.password.upper(), self.auth.client_id.upper(), self.auth.client_secret.upper()))
+                                self.auth.username, self.auth.password, self.auth.client_id, self.auth.client_secret))
 
         return {
             "Authorization": "{} {}".format(self.auth.access_data["token_type"], self.auth.access_data["access_token"]),
