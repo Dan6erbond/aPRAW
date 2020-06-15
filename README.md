@@ -82,7 +82,7 @@ Still on its way!
 ## Roadmap
 
 - [ ] Full coverage of Reddit's API.
-- [ ] PyPi release.
+- [x] PyPi release.
 - [x] Never-ending streams.
 - [ ] Useful helper functions.
 
