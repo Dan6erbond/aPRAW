@@ -52,40 +52,6 @@ class Subreddit:
         return await self.reddit.message(API_PATH["subreddit"].format(sub=self.display_name), subject, text, from_sr)
 
 
-class SubredditStream():
-    def __init__(self, subreddit):
-        self.subreddit = subreddit
-
-    async def comments(self):
-        # TODO: implement
-        pass
-
-    async def submissions(self, max_wait=16, **kwargs):
-        wait = 0
-        ids = list()
-
-        while True:
-            found = False
-            async for s in self.subreddit.new(100, **kwargs):
-                if s.id in ids:
-                    break
-                if len(ids) >= 301:
-                    ids = ids[1:]
-                ids.append(s.id)
-                found = True
-                yield s
-
-            if found:
-                wait = 1
-            else:
-                wait *= 2
-                if wait > max_wait:
-                    wait = 1
-
-            print(wait)
-            await asyncio.sleep(wait)
-
-
 class SubredditModerator():
     def __init__(self, reddit, data):
         self.reddit = reddit
