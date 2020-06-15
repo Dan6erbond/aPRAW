@@ -32,7 +32,7 @@ class ListingGenerator:
 
                 if limit is not None: limit -= 1
 
-                if len(self.kind_filter) > 0 and i["kind"] not in self.kind_filter:
+                if self.kind_filter and i["kind"] not in self.kind_filter:
                     continue
 
                 if i["kind"] == reddit.link_kind:
