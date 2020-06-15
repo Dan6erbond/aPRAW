@@ -39,7 +39,7 @@ class Reddit:
         self.award_kind = "t6"
         self.modaction_kind = "modaction"
 
-        self.subreddits = Subreddits(self)
+        self.subreddits = ListingGenerator(self, API_PATH["subreddits_new"])
         self.request_handler = RequestHandler(self.auth)
 
     async def get_request(self, endpoint="", **kwargs):
@@ -49,7 +49,8 @@ class Reddit:
         return await self.request_handler.post_request(endpoint, url, data, **kwargs)
 
     def get_listing_generator(self, endpoint, max_wait=16, kind_filter=[]):
-        return ListingGenerator.get_listing_generator(self, endpoint, max_wait, kind_filter)
+        return ListingGenerator.get_listing_generator(
+            self, endpoint, max_wait, kind_filter)
 
     async def subreddit(self, display_name):
         resp = await self.get_request(API_PATH["subreddit_about"].format(sub=display_name))
@@ -71,7 +72,8 @@ class Reddit:
         elif url:
             async for i in listing_generator(url=url):
                 yield i
-        else: yield None
+        else:
+            yield None
 
     async def submission(self, id="", url=""):
         if id != "":
@@ -112,16 +114,6 @@ class Reddit:
             data["from_sr"] = from_sr
         resp = await self.post_request(API_PATH["compose"], data=data)
         return resp["success"]
-
-
-class Subreddits:
-
-    def __init__(self, reddit):
-        self.reddit = reddit
-
-    async def new(self, limit=25, **kwargs):
-        async for i in self.reddit.get_listing_generator(API_PATH["subreddits_new"])(limit, **kwargs):
-            yield i
 
 
 class Auth:
