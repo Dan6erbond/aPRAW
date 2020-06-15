@@ -31,15 +31,15 @@ class Subreddit:
         from .listing_generator import ListingGenerator
         self.comments = ListingGenerator(
             self.reddit, API_PATH["subreddit_comments"].format(
-                sub=self.display_name))
+                sub=self.display_name), subreddit=self)
         self.new = ListingGenerator(self.reddit,
-                                    API_PATH["subreddit_new"].format(sub=self.display_name))
+                                    API_PATH["subreddit_new"].format(sub=self.display_name), subreddit=self)
         self.hot = ListingGenerator(self.reddit,
-                                    API_PATH["subreddit_hot"].format(sub=self.display_name))
+                                    API_PATH["subreddit_hot"].format(sub=self.display_name), subreddit=self)
         self.rising = ListingGenerator(
             self.reddit, API_PATH["subreddit_rising"].format(sub=self.display_name))
         self.top = ListingGenerator(self.reddit,
-                                    API_PATH["subreddit_top"].format(sub=self.display_name))
+                                    API_PATH["subreddit_top"].format(sub=self.display_name), subreddit=self)
 
     def __str__(self):
         return self.display_name
