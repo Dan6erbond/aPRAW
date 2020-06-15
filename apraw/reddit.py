@@ -142,11 +142,11 @@ class Auth:
 
     def __init__(self, username, password, client_id,
                  client_secret, user_agent):
-        self.username = username.strip()
-        self.password = password.strip()
-        self.client_id = client_id.strip()
-        self.client_secret = client_secret.strip()
-        self.user_agent = user_agent.strip()
+        self.username = username
+        self.password = password
+        self.client_id = client_id
+        self.client_secret = client_secret
+        self.user_agent = user_agent
 
         if self.username == "" or self.password == "" or self.client_id == "" or self.client_secret == "":
             raise Exception(
@@ -187,7 +187,7 @@ class RequestHandler:
                     else:
                         raise Exception(
                             "Invalid user data.\nUsername: {}\nPassword: {}\nClient ID: {}\nClient Secret: {}".format(
-                                len(self.auth.username), len(self.auth.password), len(self.auth.client_id), len(self.auth.client_secret)))
+                                self.auth.username.upper(), self.auth.password.upper(), self.auth.client_id.upper(), self.auth.client_secret.upper()))
 
         return {
             "Authorization": "{} {}".format(self.auth.access_data["token_type"], self.auth.access_data["access_token"]),
