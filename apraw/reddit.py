@@ -185,7 +185,9 @@ class RequestHandler:
                         self.auth.token_expires = datetime.now()
                         + timedelta(seconds=self.auth.access_data["expires_in"])
                     else:
-                        raise Exception(await resp.text())
+                        raise Exception(
+                            "Invalid user data.\nUsername: {}\nPassword: {}\nClient ID: {}\nClient Secret: {}".format(
+                                len(self.auth.username), len(self.auth.password), len(self.auth.client_id), len(self.auth.client_secret)))
 
         return {
             "Authorization": "{} {}".format(self.auth.access_data["token_type"], self.auth.access_data["access_token"]),
