@@ -1,8 +1,8 @@
 ---
 name: Endpoint
 about: Missing Reddit API endpoints
-title: '[ENDPOINT]'
-labels: ''
+title: [ENDPOINT]
+labels: endpoint
 assignees: ''
 
 ---
