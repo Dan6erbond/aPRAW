@@ -1,5 +1,6 @@
 from ..endpoints import API_PATH
 from ..utils import snake_case_keys
+from .apraw_base import aPRAWBase
 
 
 class SubredditModmail:
@@ -12,20 +13,14 @@ class SubredditModmail:
             yield ModmailConversation(self.subreddit.reddit, req["conversations"][id])
 
 
-class ModmailConversation:
+class ModmailConversation(aPRAWBase):
     def __init__(self, reddit, data, owner=None):
-        self.reddit = reddit
-        self.data = data
+        super().__init__(reddit, data)
+
         self._data = None
 
         self.id = data["id"]
         self._owner = owner
-
-        ignore = ["owner"]
-        d = snake_case_keys(data)
-        for key in d:
-            if not hasattr(self, key) and key not in ignore:
-                setattr(self, key, d[key])
 
     async def owner(self):
         if self._owner is None:

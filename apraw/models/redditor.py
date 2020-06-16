@@ -1,27 +1,18 @@
-from datetime import datetime
-
 from ..endpoints import API_PATH
-from ..utils import snake_case_keys
+from .apraw_base import aPRAWBase
 from .comment import Comment
 from .submission import Submission
 from .subreddit import Subreddit
 
 
-class Redditor:
+class Redditor(aPRAWBase):
     def __init__(self, reddit, data):
+        super().__init__(reddit, data)
+
         self.reddit = reddit
         self.data = data
 
-        if "is_suspended" not in data or not data["is_suspended"]:
-            self.is_suspended = False
-            self.created_utc = datetime.utcfromtimestamp(data["created_utc"])
-        else:
-            self.is_suspended = True
-
-        d = snake_case_keys(data)
-        for key in d:
-            if not hasattr(self, key):
-                setattr(self, key, d[key])
+        self.is_suspended = "is_suspended" not in data or not data["is_suspended"]
 
         if "subreddit" in data and data["subreddit"]:
             sub = data["subreddit"]

@@ -5,7 +5,6 @@ from .redditor import Redditor
 
 
 class User:
-
     def __init__(self, reddit, username, password, client_id,
                  client_secret, user_agent):
         self.reddit = reddit
@@ -35,8 +34,8 @@ class User:
             self._auth_user = AuthenticatedUser(self.reddit, data)
         return self._auth_user
 
-class AuthenticatedUser(Redditor):
 
+class AuthenticatedUser(Redditor):
     def __init__(self, reddit, data):
         super().__init__(reddit, data)
 

@@ -1,30 +1,20 @@
-from datetime import datetime
-
 from ..endpoints import API_PATH
 from ..utils import snake_case_keys
+from .apraw_base import aPRAWBase
 
 
-class Comment:
+class Comment(aPRAWBase):
 
     def __init__(self, reddit, data, submission=None,
                  author=None, subreddit=None):
-        self.reddit = reddit
-        self.data = data
+        super().__init__(reddit, data)
 
         self._submission = submission
         self._author = author
         self._subreddit = subreddit
 
-        self.created_utc = datetime.utcfromtimestamp(data["created_utc"])
         self.subreddit_name = data["subreddit"]
         self.url = "https://www.reddit.com" + data["permalink"]
-
-        ignore = ["subreddit"]
-
-        d = snake_case_keys(data)
-        for key in d:
-            if not hasattr(self, key) and key not in ignore:
-                setattr(self, key, d[key])
 
     async def author(self):
         if self._author is None:

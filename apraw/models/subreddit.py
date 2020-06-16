@@ -3,24 +3,17 @@ from datetime import datetime
 
 from ..endpoints import API_PATH
 from ..utils import snake_case_keys
+from .apraw_base import aPRAWBase
 from .comment import Comment
 from .modmail import SubredditModmail
 from .submission import Submission
 
 
-class Subreddit:
+class Subreddit(aPRAWBase):
     def __init__(self, reddit, data):
-        self.reddit = reddit
-        self.data = data
+        super().__init__(reddit, data)
 
-        self.created_utc = datetime.utcfromtimestamp(data["created_utc"])
         self.quarantine = data["quarantine"] if "quarantine" in data else False
-
-        ignore = ["quarantine"]
-        d = snake_case_keys(data)
-        for key in d:
-            if not hasattr(self, key) and key not in ignore:
-                setattr(self, key, d[key])
 
         self.mod = SubredditModeration(self)
         self.modmail = SubredditModmail(self)
@@ -50,18 +43,11 @@ class Subreddit:
         return await self.reddit.message(API_PATH["subreddit"].format(sub=self.display_name), subject, text, from_sr)
 
 
-class SubredditModerator():
+class SubredditModerator(aPRAWBase):
     def __init__(self, reddit, data):
-        self.reddit = reddit
-        self.data = data
+        super().__init__(reddit, data)
 
         self.added = data["date"]
-
-        ignore = ["date"]
-        d = snake_case_keys(data)
-        for key in d:
-            if not hasattr(self, key) and key not in ignore:
-                setattr(self, key, d[key])
 
     def __str__(self):
         return self.name
