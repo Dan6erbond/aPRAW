@@ -46,20 +46,17 @@ class Submission(aPRAWBase):
             cs = children[:100]
             children = children[100:]
 
+            def get_comments(comment_list, comments):
+                for i in comment_list:
+                    if isinstance(i, list):
+                        comments = get_comments(i, comments)
+                    elif isinstance(i, dict) and "kind" in i and i["kind"] == self.reddit.comment_kind:
+                        comments.append(
+                            Comment(self.reddit, i["data"], submission=self))
+                return comments
+
             data = await self.reddit.get_request(API_PATH["morechildren"], children=",".join(cs), link_id=self.name)
-            for l in data["jquery"]:
-                for _l in l:
-                    if isinstance(_l, list):
-                        for cl in _l:
-                            if isinstance(cl, list):
-                                for c in cl:
-                                    if isinstance(
-                                            c, dict) and "kind" in c and c["kind"] == self.reddit.comment_kind:
-                                        comments.append(
-                                            Comment(
-                                                self.reddit,
-                                                c["data"],
-                                                submission=self))
+            comments = get_comments(data["jquery"], comments)
 
         return comments
 
