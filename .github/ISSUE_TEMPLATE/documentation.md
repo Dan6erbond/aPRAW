@@ -1,7 +1,7 @@
 ---
 name: Documentation
 about: Missing or Error in Documentation
-title: [DOCUMENTATION]
+title: "[DOCUMENTATION]"
 labels: documentation
 assignees: ''
 
