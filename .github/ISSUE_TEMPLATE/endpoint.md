@@ -7,8 +7,11 @@ assignees: ''
 
 ---
 
-**Name of the endpoint** Put the endpoint in between \`\`.
+**Name of the endpoint**
+Put the endpoint in between ``.
 
-**Expected model/function** i.e. `apraw.models.Submission.mod.delete()`
+**Expected model/function**
+The location of this endpoint, i.e. `apraw.models.Submission.mod.delete()`.
 
-**Additional context** Add any other context about the endpoint here.
+**Additional context**
+Add any other context about the endpoint here.
