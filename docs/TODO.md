@@ -1,4 +1,8 @@
-#### Functions to port for use in [Banhammer.py](https://github.com/Dan6erbond/Banhammer.py)
+# TODO
+
+## Endpoints
+
+### Functions to port for use in [Banhammer.py](https://github.com/Dan6erbond/Banhammer.py)
 
 **`banhammer.Subreddit.__init__()`**
 
@@ -74,3 +78,9 @@
  - [x] ~~`praw.models.Submission.permalink`~~
  - [x] ~~`praw.models.Submission.title`~~
  - [x] ~~`praw.models.Submission.selftext`~~
+
+## Helpers
+
+### Classes
+
+### Functions
