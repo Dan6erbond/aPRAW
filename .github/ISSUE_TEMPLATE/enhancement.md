@@ -1,7 +1,7 @@
 ---
 name: Enhancement
 about: Enhancements To the Codebase
-title: [ENHANCEMENT]
+title: "[ENHANCEMENT]"
 labels: enhancement
 assignees: ''
 
