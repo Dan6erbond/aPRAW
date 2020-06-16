@@ -1,29 +1,20 @@
-from datetime import datetime
-
 from ..endpoints import API_PATH
 from ..utils import snake_case_keys
+from .apraw_base import aPRAWBase
 from .comment import Comment
 
 
-class Submission:
-
+class Submission(aPRAWBase):
     def __init__(self, reddit, data, full_data=None,
                  subreddit=None, author=None):
-        self.reddit = reddit
-        self.data = data
+        super().__init__(reddit, data)
 
         self._full_data = full_data
         self._comments = list()
         self._subreddit = subreddit
         self._author = author
 
-        self.created_utc = datetime.utcfromtimestamp(data["created_utc"])
         self.original_content = data["is_original_content"]
-
-        d = snake_case_keys(data)
-        for key in d:
-            if not hasattr(self, key):
-                setattr(self, key, d[key])
 
     async def full_data(self):
         if self._full_data is None:
