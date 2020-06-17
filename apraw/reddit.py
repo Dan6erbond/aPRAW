@@ -3,10 +3,8 @@ import configparser
 import logging
 from datetime import datetime, timedelta
 
-import aiohttp
-
 from .endpoints import API_PATH, BASE_URL
-from .models import *
+from .models import ListingGenerator, Redditor, Subreddit, User
 
 
 class Reddit:
@@ -125,23 +123,22 @@ class RequestHandler:
     async def get_request_headers(self):
         if self.user.token_expires <= datetime.now():
             url = "https://www.reddit.com/api/v1/access_token"
-            data = {
-                "grant_type": "password",
-                "username": self.user.username,
-                "password": self.user.password
+            session = await self.user.get_auth_session()
+
+            headers = {
+                "Content-Type": "application/x-www-form-urlencoded",
+                "User-Agent": self.user.user_agent
             }
 
-            auth = aiohttp.BasicAuth(
-                login=self.user.client_id,
-                password=self.user.client_secret)
-            async with aiohttp.ClientSession(auth=auth) as session:
-                async with session.post(url, data=data) as resp:
-                    if resp.status == 200:
-                        self.user.access_data = await resp.json()
-                        self.user.token_expires = datetime.now()
-                        + timedelta(seconds=self.user.access_data["expires_in"])
-                    else:
-                        raise Exception("Invalid user data.")
+            resp = await session.post(url, data=self.user.password_grant, headers=headers)
+
+            async with resp:
+                if resp.status == 200:
+                    self.user.access_data = await resp.json()
+                    self.user.token_expires = datetime.now()
+                    + timedelta(seconds=self.user.access_data["expires_in"])
+                else:
+                    raise Exception("Invalid user data.")
 
         return {
             "Authorization": "{} {}".format(self.user.access_data["token_type"], self.user.access_data["access_token"]),
@@ -180,11 +177,13 @@ class RequestHandler:
 
         url = BASE_URL.format(endpoint, "&".join(params))
 
-        async with aiohttp.ClientSession() as session:
-            headers = await self.get_request_headers()
-            async with session.get(url, headers=headers) as resp:
-                self.update(resp.headers)
-                return await resp.json()
+        headers = await self.get_request_headers()
+        session = await self.user.get_client_session()
+        resp = await session.get(url, headers=headers)
+
+        async with resp:
+            self.update(resp.headers)
+            return await resp.json()
 
     @check_ratelimit
     async def post_request(self, endpoint="", url="", data={}, **kwargs):
@@ -196,8 +195,10 @@ class RequestHandler:
         elif url != "":
             url = "{}?{}".format(url, "&".join(params))
 
-        async with aiohttp.ClientSession() as session:
-            headers = await self.get_request_headers()
-            async with session.post(url, data=data, headers=headers) as resp:
-                self.update(resp.headers)
-                return await resp.json()
+        headers = await self.get_request_headers()
+        session = await self.user.get_client_session()
+        resp = await session.post(url, data=data, headers=headers)
+
+        async with resp:
+            self.update(resp.headers)
+            return await resp.json()

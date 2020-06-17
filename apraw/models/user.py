@@ -1,5 +1,7 @@
 from datetime import datetime
 
+import aiohttp
+
 from ..endpoints import API_PATH
 from .redditor import Redditor
 
@@ -19,6 +21,11 @@ class User:
             raise Exception(
                 "No login information given or login information incomplete.")
 
+        self.password_grant = "grant_type=password&username={}&password={}".format(self.username, self.password)
+
+        self._auth_session = None
+        self._client_session = None
+
         self._auth_user = None
 
         self.access_data = None
@@ -27,6 +34,19 @@ class User:
         self.ratelimit_remaining = 0
         self.ratelimit_used = 0
         self.ratelimit_reset = datetime.now()
+
+    async def get_auth_session(self):
+        if self._auth_session is None:
+            auth = aiohttp.BasicAuth(
+                login=self.client_id,
+                password=self.client_secret)
+            self._auth_session = aiohttp.ClientSession(auth=auth)
+        return self._auth_session
+
+    async def get_client_session(self):
+        if self._client_session is None:
+            self._client_session = aiohttp.ClientSession()
+        return self._client_session
 
     async def me(self):
         if not self._auth_user:
