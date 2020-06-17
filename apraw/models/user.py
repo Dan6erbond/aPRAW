@@ -21,6 +21,8 @@ class User:
             raise Exception(
                 "No login information given or login information incomplete.")
 
+        self.password_grant = "grant_type=password&username={}&password={}".format(self.username, self.password)
+
         self._auth_session = None
         self._client_session = None
 

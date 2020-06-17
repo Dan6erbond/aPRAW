@@ -123,14 +123,14 @@ class RequestHandler:
     async def get_request_headers(self):
         if self.user.token_expires <= datetime.now():
             url = "https://www.reddit.com/api/v1/access_token"
-            data = {
-                "grant_type": "password",
-                "username": self.user.username,
-                "password": self.user.password
+            session = await self.user.get_auth_session()
+
+            headers = {
+                "Content-Type": "application/x-www-form-urlencoded",
+                "User-Agent": self.user.user_agent
             }
 
-            session = await self.user.get_auth_session()
-            resp = await session.post(url, data=data)
+            resp = await session.post(url, data=self.user.password_grant, headers=headers)
 
             async with resp:
                 if resp.status == 200:
