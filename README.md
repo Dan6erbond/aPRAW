@@ -57,9 +57,10 @@ If you have any questions regarding aPRAW and its usage...
  - Join the [/r/aPRAW](https://reddit.com/r/aPRAW) subreddit
    - Feel free to post a question in the questions thread or make your own post if it could start a big discussion!
  - Join the [aPRAW Discord server](https://discord.gg/66avTS7)
-   - Use the `#💬general` chat for discussion about the library and talking to other users.
-   - Use the `#❓questions` to post questions. The developers will try to get back to you as quickly as possible, but other users can help as well!
-   - Use the `#💡ideas` if you have any ideas for the framework but don't know how to implement them, or just want to throw in the suggestion.
+   - Use `#💬general-chat` for discussion about the library and talking to other users.
+   - Use `#❓questions` to post questions. The developers will try to get back to you as quickly as possible, but other users can help as well!
+   - Use `#💡ideas` if you have any ideas for the framework but don't know how to implement them, or just want to throw in the suggestion.
+   - If you're a contributor you also get a fancy role and any discussion about contributing can be held in `#💬coder-chat`.
 
 ## Documentation
 
@@ -68,7 +69,7 @@ Still on its way!
 ## Roadmap
 
 - [ ] Full coverage of Reddit's API.
-- [ ] PyPi release.
+- [x] PyPi release.
 - [x] Never-ending streams.
 - [ ] Useful helper functions.
 
