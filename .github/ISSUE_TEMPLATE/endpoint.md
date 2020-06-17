@@ -7,11 +7,12 @@ assignees: ''
 
 ---
 
-**Name of the endpoint**
-Put the endpoint in between ``.
+**Endpoint name:** `` [e.g. `subreddit_wiki`]
 
-**Expected model/function**
-The location of this endpoint, i.e. `apraw.models.Submission.mod.delete()`.
+**Endpoint path:** `` [e.g. `/r/subreddit/api/wiki`]
+
+**Expected model/function:** `` [e.g. `apraw.models.Submission.mod.delete()`]
 
 **Additional context**
-Add any other context about the endpoint here.
+> Add any other context about the endpoint here.
+
