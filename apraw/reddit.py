@@ -38,6 +38,7 @@ class Reddit:
         self.subreddit_kind = "t5"
         self.award_kind = "t6"
         self.modaction_kind = "modaction"
+        self.listing_kind = "Listing"
 
         self.subreddits = ListingGenerator(self, API_PATH["subreddits_new"])
         self.request_handler = RequestHandler(self.user)
@@ -165,7 +166,7 @@ class RequestHandler:
                 execution_time = self.user.ratelimit_reset
                 + timedelta(seconds=len(self.queue))
                 wait_time = (execution_time - datetime.now()).total_seconds()
-                asyncio.sleep(wait_time)
+                await asyncio.sleep(wait_time)
 
             result = await func(self, *args, **kwargs)
             self.queue.remove(id)
