@@ -21,7 +21,7 @@ Authorization: {{getToken.response.body.token_type}} {{getToken.response.body.ac
 ###
 
 # @name getReplies
-GET {{baseUrl}}/comments/h9rukl/_/fuyjkrm.json
+GET {{baseUrl}}/r/facepalm/comments/h9rukl/_/fuyjkrm
 User-Agent: {{user_agent}}
 Content-Type: application/json
 Authorization: {{getToken.response.body.token_type}} {{getToken.response.body.access_token}}
