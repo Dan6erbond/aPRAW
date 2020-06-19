@@ -121,7 +121,7 @@ class RequestHandler:
     async def get_request_headers(self) -> Dict:
         if self.user.token_expires <= datetime.now():
             url = "https://www.reddit.com/api/v1/access_token"
-            session = await self.user.get_auth_session()
+            session = self.user.get_auth_session()
 
             headers = {
                 "Content-Type": "application/x-www-form-urlencoded",
@@ -176,7 +176,7 @@ class RequestHandler:
         url = BASE_URL.format(endpoint, "&".join(params))
 
         headers = await self.get_request_headers()
-        session = await self.user.get_client_session()
+        session = self.user.get_client_session()
         resp = await session.get(url, headers=headers)
 
         async with resp:
@@ -194,7 +194,7 @@ class RequestHandler:
             url = "{}?{}".format(url, "&".join(params))
 
         headers = await self.get_request_headers()
-        session = await self.user.get_client_session()
+        session = self.user.get_client_session()
         resp = await session.post(url, data=data, headers=headers)
 
         async with resp:

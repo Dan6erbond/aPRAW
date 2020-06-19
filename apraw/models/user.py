@@ -6,9 +6,24 @@ from ..endpoints import API_PATH
 from .redditor import Redditor
 
 
+class AuthenticatedUser(Redditor):
+
+    def __init__(self, reddit, data):
+        super().__init__(reddit, data)
+
+        self._karma = None
+
+    async def karma(self):
+        if not self._karma:
+            data = await self.reddit.get_request(API_PATH["me"])
+            self._karma = AuthenticatedUser(self.reddit, data)
+        return self._karma
+
+
 class User:
-    def __init__(self, reddit, username, password, client_id,
-                 client_secret, user_agent):
+
+    def __init__(self, reddit, username: str, password: str, client_id: str,
+                 client_secret: str, user_agent: str):
         self.reddit = reddit
 
         self.username = username
@@ -21,7 +36,8 @@ class User:
             raise Exception(
                 "No login information given or login information incomplete.")
 
-        self.password_grant = "grant_type=password&username={}&password={}".format(self.username, self.password)
+        self.password_grant = "grant_type=password&username={}&password={}".format(
+            self.username, self.password)
 
         self._auth_session = None
         self._client_session = None
@@ -35,7 +51,7 @@ class User:
         self.ratelimit_used = 0
         self.ratelimit_reset = datetime.now()
 
-    async def get_auth_session(self):
+    def get_auth_session(self) -> aiohttp.ClientSession:
         if self._auth_session is None:
             auth = aiohttp.BasicAuth(
                 login=self.client_id,
@@ -43,26 +59,13 @@ class User:
             self._auth_session = aiohttp.ClientSession(auth=auth)
         return self._auth_session
 
-    async def get_client_session(self):
+    def get_client_session(self) -> aiohttp.ClientSession:
         if self._client_session is None:
             self._client_session = aiohttp.ClientSession()
         return self._client_session
 
-    async def me(self):
+    async def me(self) -> AuthenticatedUser:
         if not self._auth_user:
             data = await self.reddit.get_request(API_PATH["me"])
             self._auth_user = AuthenticatedUser(self.reddit, data)
         return self._auth_user
-
-
-class AuthenticatedUser(Redditor):
-    def __init__(self, reddit, data):
-        super().__init__(reddit, data)
-
-        self._karma = None
-
-    async def karma(self):
-        if not self._karma:
-            data = await self.reddit.get_request(API_PATH["me"])
-            self._karma = AuthenticatedUser(self.reddit, data)
-        return self._karma
