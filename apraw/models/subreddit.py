@@ -1,16 +1,20 @@
 import asyncio
 from datetime import datetime
+from typing import TYPE_CHECKING, AsyncIterator, Dict
 
 from ..endpoints import API_PATH
 from ..utils import snake_case_keys
 from .apraw_base import aPRAWBase
-from .comment import Comment
 from .modmail import SubredditModmail
-from .submission import Submission
+from .redditor import Redditor
+
+if TYPE_CHECKING:
+    from ..reddit import Reddit
 
 
 class Subreddit(aPRAWBase):
-    def __init__(self, reddit, data):
+
+    def __init__(self, reddit: 'Reddit', data: Dict):
         super().__init__(reddit, data)
 
         self.quarantine = data["quarantine"] if "quarantine" in data else False
@@ -34,17 +38,18 @@ class Subreddit(aPRAWBase):
     def __str__(self):
         return self.display_name
 
-    async def moderators(self, **kwargs):
+    async def moderators(self, **kwargs) -> AsyncIterator['SubredditModerator']:
         req = await self.reddit.get_request(API_PATH["subreddit_moderators"].format(sub=self.display_name), **kwargs)
         for u in req["data"]["children"]:
             yield SubredditModerator(self.reddit, u)
 
-    async def message(self, subject, text, from_sr=""):
+    async def message(self, subject, text, from_sr="") -> Dict:
         return await self.reddit.message(API_PATH["subreddit"].format(sub=self.display_name), subject, text, from_sr)
 
 
 class SubredditModerator(aPRAWBase):
-    def __init__(self, reddit, data):
+
+    def __init__(self, reddit: 'Reddit', data: Dict):
         super().__init__(reddit, data)
 
         self.added = data["date"]
@@ -52,11 +57,12 @@ class SubredditModerator(aPRAWBase):
     def __str__(self):
         return self.name
 
-    async def redditor(self):
+    async def redditor(self) -> Redditor:
         return await self.reddit.redditor(self.name)
 
 
 class SubredditModeration:
+
     def __init__(self, subreddit):
         self.subreddit = subreddit
 
@@ -88,6 +94,7 @@ class SubredditModeration:
 
 
 class ModAction:
+
     def __init__(self, data, subreddit=None):
         self.data = data
         self.subreddit = subreddit
@@ -99,5 +106,5 @@ class ModAction:
             if not hasattr(self, key):
                 setattr(self, key, d[key])
 
-    async def mod(self):
+    async def mod(self) -> Redditor:
         return await self.subreddit.reddit.redditor(self.mod)

@@ -1,13 +1,18 @@
 import asyncio
+from typing import TYPE_CHECKING, Any, AsyncIterator, Callable, List, Union
 
 from .comment import Comment
 from .submission import Submission
-from .subreddit import Subreddit, ModAction
+from .subreddit import ModAction, Subreddit
 
+if TYPE_CHECKING:
+    from ..reddit import Reddit
 
 class ListingGenerator:
 
-    def __init__(self, reddit, endpoint, max_wait=16, kind_filter=[], subreddit=None):
+    def __init__(self, reddit: 'Reddit', endpoint: str,
+                 max_wait: int = 16, kind_filter: List[str] = [],
+                 subreddit=None):
         self.reddit = reddit
         self.endpoint = endpoint
         self.max_wait = max_wait
@@ -15,8 +20,10 @@ class ListingGenerator:
         self.subreddit = subreddit
 
     @classmethod
-    def get_listing_generator(cls, reddit, endpoint, max_wait=16, kind_filter=[], subreddit=None):
-        async def get_listing(limit=25, **kwargs):
+    def get_listing_generator(cls, reddit: 'Reddit', endpoint: str,
+                              max_wait: int = 16, kind_filter: List[str] = [],
+                              subreddit=None) -> Callable[[Any], AsyncIterator[Union[Submission, Subreddit, Comment, Any]]]:
+        async def get_listing(limit: int = 25, **kwargs) -> AsyncIterator[Union[Submission, Subreddit, Comment, Any]]:
             last = None
 
             while True:
@@ -27,12 +34,14 @@ class ListingGenerator:
                 if len(req["data"]["children"]) <= 0:
                     break
                 for i in req["data"]["children"]:
-                    if i["kind"] in [reddit.link_kind, reddit.subreddit_kind, reddit.comment_kind]:
+                    if i["kind"] in [reddit.link_kind,
+                                     reddit.subreddit_kind, reddit.comment_kind]:
                         last = i["data"]["name"]
                     elif i["kind"] == reddit.modaction_kind:
                         last = i["data"]["id"]
 
-                    if limit is not None: limit -= 1
+                    if limit is not None:
+                        limit -= 1
 
                     if kind_filter and i["kind"] not in kind_filter:
                         continue
@@ -52,13 +61,13 @@ class ListingGenerator:
 
         return get_listing
 
-    async def get(self, limit=25, **kwargs):
-        async for i in ListingGenerator.get_listing_generator(**vars(self))(limit, **kwargs):
+    async def get(self, *args, **kwargs) -> AsyncIterator[Union[Submission, Subreddit, Comment, Any]]:
+        async for i in ListingGenerator.get_listing_generator(**vars(self))(*args, **kwargs):
             yield i
 
     __call__ = get
 
-    async def stream(self, **kwargs):
+    async def stream(self, **kwargs) -> AsyncIterator[Union[Submission, Subreddit, Comment, Any]]:
         wait = 0
         ids = list()
 
