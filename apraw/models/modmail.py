@@ -11,6 +11,7 @@ if TYPE_CHECKING:
 
 
 class SubredditModmail:
+
     def __init__(self, subreddit: 'Subreddit'):
         self.subreddit = subreddit
 
@@ -21,6 +22,7 @@ class SubredditModmail:
 
 
 class ModmailConversation(aPRAWBase):
+
     def __init__(self, reddit: 'Reddit', data: Dict,
                  owner: 'Subreddit' = None):
         super().__init__(reddit, data)
@@ -47,6 +49,7 @@ class ModmailConversation(aPRAWBase):
 
 
 class ModmailMessage:
+
     def __init__(self, conversation: ModmailConversation, data: Dict):
         self.conversation = conversation
         self.data = data
