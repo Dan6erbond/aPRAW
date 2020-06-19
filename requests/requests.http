@@ -10,7 +10,10 @@ grant_type=password&username={{username}}&password={{password}}
 
 @baseUrl = https://oauth.reddit.com
 
+@subreddit = aPRAWTest
+@submissionId = h7mna9
 @commentId = fuoew5r
+@wikiPage = index
 
 # @name getComment
 GET {{baseUrl}}/api/info?id=t1_{{commentId}}
@@ -21,7 +24,7 @@ Authorization: {{getToken.response.body.token_type}} {{getToken.response.body.ac
 ###
 
 # @name getReplies
-GET {{baseUrl}}/r/facepalm/comments/h9rukl/_/fuyjkrm
+GET {{baseUrl}}/r/{{subreddit}}/comments/{{submissionId}}/_/{{commentId}}
 User-Agent: {{user_agent}}
 Content-Type: application/json
 Authorization: {{getToken.response.body.token_type}} {{getToken.response.body.access_token}}
@@ -38,6 +41,30 @@ Authorization: {{getToken.response.body.token_type}} {{getToken.response.body.ac
 
 # @name getKarma
 GET {{baseUrl}}/api/v1/me/karma
+User-Agent: {{user_agent}}
+Content-Type: application/json
+Authorization: {{getToken.response.body.token_type}} {{getToken.response.body.access_token}}
+
+###
+
+# @name getWiki
+GET {{baseUrl}}/r/{{subreddit}}/wiki/pages
+User-Agent: {{user_agent}}
+Content-Type: application/json
+Authorization: {{getToken.response.body.token_type}} {{getToken.response.body.access_token}}
+
+###
+
+# @name getWikiRevisions
+GET {{baseUrl}}/r/{{subreddit}}/wiki/revisions
+User-Agent: {{user_agent}}
+Content-Type: application/json
+Authorization: {{getToken.response.body.token_type}} {{getToken.response.body.access_token}}
+
+###
+
+# @name getWikiPage
+GET {{baseUrl}}/r/{{subreddit}}/wiki/{{wikiPage}}
 User-Agent: {{user_agent}}
 Content-Type: application/json
 Authorization: {{getToken.response.body.token_type}} {{getToken.response.body.access_token}}
