@@ -1,6 +1,6 @@
 import asyncio
 from datetime import datetime
-from typing import AsyncIterator, Dict
+from typing import TYPE_CHECKING, AsyncIterator, Dict
 
 from ..endpoints import API_PATH
 from ..utils import snake_case_keys
@@ -9,22 +9,13 @@ from .comment import Comment
 from .modmail import SubredditModmail
 from .redditor import Redditor
 
-
-class SubredditModerator(aPRAWBase):
-    def __init__(self, reddit, data):
-        super().__init__(reddit, data)
-
-        self.added = data["date"]
-
-    def __str__(self):
-        return self.name
-
-    async def redditor(self) -> Redditor:
-        return await self.reddit.redditor(self.name)
+if TYPE_CHECKING:
+    from ..reddit import Reddit
 
 
 class Subreddit(aPRAWBase):
-    def __init__(self, reddit, data: Dict):
+
+    def __init__(self, reddit: 'Reddit', data: Dict):
         super().__init__(reddit, data)
 
         self.quarantine = data["quarantine"] if "quarantine" in data else False
@@ -48,7 +39,7 @@ class Subreddit(aPRAWBase):
     def __str__(self):
         return self.display_name
 
-    async def moderators(self, **kwargs) -> AsyncIterator[SubredditModerator]:
+    async def moderators(self, **kwargs) -> AsyncIterator['SubredditModerator']:
         req = await self.reddit.get_request(API_PATH["subreddit_moderators"].format(sub=self.display_name), **kwargs)
         for u in req["data"]["children"]:
             yield SubredditModerator(self.reddit, u)
@@ -57,7 +48,22 @@ class Subreddit(aPRAWBase):
         return await self.reddit.message(API_PATH["subreddit"].format(sub=self.display_name), subject, text, from_sr)
 
 
+class SubredditModerator(aPRAWBase):
+
+    def __init__(self, reddit: 'Reddit', data: Dict):
+        super().__init__(reddit, data)
+
+        self.added = data["date"]
+
+    def __str__(self):
+        return self.name
+
+    async def redditor(self) -> Redditor:
+        return await self.reddit.redditor(self.name)
+
+
 class SubredditModeration:
+
     def __init__(self, subreddit):
         self.subreddit = subreddit
 
@@ -89,6 +95,7 @@ class SubredditModeration:
 
 
 class ModAction:
+
     def __init__(self, data, subreddit=None):
         self.data = data
         self.subreddit = subreddit
