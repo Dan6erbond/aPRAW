@@ -2,7 +2,6 @@ from ..endpoints import API_PATH
 from .apraw_base import aPRAWBase
 from .comment import Comment
 from .submission import Submission
-from .subreddit import Subreddit
 
 
 class Redditor(aPRAWBase):
@@ -19,6 +18,7 @@ class Redditor(aPRAWBase):
             sub["id"] = sub["name"].replace("t5_", "")
             if "created_utc" not in sub:
                 sub["created_utc"] = data["created_utc"]
+            from .subreddit import Subreddit
             self.subreddit = Subreddit(self.reddit, sub)
         else:
             self.subreddit = None
