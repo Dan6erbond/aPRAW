@@ -1,7 +1,5 @@
 import asyncio
-from typing import List, Union, Any
-
-import apraw
+from typing import Any, AsyncIterator, Callable, List, Union
 
 from .comment import Comment
 from .submission import Submission
@@ -9,7 +7,7 @@ from .subreddit import ModAction, Subreddit
 
 
 class ListingGenerator:
-    def __init__(self, reddit: apraw.Reddit, endpoint: str,
+    def __init__(self, reddit, endpoint: str,
                  max_wait: int = 16, kind_filter: List[str] = [],
                  subreddit=None):
         self.reddit = reddit
@@ -19,10 +17,10 @@ class ListingGenerator:
         self.subreddit = subreddit
 
     @classmethod
-    def get_listing_generator(cls, reddit: apraw.Reddit, endpoint: str,
+    def get_listing_generator(cls, reddit, endpoint: str,
                               max_wait: int = 16, kind_filter: List[str] = [],
-                              subreddit=None):
-        async def get_listing(limit=25, **kwargs) -> Union[Submission, Subreddit, Comment, Any]:
+                              subreddit=None) -> Callable[[Any], AsyncIterator[Union[Submission, Subreddit, Comment, Any]]]:
+        async def get_listing(limit: int = 25, **kwargs) -> AsyncIterator[Union[Submission, Subreddit, Comment, Any]]:
             last = None
 
             while True:
@@ -60,13 +58,13 @@ class ListingGenerator:
 
         return get_listing
 
-    async def get(self, limit=25, **kwargs):
-        async for i in ListingGenerator.get_listing_generator(**vars(self))(limit, **kwargs):
+    async def get(self, *args, **kwargs) -> AsyncIterator[Union[Submission, Subreddit, Comment, Any]]:
+        async for i in ListingGenerator.get_listing_generator(**vars(self))(*args, **kwargs):
             yield i
 
     __call__ = get
 
-    async def stream(self, **kwargs):
+    async def stream(self, **kwargs) -> AsyncIterator[Union[Submission, Subreddit, Comment, Any]]:
         wait = 0
         ids = list()
 
