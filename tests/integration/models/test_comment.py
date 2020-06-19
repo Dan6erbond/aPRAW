@@ -1,25 +1,34 @@
-import unittest
+import pytest
 
 import apraw
 
 
-class CommentTest(unittest.IsolatedAsyncioTestCase):
-    def __init__(self, *args, **kwargs):
-        super(CommentTest, self).__init__(*args, **kwargs)
+class TestComment:
+    @pytest.mark.asyncio
+    async def test_comment_author(self, reddit):
+        comment = await reddit.comment("fulsybg")
+        author = await comment.author()
+        assert author.name == "Dan6erbond"
 
-        self._reddit = apraw.Reddit("APB")
+    @pytest.mark.asyncio
+    async def test_comment_submission(self, reddit):
+        comment = await reddit.comment("fulsybg")
+        submission = await comment.submission()
+        assert submission.id == "h7mna9"
 
-    async def asyncSetUp(self):
-        self._comment = await self._reddit.comment("fulsybg")
+    @pytest.mark.asyncio
+    async def test_comment_subreddit(self, reddit):
+        comment = await reddit.comment("fulsybg")
+        subreddit = await comment.subreddit()
+        assert subreddit.display_name.lower() == "aprawtest"
 
-    async def test_comment_author(self):
-        author = await self._comment.author()
-        self.assertEqual(author.name, "Dan6erbond")
+    @pytest.mark.asyncio
+    async def test_comment_replies(self, reddit):
+        comment = await reddit.comment("fulsybg")
 
-    async def test_comment_submission(self):
-        submission = await self._comment.submission()
-        self.assertEqual(submission.id, "h7mna9")
+        async def scan_comments(c):
+            async for reply in c.replies():
+                assert isinstance(reply, apraw.models.Comment)
+                await scan_comments(reply)
 
-
-if __name__ == "__main__":
-    unittest.main()
+        await scan_comments(comment)

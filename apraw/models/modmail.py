@@ -1,4 +1,6 @@
 from ..endpoints import API_PATH
+from ..utils import snake_case_keys
+from .apraw_base import aPRAWBase
 
 
 class SubredditModmail:
@@ -11,31 +13,14 @@ class SubredditModmail:
             yield ModmailConversation(self.subreddit.reddit, req["conversations"][id])
 
 
-class ModmailConversation:
+class ModmailConversation(aPRAWBase):
     def __init__(self, reddit, data, owner=None):
-        self.reddit = reddit
-        self.data = data
+        super().__init__(reddit, data)
+
         self._data = None
 
         self.id = data["id"]
         self._owner = owner
-
-        self.subject = data["subject"]
-
-        self.is_auto = data["isAuto"]
-        self.obj_ids = data["objIds"]
-        self.is_repliable = data["isRepliable"]
-        self.last_user_update = data["lastUserUpdate"]
-        self.is_internal = data["isInternal"]
-        self.lastModUpdate = data["lastModUpdate"]
-        self.lastUpdated = data["lastUpdated"]
-        self.is_highlighted = data["isHighlighted"]
-        self.state = data["state"]
-        self.last_unread = data["lastUnread"]
-        self.num_messages = data["numMessages"]
-
-        self.authors = data["authors"]
-        self.participant = data["participant"]
 
     async def owner(self):
         if self._owner is None:
@@ -51,6 +36,7 @@ class ModmailConversation:
         if self._data is None:
             self._data = await self.reddit.get_request(API_PATH["modmail_conversation"].format(id=self.id))
         return self._data
+
 
 class ModmailMessage:
     def __init__(self, conversation, data):
@@ -68,7 +54,8 @@ class ModmailMessage:
     async def author(self):
         if self._author is None:
             if not self.data["author"]["isDeleted"]:
-                self._author = self.conversation.reddit.redditor(self.data["author"]["name"])
+                self._author = self.conversation.reddit.redditor(
+                    self.data["author"]["name"])
             else:
                 return None
         return self._author

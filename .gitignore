@@ -124,7 +124,6 @@ dmypy.json
 
 # custom
 .idea
-login.py
 __pycache__
 praw.ini
 /async_subreddit.py

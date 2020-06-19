@@ -4,6 +4,16 @@ Asynchronous Python Reddit API Wrapper by [Dan6erbond](https://dan6erbond.github
 
 **aPRAW** is an asynchronous API wrapper written for the Reddit API that builds on the idea of [PRAW](https://github.com/praw-dev/praw) in many ways. It follows a very similar design, but adds features such as unlimited listings and, most importantly, support for asynchronous requests. This allows the library to be used in scenarios where the requests can take longer (such as with those unlimited listings and streams) and not block other tasks.
 
+**Table of Contents**
+ - [Key Features](#key-features)
+ - [Reporting Bugs](#installation)
+ - [Pull Requests](#quickstart)
+ - [Community and Support](#community-and-support)
+   - [Contributing](#contributing)
+ - [Documentation](#documentation)
+ - [Roadmap](#roadmap)
+ - [License](#license)
+
 ## Key Features
 
  - Asynchronous HTTPS requests to the Reddit API.
@@ -57,10 +67,13 @@ If you have any questions regarding aPRAW and its usage...
  - Join the [/r/aPRAW](https://reddit.com/r/aPRAW) subreddit
    - Feel free to post a question in the questions thread or make your own post if it could start a big discussion!
  - Join the [aPRAW Discord server](https://discord.gg/66avTS7)
-   - Use `#💬general-chat` for discussion about the library and talking to other users.
-   - Use `#❓questions` to post questions. The developers will try to get back to you as quickly as possible, but other users can help as well!
-   - Use `#💡ideas` if you have any ideas for the framework but don't know how to implement them, or just want to throw in the suggestion.
-   - If you're a contributor you also get a fancy role and any discussion about contributing can be held in `#💬coder-chat`.
+   - Use the `#💬general` chat for discussion about the library and talking to other users.
+   - Use the `#❓questions` to post questions. The developers will try to get back to you as quickly as possible, but other users can help as well!
+   - Use the `#💡ideas` if you have any ideas for the framework but don't know how to implement them, or just want to throw in the suggestion.
+
+### Contributing
+
+Of course, aPRAW is open-source under the GPLv3 license and all additions and bug reports in the form of issues and pull requests are welcome! For further information, view the [contribution guidelines](.github/CONTRIBUTING.md) and have fun coding!
 
 ## Documentation
 
@@ -74,5 +87,5 @@ Still on its way!
 - [ ] Useful helper functions.
 
 ## License
-PRAW's source is provided under GLPv3.
+PRAW's source is provided under GPLv3.
 > Copyright ©, RaviAnand Mohabir

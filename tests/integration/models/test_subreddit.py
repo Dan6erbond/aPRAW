@@ -1,30 +1,46 @@
-import unittest
+import pytest
 
 import apraw
 
 
-class SubredditTest(unittest.IsolatedAsyncioTestCase):
-    def __init__(self, *args, **kwargs):
-        super(SubredditTest, self).__init__(*args, **kwargs)
+class TestSubreddit:
+    @pytest.mark.asyncio
+    async def test_subreddit_id(self, reddit):
+        subreddit = await reddit.subreddit("aprawtest")
+        assert subreddit.id == "2rcbck"
 
-        self._reddit = apraw.Reddit("APB")
-
-    async def asyncSetUp(self):
-        self._subreddit = await self._reddit.subreddit("aprawtest")
-
-    async def test_subreddit_id(self):
-        print(self._subreddit.id)
-
-    async def test_subreddit_moderators(self):
+    @pytest.mark.asyncio
+    async def test_subreddit_moderators(self, reddit):
+        subreddit = await reddit.subreddit("aprawtest")
         moderator_found = False
 
-        async for moderator in self._subreddit.moderators():
+        async for moderator in subreddit.moderators():
             if moderator.name.lower() == "aprawbot":
                 moderator_found = True
                 break
 
-        self.assertTrue(moderator_found)
+        assert moderator_found
 
+    @pytest.mark.asyncio
+    async def test_subreddit_moderation_listing(self, reddit):
+        subreddit = await reddit.subreddit("aprawtest")
+        report = None
 
-if __name__ == "__main__":
-    unittest.main()
+        async for rep in subreddit.mod.reports():
+            report = rep
+            break
+
+        assert isinstance(
+            report, apraw.models.submission.Submission) or isinstance(
+            report, apraw.models.comment.Comment)
+
+    @pytest.mark.asyncio
+    async def test_subreddit_moderation_log(self, reddit):
+        subreddit = await reddit.subreddit("aprawtest")
+        log = None
+
+        async for l in subreddit.mod.log():
+            log = l
+            break
+
+        assert isinstance(log, apraw.models.subreddit.ModAction)
