@@ -1,53 +1,48 @@
-import unittest
+
+import pytest
 
 import apraw
 
 
-class SubmissionTest(unittest.IsolatedAsyncioTestCase):
-    def __init__(self, *args, **kwargs):
-        super(SubmissionTest, self).__init__(*args, **kwargs)
+class TestSubmission:
+    @pytest.mark.asyncio
+    async def test_submission_full_data(self, reddit):
+        submission = await reddit.submission("h7mna9")
+        full_data = await submission.full_data()
+        assert full_data[0]["data"]["children"][0]["data"]["id"] == "h7mna9"
 
-        self._reddit = apraw.Reddit("APB")
-
-    async def asyncSetUp(self):
-        self._submission = await self._reddit.submission("h7mna9")
-
-    async def test_submission_full_data(self):
-        full_data = await self._submission.full_data()
-        self.assertEqual(
-            full_data[0]["data"]["children"][0]["data"]["id"],
-            "h7mna9")
-
-    async def test_submission_comments(self):
+    @pytest.mark.asyncio
+    async def test_submission_comments(self, reddit):
+        submission = await reddit.submission("h7mna9")
         comment_found = False
 
-        async for comment in self._submission.comments():
+        async for comment in submission.comments():
             if comment.id == "fulsybg":
                 comment_found = True
                 break
 
-        self.assertTrue(comment_found)
+        assert comment_found
 
-    async def test_submission_morechildren(self):
-        children = ["fulsybg"]
+    @pytest.mark.asyncio
+    async def test_submission_morechildren(self, reddit):
+        submission = await reddit.submission("h7mna9")
+        children = []
 
-        comment_found = False
+        async for comment in submission.comments():
+            children.append(comment.id)
 
-        for comment in await self._submission.morechildren(children):
-            if comment.id == "fulsybg":
-                comment_found = True
-                break
-
-        self.assertTrue(comment_found)
-
-    async def test_submission_subreddit(self):
-        subreddit = await self._submission.subreddit()
-        self.assertTrue(subreddit.display_name.lower() == "aprawtest")
-
-    async def test_submission_author(self):
-        author = await self._submission.author()
-        self.assertTrue(author.name.lower() == "dan6erbond")
+        for comment in await submission.morechildren(children):
+            assert isinstance(comment, apraw.models.Comment)
 
 
-if __name__ == "__main__":
-    unittest.main()
+    @pytest.mark.asyncio
+    async def test_submission_subreddit(self, reddit):
+        submission = await reddit.submission("h7mna9")
+        subreddit = await submission.subreddit()
+        assert subreddit.display_name.lower() == "aprawtest"
+
+    @pytest.mark.asyncio
+    async def test_submission_author(self, reddit):
+        submission = await reddit.submission("h7mna9")
+        author = await submission.author()
+        assert author.name.lower() == "dan6erbond"

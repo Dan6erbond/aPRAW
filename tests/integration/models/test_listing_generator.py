@@ -1,42 +1,35 @@
-import unittest
-
-import apraw
+import pytest
 
 
-class ListingGeneratorTest(unittest.IsolatedAsyncioTestCase):
-    def __init__(self, *args, **kwargs):
-        super(ListingGeneratorTest, self).__init__(*args, **kwargs)
-
-        self._reddit = apraw.Reddit("APB")
-
-    async def asyncSetUp(self):
-        subreddit = await self._reddit.subreddit("aprawtest")
-        self._listing_generator = subreddit.new
-
-    async def test_listing_generator_get(self):
+class TestListingGenerator:
+    @pytest.mark.asyncio
+    async def test_listing_generator_get(self, reddit):
+        subreddit = await reddit.subreddit("aprawtest")
+        listing_generator = subreddit.new
         submission_found = False
 
-        async for submission in self._listing_generator.get():
+        async for submission in listing_generator.get():
             if submission.id == "h7mna9":
                 submission_found = True
                 break
 
-        self.assertTrue(submission_found)
+        assert submission_found
 
-    async def test_listing_generator_call(self):
-        self.assertEqual(self._listing_generator.__call__, self._listing_generator.get)
+    @pytest.mark.asyncio
+    async def test_listing_generator_call(self, reddit):
+        subreddit = await reddit.subreddit("aprawtest")
+        listing_generator = subreddit.new
+        assert listing_generator.__call__ == listing_generator.get
 
-    async def test_listing_generator_stream(self):
+    @pytest.mark.asyncio
+    async def test_listing_generator_stream(self, reddit):
+        subreddit = await reddit.subreddit("aprawtest")
+        listing_generator = subreddit.new
         submission_found = False
 
-        async for submission in self._listing_generator.stream():
+        async for submission in listing_generator.stream():
             if submission.id == "h7mna9":
                 submission_found = True
                 break
 
-        self.assertTrue(submission_found)
-
-
-
-if __name__ == "__main__":
-    unittest.main()
+        assert submission_found

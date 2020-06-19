@@ -5,8 +5,8 @@ from datetime import datetime, timedelta
 
 import aiohttp
 
-from .endpoints import *
-from .models import *
+from .endpoints import API_PATH, BASE_URL
+from .models import ListingGenerator, Redditor, Subreddit, User
 
 
 class Reddit:
@@ -18,19 +18,19 @@ class Reddit:
             config = configparser.ConfigParser()
             config.read("praw.ini")
 
-            self.auth = Auth(
-                config[praw_key]["username"],
-                config[praw_key]["password"],
-                config[praw_key]["client_id"],
-                config[praw_key]["client_secret"],
-                config[praw_key]["user_agent"] if "user_agent" in config[praw_key] else user_agent)
+            self.user = User(self,
+                             config[praw_key]["username"],
+                             config[praw_key]["password"],
+                             config[praw_key]["client_id"],
+                             config[praw_key]["client_secret"],
+                             config[praw_key]["user_agent"] if "user_agent" in config[praw_key] else user_agent)
         else:
-            self.auth = Auth(
-                username,
-                password,
-                client_id,
-                client_secret,
-                user_agent)
+            self.user = User(self,
+                             username,
+                             password,
+                             client_id,
+                             client_secret,
+                             user_agent)
 
         self.comment_kind = "t1"
         self.account_kind = "t2"
@@ -39,37 +39,20 @@ class Reddit:
         self.subreddit_kind = "t5"
         self.award_kind = "t6"
         self.modaction_kind = "modaction"
+        self.listing_kind = "Listing"
 
-        self.subreddits = Subreddits(self)
-        self.request_handler = RequestHandler(self.auth)
+        self.subreddits = ListingGenerator(self, API_PATH["subreddits_new"])
+        self.request_handler = RequestHandler(self.user)
 
     async def get_request(self, endpoint="", **kwargs):
         return await self.request_handler.get_request(endpoint, **kwargs)
 
-    async def get_listing(self, endpoint, limit, **kwargs):
-        last = None
-        while True:
-            kwargs["limit"] = limit if limit is not None else 100
-            if last is not None:
-                kwargs["after"] = last
-            req = await self.get_request(endpoint, **kwargs)
-            if len(req["data"]["children"]) <= 0:
-                break
-            for i in req["data"]["children"]:
-                if i["kind"] in [self.link_kind,
-                                 self.subreddit_kind, self.comment_kind]:
-                    last = i["data"]["name"]
-                elif i["kind"] == self.modaction_kind:
-                    last = i["data"]["id"]
-
-                if limit is not None:
-                    limit -= 1
-                yield i
-            if limit is not None and limit < 1:
-                break
-
     async def post_request(self, endpoint="", url="", data={}, **kwargs):
         return await self.request_handler.post_request(endpoint, url, data, **kwargs)
+
+    def get_listing_generator(self, endpoint, max_wait=16, kind_filter=[]):
+        return ListingGenerator.get_listing_generator(
+            self, endpoint, max_wait, kind_filter)
 
     async def subreddit(self, display_name):
         resp = await self.get_request(API_PATH["subreddit_about"].format(sub=display_name))
@@ -79,33 +62,40 @@ class Reddit:
             logging.error(e)
             return None
 
-    async def info(self, id="", url=""):
-        # TODO: implement
-        pass
+    async def info(self, id="", ids=[], url=""):
+        listing_generator = self.get_listing_generator(API_PATH["info"])
+
+        if id:
+            async for i in listing_generator(id=id):
+                yield i
+        elif ids:
+            async for i in listing_generator(None, id=",".join(ids)):
+                yield i
+        elif url:
+            async for i in listing_generator(url=url):
+                yield i
+        else:
+            yield None
 
     async def submission(self, id="", url=""):
         if id != "":
             id = self.link_kind + "_" + id.replace(self.link_kind + "_", "")
-            link = await self.get_request(API_PATH["info"], id=id)
-            if link["data"]["children"][0]["kind"] == self.link_kind:
-                return Submission(self, link["data"]["children"][0]["data"])
+            async for link in self.info(id):
+                return link
         elif url != "":
-            link = await self.get_request(API_PATH["info"], url=url)
-            if link["data"]["children"][0]["kind"] == self.link_kind:
-                return Submission(self, link["data"]["children"][0]["data"])
+            async for link in self.info(url=url):
+                return link
         return None
 
     async def comment(self, id="", url=""):
         if id != "":
             id = self.comment_kind + "_" + \
                 id.replace(self.comment_kind + "_", "")
-            comment = await self.get_request(API_PATH["info"], id=id)
-            if comment["data"]["children"][0]["kind"] == self.comment_kind:
-                return Comment(self, comment["data"]["children"][0]["data"])
+            async for comment in self.info(id):
+                return comment
         elif url != "":
-            comment = await self.get_request(API_PATH["info"], url=url)
-            if comment["data"]["children"][0]["kind"] == self.comment_kind:
-                return Comment(self, comment["data"]["children"][0]["data"])
+            async for comment in self.info(url=url):
+                return comment
         return None
 
     async def redditor(self, username):
@@ -128,77 +118,43 @@ class Reddit:
         return resp["success"]
 
 
-class Subreddits:
-
-    def __init__(self, reddit: Reddit):
-        self.reddit = reddit
-
-    async def new(self, limit=25, **kwargs):
-        async for s in self.reddit.get_listing(API_PATH["subreddits_new"], limit, **kwargs):
-            if s["kind"] == self.reddit.subreddit_kind:
-                yield Subreddit(self.reddit, s["data"])
-
-
-class Auth:
-
-    def __init__(self, username, password, client_id,
-                 client_secret, user_agent):
-        self.username = username
-        self.password = password
-        self.client_id = client_id
-        self.client_secret = client_secret
-        self.user_agent = user_agent
-
-        if self.username == "" or self.password == "" or self.client_id == "" or self.client_secret == "":
-            raise Exception(
-                "No login information given or login information incomplete.")
-
-        self.access_data = None
-        self.token_expires = datetime.now()
-
-        self.ratelimit_remaining = 0
-        self.ratelimit_used = 0
-        self.ratelimit_reset = datetime.now()
-
-
 class RequestHandler:
 
-    def __init__(self, auth):
-        self.auth = auth
+    def __init__(self, user):
+        self.user = user
         self.queue = []
 
     async def get_request_headers(self):
-        if self.auth.token_expires <= datetime.now():
+        if self.user.token_expires <= datetime.now():
             url = "https://www.reddit.com/api/v1/access_token"
-            data = {
-                "grant_type": "password",
-                "username": self.auth.username,
-                "password": self.auth.password
+            session = await self.user.get_auth_session()
+
+            headers = {
+                "Content-Type": "application/x-www-form-urlencoded",
+                "User-Agent": self.user.user_agent
             }
 
-            auth = aiohttp.BasicAuth(
-                login=self.auth.client_id,
-                password=self.auth.client_secret)
-            async with aiohttp.ClientSession(auth=auth) as session:
-                async with session.post(url, data=data) as resp:
-                    if resp.status == 200:
-                        self.auth.access_data = await resp.json()
-                        self.auth.token_expires = datetime.now()
-                        + timedelta(seconds=self.auth.access_data["expires_in"])
-                    else:
-                        raise Exception("Invalid user data.")
+            resp = await session.post(url, data=self.user.password_grant, headers=headers)
+
+            async with resp:
+                if resp.status == 200:
+                    self.user.access_data = await resp.json()
+                    self.user.token_expires = datetime.now()
+                    + timedelta(seconds=self.user.access_data["expires_in"])
+                else:
+                    raise Exception("Invalid user data.")
 
         return {
-            "Authorization": "{} {}".format(self.auth.access_data["token_type"], self.auth.access_data["access_token"]),
-            "User-Agent": self.auth.user_agent
+            "Authorization": "{} {}".format(self.user.access_data["token_type"], self.user.access_data["access_token"]),
+            "User-Agent": self.user.user_agent
         }
 
     def update(self, data):
-        self.auth.ratelimit_remaining = int(
+        self.user.ratelimit_remaining = int(
             float(data["x-ratelimit-remaining"]))
-        self.auth.ratelimit_used = int(data["x-ratelimit-used"])
+        self.user.ratelimit_used = int(data["x-ratelimit-used"])
 
-        self.auth.ratelimit_reset = datetime.now()
+        self.user.ratelimit_reset = datetime.now()
         + timedelta(seconds=int(data["x-ratelimit-reset"]))
 
     def check_ratelimit(func):
@@ -206,11 +162,11 @@ class RequestHandler:
             id = datetime.now().strftime('%Y%m%d%H%M%S')
             self.queue.append(id)
 
-            if (self.auth.ratelimit_remaining < 5):
-                execution_time = self.auth.ratelimit_reset
+            if (self.user.ratelimit_remaining < 5):
+                execution_time = self.user.ratelimit_reset
                 + timedelta(seconds=len(self.queue))
                 wait_time = (execution_time - datetime.now()).total_seconds()
-                asyncio.sleep(wait_time)
+                await asyncio.sleep(wait_time)
 
             result = await func(self, *args, **kwargs)
             self.queue.remove(id)
@@ -225,11 +181,13 @@ class RequestHandler:
 
         url = BASE_URL.format(endpoint, "&".join(params))
 
-        async with aiohttp.ClientSession() as session:
-            headers = await self.get_request_headers()
-            async with session.get(url, headers=headers) as resp:
-                self.update(resp.headers)
-                return await resp.json()
+        headers = await self.get_request_headers()
+        session = await self.user.get_client_session()
+        resp = await session.get(url, headers=headers)
+
+        async with resp:
+            self.update(resp.headers)
+            return await resp.json()
 
     @check_ratelimit
     async def post_request(self, endpoint="", url="", data={}, **kwargs):
@@ -241,8 +199,10 @@ class RequestHandler:
         elif url != "":
             url = "{}?{}".format(url, "&".join(params))
 
-        async with aiohttp.ClientSession() as session:
-            headers = await self.get_request_headers()
-            async with session.post(url, data=data, headers=headers) as resp:
-                self.update(resp.headers)
-                return await resp.json()
+        headers = await self.get_request_headers()
+        session = await self.user.get_client_session()
+        resp = await session.post(url, data=data, headers=headers)
+
+        async with resp:
+            self.update(resp.headers)
+            return await resp.json()
