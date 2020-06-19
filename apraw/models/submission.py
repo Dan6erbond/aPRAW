@@ -1,4 +1,4 @@
-from typing import AsyncIterator, Dict, List
+from typing import TYPE_CHECKING, AsyncIterator, Dict, List
 
 from ..endpoints import API_PATH
 from ..utils import snake_case_keys
@@ -7,9 +7,12 @@ from .comment import Comment
 from .redditor import Redditor
 from .subreddit import Subreddit
 
+if TYPE_CHECKING:
+    from ..reddit import Reddit
+
 
 class Submission(aPRAWBase):
-    def __init__(self, reddit, data: Dict, full_data: Dict = None,
+    def __init__(self, reddit: 'Reddit', data: Dict, full_data: Dict = None,
                  subreddit: Subreddit = None, author: Redditor = None):
         super().__init__(reddit, data)
 
