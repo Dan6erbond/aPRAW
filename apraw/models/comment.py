@@ -1,12 +1,20 @@
+from typing import TYPE_CHECKING, AsyncIterator, Dict, List
+
 from ..endpoints import API_PATH
 from ..utils import snake_case_keys
 from .apraw_base import aPRAWBase
+from .redditor import Redditor
+from .subreddit import Subreddit
+
+if TYPE_CHECKING:
+    from ..reddit import Reddit
+    from .submission import Submission
 
 
 class Comment(aPRAWBase):
 
-    def __init__(self, reddit, data, submission=None,
-                 author=None, subreddit=None, replies=None):
+    def __init__(self, reddit: 'Reddit', data: Dict, submission: 'Submission' = None,
+                 author: Redditor = None, subreddit: Subreddit = None, replies: List['Comment'] = None):
         super().__init__(reddit, data)
 
         self._submission = submission
@@ -18,12 +26,12 @@ class Comment(aPRAWBase):
         self.subreddit_name = data["subreddit"]
         self.url = "https://www.reddit.com" + data["permalink"]
 
-    async def author(self):
+    async def author(self) -> Redditor:
         if self._author is None:
             self._author = await self.reddit.redditor(self.data["author"])
         return self._author
 
-    async def submission(self):
+    async def submission(self) -> 'Submission':
         if self._submission is None:
             link = await self.reddit.get_request(API_PATH["info"], id=self.data["link_id"])
             from .submission import Submission
@@ -31,12 +39,12 @@ class Comment(aPRAWBase):
                 self.reddit, link["data"]["children"][0]["data"])
         return self._submission
 
-    async def subreddit(self):
+    async def subreddit(self) -> Subreddit:
         if self._subreddit is None:
             self._subreddit = await self.reddit.subreddit(self.subreddit_name)
         return self._subreddit
 
-    async def full_data(self, refresh=False):
+    async def full_data(self, refresh: bool = False) -> Dict:
         if self._full_data is None or refresh:
             self._full_data = await self.reddit.get_request(
                 API_PATH["comment"].format(sub=self.data["subreddit"],
@@ -49,7 +57,7 @@ class Comment(aPRAWBase):
         await self.full_data(True)
         await self.replies(True)
 
-    async def replies(self, refresh=False):
+    async def replies(self, refresh: bool = False) -> AsyncIterator['Comment']:
         if self._replies is None or refresh:
             fd = await self.full_data()
 

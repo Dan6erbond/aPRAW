@@ -1,11 +1,15 @@
 from datetime import datetime
-from typing import Any, Dict
+from typing import TYPE_CHECKING, Any, Dict
 
 from ..utils import snake_case_keys
 
+if TYPE_CHECKING:
+    from ..reddit import Reddit
+
 
 class aPRAWBase:
-    def __init__(self, reddit, data: Dict[str, Any]):
+
+    def __init__(self, reddit: 'Reddit', data: Dict[str, Any]):
         self.reddit = reddit
         self.data = data
 

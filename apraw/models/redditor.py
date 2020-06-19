@@ -2,7 +2,6 @@ from typing import TYPE_CHECKING, Dict
 
 from ..endpoints import API_PATH
 from .apraw_base import aPRAWBase
-from .comment import Comment
 
 if TYPE_CHECKING:
     from .subreddit import Subreddit

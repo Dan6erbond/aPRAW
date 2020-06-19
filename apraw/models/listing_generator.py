@@ -1,13 +1,16 @@
 import asyncio
-from typing import Any, AsyncIterator, Callable, List, Union
+from typing import TYPE_CHECKING, Any, AsyncIterator, Callable, List, Union
 
 from .comment import Comment
 from .submission import Submission
 from .subreddit import ModAction, Subreddit
 
+if TYPE_CHECKING:
+    from ..reddit import Reddit
 
 class ListingGenerator:
-    def __init__(self, reddit, endpoint: str,
+
+    def __init__(self, reddit: 'Reddit', endpoint: str,
                  max_wait: int = 16, kind_filter: List[str] = [],
                  subreddit=None):
         self.reddit = reddit
@@ -17,7 +20,7 @@ class ListingGenerator:
         self.subreddit = subreddit
 
     @classmethod
-    def get_listing_generator(cls, reddit, endpoint: str,
+    def get_listing_generator(cls, reddit: 'Reddit', endpoint: str,
                               max_wait: int = 16, kind_filter: List[str] = [],
                               subreddit=None) -> Callable[[Any], AsyncIterator[Union[Submission, Subreddit, Comment, Any]]]:
         async def get_listing(limit: int = 25, **kwargs) -> AsyncIterator[Union[Submission, Subreddit, Comment, Any]]:

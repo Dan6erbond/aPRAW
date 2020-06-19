@@ -5,7 +5,6 @@ from typing import TYPE_CHECKING, AsyncIterator, Dict
 from ..endpoints import API_PATH
 from ..utils import snake_case_keys
 from .apraw_base import aPRAWBase
-from .comment import Comment
 from .modmail import SubredditModmail
 from .redditor import Redditor
 
