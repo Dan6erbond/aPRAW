@@ -11,6 +11,19 @@ from .redditor import Redditor
 from .submission import Submission
 
 
+class SubredditModerator(aPRAWBase):
+    def __init__(self, reddit, data):
+        super().__init__(reddit, data)
+
+        self.added = data["date"]
+
+    def __str__(self):
+        return self.name
+
+    async def redditor(self) -> Redditor:
+        return await self.reddit.redditor(self.name)
+
+
 class Subreddit(aPRAWBase):
     def __init__(self, reddit, data: Dict):
         super().__init__(reddit, data)
@@ -43,19 +56,6 @@ class Subreddit(aPRAWBase):
 
     async def message(self, subject, text, from_sr="") -> Dict:
         return await self.reddit.message(API_PATH["subreddit"].format(sub=self.display_name), subject, text, from_sr)
-
-
-class SubredditModerator(aPRAWBase):
-    def __init__(self, reddit, data):
-        super().__init__(reddit, data)
-
-        self.added = data["date"]
-
-    def __str__(self):
-        return self.name
-
-    async def redditor(self) -> Redditor:
-        return await self.reddit.redditor(self.name)
 
 
 class SubredditModeration:
