@@ -12,7 +12,7 @@ if TYPE_CHECKING:
 
 class User:
 
-    def __init__(self, reddit: Reddit, username: str, password: str, client_id: str,
+    def __init__(self, reddit: 'Reddit', username: str, password: str, client_id: str,
                  client_secret: str, user_agent: str):
         self.reddit = reddit
 
@@ -63,7 +63,7 @@ class User:
 
 class AuthenticatedUser(Redditor):
 
-    def __init__(self, reddit: Reddit, data: Dict):
+    def __init__(self, reddit: 'Reddit', data: Dict):
         super().__init__(reddit, data)
 
         self._karma = None
