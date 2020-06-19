@@ -1,7 +1,6 @@
 from ..endpoints import API_PATH
 from .apraw_base import aPRAWBase
 from .comment import Comment
-from .submission import Submission
 
 
 class Redditor(aPRAWBase):

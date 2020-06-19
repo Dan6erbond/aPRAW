@@ -1,12 +1,16 @@
+from typing import AsyncIterator, Dict, List
+
 from ..endpoints import API_PATH
 from ..utils import snake_case_keys
 from .apraw_base import aPRAWBase
 from .comment import Comment
+from .redditor import Redditor
+from .subreddit import Subreddit
 
 
 class Submission(aPRAWBase):
-    def __init__(self, reddit, data, full_data=None,
-                 subreddit=None, author=None):
+    def __init__(self, reddit, data: Dict, full_data: Dict = None,
+                 subreddit: Subreddit = None, author: Redditor = None):
         super().__init__(reddit, data)
 
         self._full_data = full_data
@@ -16,13 +20,13 @@ class Submission(aPRAWBase):
 
         self.original_content = data["is_original_content"]
 
-    async def full_data(self):
+    async def full_data(self) -> Dict:
         if self._full_data is None:
             sub = await self.subreddit()
             self._full_data = await self.reddit.get_request(API_PATH["submission"].format(sub=sub.display_name, id=self.id))
         return self._full_data
 
-    async def comments(self, reload=False, **kwargs):
+    async def comments(self, reload=False, **kwargs) -> AsyncIterator[Comment]:
         if len(self._comments) <= 0 or reload:
             fd = await self.full_data()
             self._comments = list()
@@ -39,7 +43,7 @@ class Submission(aPRAWBase):
         for c in self._comments:
             yield c
 
-    async def morechildren(self, children):
+    async def morechildren(self, children) -> List[Comment]:
         comments = list()
 
         while len(children) > 0:
@@ -60,12 +64,12 @@ class Submission(aPRAWBase):
 
         return comments
 
-    async def subreddit(self):
+    async def subreddit(self) -> Subreddit:
         if self._subreddit is None:
             self._subreddit = await self.reddit.subreddit(self.data["subreddit"])
         return self._subreddit
 
-    async def author(self):
+    async def author(self) -> Subreddit:
         if self._author is None:
             self._author = await self.reddit.redditor(self.data["author"])
         return self._author

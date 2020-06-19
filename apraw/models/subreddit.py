@@ -8,7 +8,6 @@ from .apraw_base import aPRAWBase
 from .comment import Comment
 from .modmail import SubredditModmail
 from .redditor import Redditor
-from .submission import Submission
 
 
 class SubredditModerator(aPRAWBase):
