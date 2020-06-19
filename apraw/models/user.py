@@ -1,28 +1,18 @@
 from datetime import datetime
+from typing import TYPE_CHECKING, Dict
 
 import aiohttp
 
 from ..endpoints import API_PATH
 from .redditor import Redditor
 
-
-class AuthenticatedUser(Redditor):
-
-    def __init__(self, reddit, data):
-        super().__init__(reddit, data)
-
-        self._karma = None
-
-    async def karma(self):
-        if not self._karma:
-            data = await self.reddit.get_request(API_PATH["me"])
-            self._karma = AuthenticatedUser(self.reddit, data)
-        return self._karma
+if TYPE_CHECKING:
+    from ..reddit import Reddit
 
 
 class User:
 
-    def __init__(self, reddit, username: str, password: str, client_id: str,
+    def __init__(self, reddit: Reddit, username: str, password: str, client_id: str,
                  client_secret: str, user_agent: str):
         self.reddit = reddit
 
@@ -64,8 +54,22 @@ class User:
             self._client_session = aiohttp.ClientSession()
         return self._client_session
 
-    async def me(self) -> AuthenticatedUser:
+    async def me(self) -> 'AuthenticatedUser':
         if not self._auth_user:
             data = await self.reddit.get_request(API_PATH["me"])
             self._auth_user = AuthenticatedUser(self.reddit, data)
         return self._auth_user
+
+
+class AuthenticatedUser(Redditor):
+
+    def __init__(self, reddit: Reddit, data: Dict):
+        super().__init__(reddit, data)
+
+        self._karma = None
+
+    async def karma(self):
+        if not self._karma:
+            data = await self.reddit.get_request(API_PATH["me"])
+            self._karma = AuthenticatedUser(self.reddit, data)
+        return self._karma
