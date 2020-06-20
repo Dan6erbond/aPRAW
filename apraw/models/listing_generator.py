@@ -28,8 +28,6 @@ class ListingGenerator:
                               subreddit=None) -> Callable[[Any], AsyncIterator[aPRAWBase]]:
         async def get_listing(limit: int = 25, **kwargs) -> AsyncIterator[aPRAWBase]:
             last = None
-            break_on_end = False
-
             while True:
                 kwargs["limit"] = limit if limit is not None else 100
                 if last is not None:
@@ -40,14 +38,13 @@ class ListingGenerator:
                 for i in req["data"]["children"]:
                     wiki_page = "page" in i
 
-                    if wiki_page:
-                        if kind_filter and "wikirevision" not in kind_filter:
+                    if wiki_page and kind_filter and "wikirevision" not in kind_filter:
                             continue
-                    elif kind_filter and i["kind"] in kind_filter:
+                    elif not wiki_page and kind_filter and i["kind"] in kind_filter:
                         continue
 
                     if wiki_page:
-                        break_on_end = True
+                        last = "WikiRevision_" + i["id"]
                     elif i["kind"] in [reddit.link_kind,
                                        reddit.subreddit_kind, reddit.comment_kind]:
                         last = i["data"]["name"]
@@ -69,7 +66,7 @@ class ListingGenerator:
                         yield ModAction(i["data"], subreddit)
                     else:
                         yield aPRAWBase(i["data"] if "data" in i else i)
-                if (limit is not None and limit < 1) or break_on_end:
+                if limit is not None and limit < 1:
                     break
 
         return get_listing
