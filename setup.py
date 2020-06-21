@@ -12,7 +12,10 @@ setuptools.setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/Dan6erbond/aPRAW",
-    packages=setuptools.find_packages(),
+    packages=setuptools.find_packages(include=['apraw', 'apraw.*']),
+    install_requires=[
+        'aiohttp>=3.6.2'
+    ],
     classifiers=[
         "Development Status :: 2 - Pre-Alpha",
         "Intended Audience :: Developers",
