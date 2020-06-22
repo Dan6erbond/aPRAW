@@ -5,7 +5,7 @@ from .apraw_base import aPRAWBase
 from .comment import Comment
 from .submission import Submission
 from .subreddit import ModAction, Subreddit
-from .subreddit_wiki import WikiPageRevision
+from .subreddit_wiki import WikipageRevision
 
 if TYPE_CHECKING:
     from ..reddit import Reddit
@@ -55,7 +55,7 @@ class ListingGenerator:
                         limit -= 1
 
                     if wiki_page:
-                        yield WikiPageRevision(reddit, i)
+                        yield WikipageRevision(reddit, i)
                     elif i["kind"] == reddit.link_kind:
                         yield Submission(reddit, i["data"], subreddit=subreddit)
                     elif i["kind"] == reddit.subreddit_kind:

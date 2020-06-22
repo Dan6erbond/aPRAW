@@ -35,5 +35,5 @@ class TestSubredditWiki:
 
         async for revision in subreddit.wiki.revisions():
             assert hasattr(revision, "page")
-            assert isinstance(revision, apraw.models.WikiPageRevision)
+            assert isinstance(revision, apraw.models.WikipageRevision)
             assert isinstance(revision.author, apraw.models.Redditor)
