@@ -11,6 +11,9 @@ class aPRAWBase:
 
     def __init__(self, reddit: 'Reddit', data: Dict[str, Any]):
         self.reddit = reddit
+        self._update(data)
+
+    def _update(self, data: Dict[str, Any]):
         self.data = data
 
         d = snake_case_keys(data)
