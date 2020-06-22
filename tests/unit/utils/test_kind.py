@@ -1,11 +1,14 @@
+import uuid
+
 from apraw.utils import prepend_kind
-
-
 
 class TestSnake:
 
     def test_prepend_kind(self):
         kind = "kind"
-        id = "bigcomplicatedid"
+        uuid1 = str(uuid.uuid1())
 
-        assert prepend_kind(id, kind) == kind + "_" + id
+        prepended_id = kind + "_" + uuid1
+
+        assert prepend_kind(uuid1, kind) == prepended_id
+        assert prepend_kind(prepended_id, kind) == prepended_id
