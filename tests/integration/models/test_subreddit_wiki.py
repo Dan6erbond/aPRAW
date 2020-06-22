@@ -1,3 +1,5 @@
+from datetime import datetime
+
 import pytest
 
 import apraw
@@ -37,3 +39,70 @@ class TestSubredditWiki:
             assert hasattr(revision, "page")
             assert isinstance(revision, apraw.models.WikipageRevision)
             assert isinstance(revision.author, apraw.models.Redditor)
+
+    @pytest.mark.asyncio
+    async def test_subreddit_wiki_create(self, reddit):
+        subreddit = await reddit.subreddit("aprawtest")
+        wiki = subreddit.wiki
+
+        page = await wiki.create("test", "#Test Content\n\nMore test content.")
+        assert page.name == "test"
+
+    @pytest.mark.asyncio
+    async def test_subreddit_wikipage_set_editor(self, reddit: apraw.Reddit):
+        subreddit = await reddit.subreddit("aprawtest")
+        page = await subreddit.wiki.page("test")
+
+        resp = await page.add_editor(reddit.user.username)
+        assert resp == True
+
+        resp = await page.del_editor(reddit.user.username)
+        assert resp == True
+
+    @pytest.mark.asyncio
+    async def test_subreddit_wikipage_edit(self, reddit: apraw.Reddit):
+        subreddit = await reddit.subreddit("aprawtest")
+        page = await subreddit.wiki.page("test")
+
+        curr_time = datetime.now().strftime("%m/%d/%Y, %H:%M:%S")
+        resp = await page.edit("#Updated Test Content\n\nMore test content. Updated on {}".format(curr_time))
+
+        assert resp == True
+
+    @pytest.mark.asyncio
+    async def test_subreddit_wikipage_hide(self, reddit: apraw.Reddit):
+        subreddit = await reddit.subreddit("aprawtest")
+        page = await subreddit.wiki.page("test")
+
+        revision = None
+        first_passed = False
+
+        async for r in page.revisions():
+            if not first_passed:
+                first_passed = True
+            else:
+                revision = r
+                break
+
+        resp = await page.hide(revision)
+
+        assert resp["status"]
+
+    @pytest.mark.asyncio
+    async def test_subreddit_wikipage_revert(self, reddit: apraw.Reddit):
+        subreddit = await reddit.subreddit("aprawtest")
+        page = await subreddit.wiki.page("test")
+
+        revision = None
+        first_passed = False
+
+        async for r in page.revisions():
+            if not first_passed:
+                first_passed = True
+            else:
+                revision = r
+                break
+
+        resp = await page.revert(revision)
+
+        assert resp == True
