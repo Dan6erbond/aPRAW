@@ -4,4 +4,4 @@ from .submission import Submission
 from .subreddit import Subreddit
 from .listing_generator import ListingGenerator
 from .user import User
-from .wiki import WikiPageRevision
+from .subreddit_wiki import WikiPageRevision

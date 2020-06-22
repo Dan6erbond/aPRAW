@@ -7,7 +7,7 @@ from ..utils import snake_case_keys
 from .apraw_base import aPRAWBase
 from .modmail import SubredditModmail
 from .redditor import Redditor
-from .wiki import SubredditWiki
+from .subreddit_wiki import SubredditWiki
 
 if TYPE_CHECKING:
     from ..reddit import Reddit

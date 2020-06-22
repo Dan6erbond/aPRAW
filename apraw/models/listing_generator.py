@@ -5,7 +5,7 @@ from .apraw_base import aPRAWBase
 from .comment import Comment
 from .submission import Submission
 from .subreddit import ModAction, Subreddit
-from .wiki import WikiPageRevision
+from .subreddit_wiki import WikiPageRevision
 
 if TYPE_CHECKING:
     from ..reddit import Reddit
