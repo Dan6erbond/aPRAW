@@ -1,6 +1,7 @@
 import asyncio
 from typing import TYPE_CHECKING, Any, AsyncIterator, Callable, List, Union
 
+from ..utils import prepend_kind
 from .apraw_base import aPRAWBase
 from .comment import Comment
 from .submission import Submission
@@ -38,13 +39,13 @@ class ListingGenerator:
                 for i in req["data"]["children"]:
                     wiki_page = "page" in i
 
-                    if wiki_page and kind_filter and "wikirevision" not in kind_filter:
-                            continue
+                    if wiki_page and kind_filter and reddit.wiki_revision_kind not in kind_filter:
+                        continue
                     elif not wiki_page and kind_filter and i["kind"] in kind_filter:
                         continue
 
                     if wiki_page:
-                        last = "WikiRevision_" + i["id"]
+                        last = prepend_kind(i["id"], reddit.wiki_revision_kind)
                     elif i["kind"] in [reddit.link_kind,
                                        reddit.subreddit_kind, reddit.comment_kind]:
                         last = i["data"]["name"]
