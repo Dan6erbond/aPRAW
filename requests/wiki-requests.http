@@ -40,7 +40,7 @@ Authorization: {{getToken.response.body.token_type}} {{getToken.response.body.ac
 
 ###
 
-# @name getWikiPageRevisions
+# @name getWikipageRevisions
 GET {{baseUrl}}/r/{{subreddit}}/wiki/revisions/{{testPage}}
 User-Agent: {{user_agent}}
 Content-Type: application/json
