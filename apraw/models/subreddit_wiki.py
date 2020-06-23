@@ -32,12 +32,12 @@ class SubredditWiki:
         data = await self.data()
         return [page for page in data["data"]]
 
-    async def page(self, page: str) -> 'SubredditWikiPage':
+    async def page(self, page: str) -> 'SubredditWikipage':
         resp = await self.subreddit.reddit.get_request(
             API_PATH["wiki_page"].format(sub=self.subreddit, page=page))
-        return SubredditWikiPage(page, self.subreddit, resp["data"])
+        return SubredditWikipage(page, self.subreddit, resp["data"])
 
-    async def create(self, page: str, content_md: str = "", reason: str = "") -> 'SubredditWikiPage':
+    async def create(self, page: str, content_md: str = "", reason: str = "") -> 'SubredditWikipage':
         resp = await self.subreddit.reddit.post_request(
             API_PATH["wiki_edit"].format(sub=self.subreddit), data={
                 "page": page,
@@ -47,7 +47,7 @@ class SubredditWiki:
         return resp if resp else await self.page(page)
 
 
-class SubredditWikiPage(aPRAWBase):
+class SubredditWikipage(aPRAWBase):
 
     def __init__(self, name: str, subreddit: 'Subreddit', data: Dict = None):
         super().__init__(subreddit.reddit, data)
