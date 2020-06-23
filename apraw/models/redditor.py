@@ -1,12 +1,15 @@
+from typing import TYPE_CHECKING, Dict
+
 from ..endpoints import API_PATH
 from .apraw_base import aPRAWBase
-from .comment import Comment
-from .submission import Submission
-from .subreddit import Subreddit
+
+if TYPE_CHECKING:
+    from .subreddit import Subreddit
+    from ..reddit import Reddit
 
 
 class Redditor(aPRAWBase):
-    def __init__(self, reddit, data):
+    def __init__(self, reddit: 'Reddit', data: Dict):
         super().__init__(reddit, data)
 
         self.reddit = reddit
@@ -19,6 +22,7 @@ class Redditor(aPRAWBase):
             sub["id"] = sub["name"].replace("t5_", "")
             if "created_utc" not in sub:
                 sub["created_utc"] = data["created_utc"]
+            from .subreddit import Subreddit
             self.subreddit = Subreddit(self.reddit, sub)
         else:
             self.subreddit = None
@@ -36,10 +40,10 @@ class Redditor(aPRAWBase):
     def __str__(self):
         return self.name
 
-    async def moderated_subreddits(self, **kwargs):
+    async def moderated_subreddits(self, **kwargs) -> 'Subreddit':
         req = await self.reddit.get_request(API_PATH["moderated"].format(user=self), **kwargs)
         for s in req["data"]:
             yield await self.reddit.subreddit(s["sr"])
 
-    async def message(self, subject, text, from_sr=""):
+    async def message(self, subject, text, from_sr="") -> Dict:
         return await self.reddit.message(self.name, subject, text, from_sr)

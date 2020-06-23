@@ -2,32 +2,31 @@ import asyncio
 import configparser
 import logging
 from datetime import datetime, timedelta
+from typing import Any, Awaitable, Callable, Dict, List, Union
+
+import aiohttp
 
 from .endpoints import API_PATH, BASE_URL
-from .models import ListingGenerator, Redditor, Subreddit, User
+from .models import (Comment, ListingGenerator, Redditor, Submission,
+                     Subreddit, User)
+from .utils import prepend_kind
 
 
 class Reddit:
 
-    def __init__(self, praw_key="", username="", password="", client_id="", client_secret="",
+    def __init__(self, praw_key: str = "", username: str = "", password: str = "",
+                 client_id: str = "", client_secret: str = "",
                  user_agent="aPRAW by Dan6erbond"):
         if praw_key != "":
             config = configparser.ConfigParser()
             config.read("praw.ini")
 
-            self.user = User(self,
-                             config[praw_key]["username"],
-                             config[praw_key]["password"],
-                             config[praw_key]["client_id"],
-                             config[praw_key]["client_secret"],
+            self.user = User(self, config[praw_key]["username"], config[praw_key]["password"],
+                             config[praw_key]["client_id"], config[praw_key]["client_secret"],
                              config[praw_key]["user_agent"] if "user_agent" in config[praw_key] else user_agent)
         else:
-            self.user = User(self,
-                             username,
-                             password,
-                             client_id,
-                             client_secret,
-                             user_agent)
+            self.user = User(self, username, password,
+                             client_id, client_secret, user_agent)
 
         self.comment_kind = "t1"
         self.account_kind = "t2"
@@ -37,21 +36,21 @@ class Reddit:
         self.award_kind = "t6"
         self.modaction_kind = "modaction"
         self.listing_kind = "Listing"
+        self.wiki_revision_kind = "WikiRevision"
 
         self.subreddits = ListingGenerator(self, API_PATH["subreddits_new"])
         self.request_handler = RequestHandler(self.user)
 
-    async def get_request(self, endpoint="", **kwargs):
-        return await self.request_handler.get_request(endpoint, **kwargs)
+    async def get_request(self, *args, **kwargs):
+        return await self.request_handler.get_request(*args, **kwargs)
 
-    async def post_request(self, endpoint="", url="", data={}, **kwargs):
-        return await self.request_handler.post_request(endpoint, url, data, **kwargs)
+    async def post_request(self, *args, **kwargs):
+        return await self.request_handler.post_request(*args, **kwargs)
 
-    def get_listing_generator(self, endpoint, max_wait=16, kind_filter=[]):
-        return ListingGenerator.get_listing_generator(
-            self, endpoint, max_wait, kind_filter)
+    def get_listing_generator(self, *args, **kwargs):
+        return ListingGenerator.get_listing_generator(self, *args, **kwargs)
 
-    async def subreddit(self, display_name):
+    async def subreddit(self, display_name: str) -> Subreddit:
         resp = await self.get_request(API_PATH["subreddit_about"].format(sub=display_name))
         try:
             return Subreddit(self, resp["data"])
@@ -59,7 +58,7 @@ class Reddit:
             logging.error(e)
             return None
 
-    async def info(self, id="", ids=[], url=""):
+    async def info(self, id: str = "", ids: List[str] = [], url: str = ""):
         listing_generator = self.get_listing_generator(API_PATH["info"])
 
         if id:
@@ -74,28 +73,25 @@ class Reddit:
         else:
             yield None
 
-    async def submission(self, id="", url=""):
+    async def submission(self, id: str = "", url: str = "") -> Submission:
         if id != "":
-            id = self.link_kind + "_" + id.replace(self.link_kind + "_", "")
-            async for link in self.info(id):
+            async for link in self.info(prepend_kind(id, self.link_kind)):
                 return link
         elif url != "":
             async for link in self.info(url=url):
                 return link
         return None
 
-    async def comment(self, id="", url=""):
+    async def comment(self, id: str = "", url: str = "") -> Comment:
         if id != "":
-            id = self.comment_kind + "_" + \
-                id.replace(self.comment_kind + "_", "")
-            async for comment in self.info(id):
+            async for comment in self.info(prepend_kind(id, self.comment_kind)):
                 return comment
         elif url != "":
             async for comment in self.info(url=url):
                 return comment
         return None
 
-    async def redditor(self, username):
+    async def redditor(self, username: str) -> Redditor:
         resp = await self.get_request(API_PATH["user_about"].format(user=username))
         try:
             return Redditor(self, resp["data"])
@@ -103,14 +99,14 @@ class Reddit:
             # print("No Redditor data loaded for {}.".format(username))
             return None
 
-    async def message(self, to, subject, text, from_sr=""):
+    async def message(self, to: Union[str, Redditor], subject: str, text: str, from_sr: Union[str, Subreddit] = "") -> Dict:
         data = {
             "subject": subject,
             "text": text,
-            "to": to
+            "to": str(to)
         }
         if from_sr != "":
-            data["from_sr"] = from_sr
+            data["from_sr"] = str(from_sr)
         resp = await self.post_request(API_PATH["compose"], data=data)
         return resp["success"]
 
@@ -121,10 +117,10 @@ class RequestHandler:
         self.user = user
         self.queue = []
 
-    async def get_request_headers(self):
+    async def get_request_headers(self) -> Dict:
         if self.user.token_expires <= datetime.now():
             url = "https://www.reddit.com/api/v1/access_token"
-            session = await self.user.get_auth_session()
+            session = self.user.get_auth_session()
 
             headers = {
                 "Content-Type": "application/x-www-form-urlencoded",
@@ -146,7 +142,7 @@ class RequestHandler:
             "User-Agent": self.user.user_agent
         }
 
-    def update(self, data):
+    def update(self, data: Dict):
         self.user.ratelimit_remaining = int(
             float(data["x-ratelimit-remaining"]))
         self.user.ratelimit_used = int(data["x-ratelimit-used"])
@@ -154,8 +150,9 @@ class RequestHandler:
         self.user.ratelimit_reset = datetime.now()
         + timedelta(seconds=int(data["x-ratelimit-reset"]))
 
-    def check_ratelimit(func):
-        async def execute_request(self, *args, **kwargs):
+    def check_ratelimit(
+            func: Callable[[Any], Awaitable[Any]]) -> Callable[[Any], Awaitable[Any]]:
+        async def execute_request(self, *args, **kwargs) -> Any:
             id = datetime.now().strftime('%Y%m%d%H%M%S')
             self.queue.append(id)
 
@@ -172,14 +169,14 @@ class RequestHandler:
         return execute_request
 
     @check_ratelimit
-    async def get_request(self, endpoint="", **kwargs):
+    async def get_request(self, endpoint: str = "", **kwargs) -> Dict:
         kwargs["raw_json"] = 1
         params = ["{}={}".format(k, kwargs[k]) for k in kwargs]
 
         url = BASE_URL.format(endpoint, "&".join(params))
 
         headers = await self.get_request_headers()
-        session = await self.user.get_client_session()
+        session = self.user.get_client_session()
         resp = await session.get(url, headers=headers)
 
         async with resp:
@@ -187,7 +184,7 @@ class RequestHandler:
             return await resp.json()
 
     @check_ratelimit
-    async def post_request(self, endpoint="", url="", data={}, **kwargs):
+    async def post_request(self, endpoint: str = "", url: str = "", data: Dict = {}, **kwargs) -> Dict:
         kwargs["raw_json"] = 1
         params = ["{}={}".format(k, kwargs[k]) for k in kwargs]
 
@@ -197,7 +194,7 @@ class RequestHandler:
             url = "{}?{}".format(url, "&".join(params))
 
         headers = await self.get_request_headers()
-        session = await self.user.get_client_session()
+        session = self.user.get_client_session()
         resp = await session.post(url, data=data, headers=headers)
 
         async with resp:
