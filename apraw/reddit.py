@@ -13,10 +13,37 @@ from .utils import prepend_kind
 
 
 class Reddit:
+    """
+    The Reddit class allows you to instantiate most base Reddit items.
 
+    Attributes
+    ----------
+    user: User
+        An instance of the logged-in Reddit user.
+    subreddits: ListingGenerator
+        A ListingGenerator that returns newly created subreddits, which can be streamed using `reddit.subreddits.stream()`.
+    """
     def __init__(self, praw_key: str = "", username: str = "", password: str = "",
                  client_id: str = "", client_secret: str = "",
                  user_agent="aPRAW by Dan6erbond"):
+        """
+        Create a Reddit instance.
+
+        Parameters
+        ----------
+        praw_key: str
+            The key used in a `praw.ini` file instead of manual username, password, client_id and secret.
+        username: str
+            The Reddit account username.
+        password: str
+            The Reddit account password.
+        client_id: str
+            The Reddit script's client_id.
+        client_secret
+            The Reddit script's client_secret.
+        user_agent: str
+            User agent to be used in the headers, defaults to "aPRAW by Dan6erbond".
+        """
         if praw_key != "":
             config = configparser.ConfigParser()
             config.read("praw.ini")
@@ -42,15 +69,81 @@ class Reddit:
         self.request_handler = RequestHandler(self.user)
 
     async def get_request(self, *args, **kwargs):
+        """
+        Perform an HTTP GET request on the Reddit API.
+
+        Parameters
+        ----------
+        endpoint: str
+            The endpoint to be appended after the base URL (https://oauth.reddit.com/).
+        kwargs:
+            Query parameters to be appended after the URL.
+
+        Returns
+        -------
+        resp: Dict or None
+            The response JSON data.
+        """
         return await self.request_handler.get_request(*args, **kwargs)
 
     async def post_request(self, *args, **kwargs):
+        """
+        Perform an HTTP POST request on the Reddit API.
+
+        Parameters
+        ----------
+        endpoint: str
+            The endpoint to be appended after the base URL (https://oauth.reddit.com/).
+        url: str
+            The direct URL to perform the request on.
+        data:
+            The data to add to the POST body.
+        kwargs:
+            Query parameters to be appended after the URL.
+
+        Returns
+        -------
+        resp: Dict or None
+            The response JSON data.
+        """
         return await self.request_handler.post_request(*args, **kwargs)
 
     def get_listing_generator(self, *args, **kwargs):
+        """
+        Get a listing generator for one-time requests without streams.
+
+        Parameters
+        ----------
+        endpoint: str
+            The endpoint for the listing generator to call.
+        kind_filter: List[str]
+            A list of kinds (e.g. 't2') that the listing generator should search for.
+        subreddit: Subreddit
+            The subreddit to inject into the Reddit items if possible.
+
+        Returns
+        -------
+        listing_generator: Callable[[Any], AsyncIterator[aPRAWBase]]
+            The listing generator that can be called later.
+        """
         return ListingGenerator.get_listing_generator(self, *args, **kwargs)
 
     async def subreddit(self, display_name: str) -> Subreddit:
+        """
+        Get a `Subreddit` object according to the given name.
+
+        Parameters
+        ----------
+        display_name: str
+            The display name of the subreddit.
+
+        Returns
+        -------
+        subreddit: Subreddit
+            The subreddit if found.
+        result: None
+            Returns None if subreddit not found.
+        """
         resp = await self.get_request(API_PATH["subreddit_about"].format(sub=display_name))
         try:
             return Subreddit(self, resp["data"])
@@ -59,6 +152,25 @@ class Reddit:
             return None
 
     async def info(self, id: str = "", ids: List[str] = [], url: str = ""):
+        """
+        Get a Reddit item based on its ID or URL.
+
+        Parameters
+        ----------
+        id: str
+            The item's ID.
+        ids: List[str]
+            Multiple IDs to fetch multiple items at once (max 100).
+        url: str
+            The item's URL.
+
+        Yields
+        -------
+        comment: Comment
+            A `Comment` object.
+        submission: Submission
+            A `Submission` object.
+        """
         listing_generator = self.get_listing_generator(API_PATH["info"])
 
         if id:
@@ -74,6 +186,21 @@ class Reddit:
             yield None
 
     async def submission(self, id: str = "", url: str = "") -> Submission:
+        """
+        Get a `Submission` object based on its ID or URL.
+
+        Parameters
+        ----------
+        id: str
+            The ID of a submission (with or without kind).
+        url: str
+            The URL of a submission.
+
+        Returns
+        -------
+        submission: Submission
+            The requested submission.
+        """
         if id != "":
             async for link in self.info(prepend_kind(id, self.link_kind)):
                 return link
@@ -83,6 +210,21 @@ class Reddit:
         return None
 
     async def comment(self, id: str = "", url: str = "") -> Comment:
+        """
+        Get a `Comment` object based on its ID or URL.
+
+        Parameters
+        ----------
+        id: str
+            The ID of a comment (with or without kind).
+        url: str
+            The URL of a comment.
+
+        Returns
+        -------
+        comment: Comment
+            The requested comment.
+        """
         if id != "":
             async for comment in self.info(prepend_kind(id, self.comment_kind)):
                 return comment
@@ -92,6 +234,19 @@ class Reddit:
         return None
 
     async def redditor(self, username: str) -> Redditor:
+        """
+        Get a `Redditor` object based the Redditor's username.
+
+        Parameters
+        ----------
+        username: str
+            The Redditor's username (without '/u/').
+
+        Returns
+        -------
+        redditor: Redditor or None
+            The requested Redditor, returns None if not found.
+        """
         resp = await self.get_request(API_PATH["user_about"].format(user=username))
         try:
             return Redditor(self, resp["data"])
@@ -100,6 +255,25 @@ class Reddit:
             return None
 
     async def message(self, to: Union[str, Redditor], subject: str, text: str, from_sr: Union[str, Subreddit] = "") -> Dict:
+        """
+        Message a Redditor or Subreddit.
+
+        Parameters
+        ----------
+        to: str or Redditor or Subreddit
+            The Redditor or Subreddit the message should be sent to.
+        subject: str
+            The subject of the message.
+        text: str
+            The text contents of the message.
+        from_sr: str or Subreddit
+            Optional if the message is being sent from a subreddit.
+
+        Returns
+        -------
+        result: Dict
+            The response JSON data.
+        """
         data = {
             "subject": subject,
             "text": text,
