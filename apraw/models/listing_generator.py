@@ -78,13 +78,19 @@ class ListingGenerator:
 
     __call__ = get
 
-    async def stream(self, **kwargs) -> AsyncIterator[aPRAWBase]:
+    async def stream(self, skip_existing: bool = False, **kwargs) -> AsyncIterator[aPRAWBase]:
         wait = 0
+        first = True
         ids = list()
 
         while True:
             found = False
             async for s in self.get(100, **kwargs):
+                if first:
+                    if skip_existing:
+                        ids.append(s.id)
+                        break
+                    first = False
                 if s.id in ids:
                     break
                 if len(ids) >= 301:
