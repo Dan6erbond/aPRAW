@@ -5,10 +5,10 @@ with open("README.md", "r", encoding="utf8") as fh:
 
 setuptools.setup(
     name="aPRAW",
-    version="0.2.0-alpha",
+    version="0.3.0-alpha",
     author="Dan6erbond",
     author_email="moravrav@gmail.com",
-    description="Asynchronous Python Reddit API Wrapper",
+    description="aPRAW is an asynchronous Reddit API wrapper written in Python.",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/Dan6erbond/aPRAW",
@@ -16,18 +16,24 @@ setuptools.setup(
     install_requires=[
         'aiohttp>=3.6.2'
     ],
+    keywords="reddit api wrapper async",
     classifiers=[
-        "Development Status :: 2 - Pre-Alpha",
+        "Development Status :: 3 - Alpha",
+        "Environment :: Console",
         "Intended Audience :: Developers",
         "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
         "Natural Language :: English",
         "Operating System :: OS Independent",
         "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
         "Topic :: Education",
         "Topic :: Internet :: WWW/HTTP :: Dynamic Content :: Message Boards",
         "Topic :: Software Development :: Libraries :: Python Modules",
+        "Topic :: Utilities",
         "Typing :: Typed"
     ],
+    license="GNU General Public License v3 (GPLv3)",
     python_requires='>=3.6',
 )
 
