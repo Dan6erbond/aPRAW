@@ -1,3 +1,4 @@
+
 import asyncio
 from typing import TYPE_CHECKING, Any, AsyncIterator, Callable, List, Union
 
@@ -78,9 +79,14 @@ class ListingGenerator:
 
     __call__ = get
 
-    async def stream(self, **kwargs) -> AsyncIterator[aPRAWBase]:
+    async def stream(self, skip_existing: bool = False, **kwargs) -> AsyncIterator[aPRAWBase]:
         wait = 0
         ids = list()
+
+        if skip_existing:
+            async for s in self.get(1, **kwargs):
+                ids.append(s.id)
+                break
 
         while True:
             found = False
