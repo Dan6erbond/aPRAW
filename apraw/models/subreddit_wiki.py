@@ -1,9 +1,8 @@
 from typing import TYPE_CHECKING, Dict, List, Union
 
-from ..endpoints import API_PATH
-from ..utils import prepend_kind
 from .apraw_base import aPRAWBase
 from .redditor import Redditor
+from ..endpoints import API_PATH
 
 if TYPE_CHECKING:
     from ..reddit import Reddit

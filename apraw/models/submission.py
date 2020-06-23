@@ -1,11 +1,10 @@
 from typing import TYPE_CHECKING, AsyncIterator, Dict, List
 
-from ..endpoints import API_PATH
-from ..utils import snake_case_keys
 from .apraw_base import aPRAWBase
 from .comment import Comment
 from .redditor import Redditor
 from .subreddit import Subreddit
+from ..endpoints import API_PATH
 
 if TYPE_CHECKING:
     from ..reddit import Reddit
@@ -26,7 +25,8 @@ class Submission(aPRAWBase):
     async def full_data(self) -> Dict:
         if self._full_data is None:
             sub = await self.subreddit()
-            self._full_data = await self.reddit.get_request(API_PATH["submission"].format(sub=sub.display_name, id=self.id))
+            self._full_data = await self.reddit.get_request(
+                API_PATH["submission"].format(sub=sub.display_name, id=self.id))
         return self._full_data
 
     async def comments(self, reload=False, **kwargs) -> AsyncIterator[Comment]:

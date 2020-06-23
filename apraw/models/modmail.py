@@ -1,7 +1,6 @@
 from typing import TYPE_CHECKING, Dict
 
 from ..endpoints import API_PATH
-from ..utils import snake_case_keys
 from .apraw_base import aPRAWBase
 
 if TYPE_CHECKING:
@@ -16,7 +15,8 @@ class SubredditModmail:
         self.subreddit = subreddit
 
     async def conversations(self) -> 'ModmailConversation':
-        req = await self.subreddit.reddit.get_request(API_PATH["modmail_conversations"], entity=self.subreddit.display_name)
+        req = await self.subreddit.reddit.get_request(API_PATH["modmail_conversations"],
+                                                      entity=self.subreddit.display_name)
         for id in req["conversations"]:
             yield ModmailConversation(self.subreddit.reddit, req["conversations"][id])
 

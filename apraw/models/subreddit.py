@@ -1,13 +1,12 @@
-import asyncio
 from datetime import datetime
-from typing import TYPE_CHECKING, AsyncIterator, Dict, List
+from typing import TYPE_CHECKING, AsyncIterator, Dict
 
-from ..endpoints import API_PATH
-from ..utils import snake_case_keys
 from .apraw_base import aPRAWBase
 from .modmail import SubredditModmail
 from .redditor import Redditor
 from .subreddit_wiki import SubredditWiki
+from ..endpoints import API_PATH
+from ..utils import snake_case_keys
 
 if TYPE_CHECKING:
     from ..reddit import Reddit
