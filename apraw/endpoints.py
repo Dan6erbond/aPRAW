@@ -31,5 +31,13 @@ API_PATH = {
     "subreddits_new"       : "/subreddits/new",
     "user_about"           : "/user/{user}/about",
     "user_comments"        : "/user/{user}/comments",
-    "user_submissions"     : "/user/{user}/submitted"
+    "user_submissions"     : "/user/{user}/submitted",
+    "wiki_alloweditor"     : "/r/{sub}/api/wiki/alloweditor/{act}",
+    "wiki_edit"            : "/r/{sub}/api/wiki/edit",
+    "wiki_hide"            : "/r/{sub}/api/wiki/hide",
+    "wiki_page_revisions"  : "/r/{sub}/wiki/revisions/{page}",
+    "wiki_page"            : "/r/{sub}/wiki/{page}",
+    "wiki_revert"          : "/r/{sub}/api/wiki/revert",
+    "wiki_revisions"       : "/r/{sub}/wiki/revisions",
+    "wiki"                 : "/r/{sub}/wiki/pages"
 }

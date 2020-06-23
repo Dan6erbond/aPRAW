@@ -9,6 +9,7 @@ import aiohttp
 from .endpoints import API_PATH, BASE_URL
 from .models import (Comment, ListingGenerator, Redditor, Submission,
                      Subreddit, User)
+from .utils import prepend_kind
 
 
 class Reddit:
@@ -35,6 +36,7 @@ class Reddit:
         self.award_kind = "t6"
         self.modaction_kind = "modaction"
         self.listing_kind = "Listing"
+        self.wiki_revision_kind = "WikiRevision"
 
         self.subreddits = ListingGenerator(self, API_PATH["subreddits_new"])
         self.request_handler = RequestHandler(self.user)
@@ -73,8 +75,7 @@ class Reddit:
 
     async def submission(self, id: str = "", url: str = "") -> Submission:
         if id != "":
-            id = self.link_kind + "_" + id.replace(self.link_kind + "_", "")
-            async for link in self.info(id):
+            async for link in self.info(prepend_kind(id, self.link_kind)):
                 return link
         elif url != "":
             async for link in self.info(url=url):
@@ -83,9 +84,7 @@ class Reddit:
 
     async def comment(self, id: str = "", url: str = "") -> Comment:
         if id != "":
-            id = self.comment_kind + "_" + \
-                id.replace(self.comment_kind + "_", "")
-            async for comment in self.info(id):
+            async for comment in self.info(prepend_kind(id, self.comment_kind)):
                 return comment
         elif url != "":
             async for comment in self.info(url=url):
@@ -151,7 +150,8 @@ class RequestHandler:
         self.user.ratelimit_reset = datetime.now()
         + timedelta(seconds=int(data["x-ratelimit-reset"]))
 
-    def check_ratelimit(func: Callable[[Any], Awaitable[Any]]) -> Callable[[Any], Awaitable[Any]]:
+    def check_ratelimit(
+            func: Callable[[Any], Awaitable[Any]]) -> Callable[[Any], Awaitable[Any]]:
         async def execute_request(self, *args, **kwargs) -> Any:
             id = datetime.now().strftime('%Y%m%d%H%M%S')
             self.queue.append(id)

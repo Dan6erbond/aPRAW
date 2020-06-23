@@ -4,12 +4,16 @@ User-Agent: {{user_agent}}
 Content-Type: application/x-www-form-urlencoded
 Authorization: Basic {{client_id}}:{{client_secret}}
 
-grant_type=password&username={{username}}&password={{password}}
+grant_type=password
+&username={{username}}
+&password={{password}}
 
 ###
 
 @baseUrl = https://oauth.reddit.com
 
+@subreddit = aPRAWTest
+@submissionId = h7mna9
 @commentId = fuoew5r
 
 # @name getComment
@@ -21,7 +25,7 @@ Authorization: {{getToken.response.body.token_type}} {{getToken.response.body.ac
 ###
 
 # @name getReplies
-GET {{baseUrl}}/r/facepalm/comments/h9rukl/_/fuyjkrm
+GET {{baseUrl}}/r/{{subreddit}}/comments/{{submissionId}}/_/{{commentId}}
 User-Agent: {{user_agent}}
 Content-Type: application/json
 Authorization: {{getToken.response.body.token_type}} {{getToken.response.body.access_token}}
