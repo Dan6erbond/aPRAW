@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf8") as fh:
 
 setuptools.setup(
     name="aPRAW",
-    version="0.3.0-alpha",
+    version="0.3.2-alpha",
     author="Dan6erbond",
     author_email="moravrav@gmail.com",
     description="aPRAW is an asynchronous Reddit API wrapper written in Python.",
