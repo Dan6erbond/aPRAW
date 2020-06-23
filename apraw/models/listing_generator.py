@@ -1,3 +1,4 @@
+
 import asyncio
 from typing import TYPE_CHECKING, Any, AsyncIterator, Callable, List, Union
 
@@ -80,17 +81,16 @@ class ListingGenerator:
 
     async def stream(self, skip_existing: bool = False, **kwargs) -> AsyncIterator[aPRAWBase]:
         wait = 0
-        first = True
         ids = list()
+
+        if skip_existing:
+            async for s in self.get(1, **kwargs):
+                ids.append(s.id)
+                break
 
         while True:
             found = False
             async for s in self.get(100, **kwargs):
-                if first:
-                    if skip_existing:
-                        ids.append(s.id)
-                        break
-                    first = False
                 if s.id in ids:
                     break
                 if len(ids) >= 301:
