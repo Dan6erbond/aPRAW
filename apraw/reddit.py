@@ -1,10 +1,9 @@
 import asyncio
 import configparser
 import logging
+from functools import wraps
 from datetime import datetime, timedelta
 from typing import Any, Awaitable, Callable, Dict, List, Union
-
-import aiohttp
 
 from .endpoints import API_PATH, BASE_URL
 from .models import (Comment, ListingGenerator, Redditor, Submission,
@@ -23,6 +22,7 @@ class Reddit:
     subreddits: ListingGenerator
         A ListingGenerator that returns newly created subreddits, which can be streamed using `reddit.subreddits.stream()`.
     """
+
     def __init__(self, praw_key: str = "", username: str = "", password: str = "",
                  client_id: str = "", client_secret: str = "",
                  user_agent="aPRAW by Dan6erbond"):
@@ -108,24 +108,8 @@ class Reddit:
         """
         return await self.request_handler.post_request(*args, **kwargs)
 
+    @wraps(ListingGenerator.get_listing_generator)
     def get_listing_generator(self, *args, **kwargs):
-        """
-        Get a listing generator for one-time requests without streams.
-
-        Parameters
-        ----------
-        endpoint: str
-            The endpoint for the listing generator to call.
-        kind_filter: List[str]
-            A list of kinds (e.g. 't2') that the listing generator should search for.
-        subreddit: Subreddit
-            The subreddit to inject into the Reddit items if possible.
-
-        Returns
-        -------
-        listing_generator: Callable[[Any], AsyncIterator[aPRAWBase]]
-            The listing generator that can be called later.
-        """
         return ListingGenerator.get_listing_generator(self, *args, **kwargs)
 
     async def subreddit(self, display_name: str) -> Subreddit:
@@ -254,7 +238,8 @@ class Reddit:
             # print("No Redditor data loaded for {}.".format(username))
             return None
 
-    async def message(self, to: Union[str, Redditor], subject: str, text: str, from_sr: Union[str, Subreddit] = "") -> Dict:
+    async def message(self, to: Union[str, Redditor], subject: str, text: str,
+                      from_sr: Union[str, Subreddit] = "") -> Dict:
         """
         Message a Redditor or Subreddit.
 
@@ -306,8 +291,7 @@ class RequestHandler:
             async with resp:
                 if resp.status == 200:
                     self.user.access_data = await resp.json()
-                    self.user.token_expires = datetime.now()
-                    + timedelta(seconds=self.user.access_data["expires_in"])
+                    self.user.token_expires = datetime.now() + timedelta(seconds=self.user.access_data["expires_in"])
                 else:
                     raise Exception("Invalid user data.")
 
@@ -321,28 +305,29 @@ class RequestHandler:
             float(data["x-ratelimit-remaining"]))
         self.user.ratelimit_used = int(data["x-ratelimit-used"])
 
-        self.user.ratelimit_reset = datetime.now()
-        + timedelta(seconds=int(data["x-ratelimit-reset"]))
+        self.user.ratelimit_reset = datetime.now() + timedelta(seconds=int(data["x-ratelimit-reset"]))
 
-    def check_ratelimit(
-            func: Callable[[Any], Awaitable[Any]]) -> Callable[[Any], Awaitable[Any]]:
-        async def execute_request(self, *args, **kwargs) -> Any:
-            id = datetime.now().strftime('%Y%m%d%H%M%S')
-            self.queue.append(id)
+    class Decorators:
 
-            if (self.user.ratelimit_remaining < 5):
-                execution_time = self.user.ratelimit_reset
-                + timedelta(seconds=len(self.queue))
-                wait_time = (execution_time - datetime.now()).total_seconds()
-                await asyncio.sleep(wait_time)
+        @classmethod
+        def check_ratelimit(cls, func: Callable[[Any], Awaitable[Any]]) -> Callable[[Any], Awaitable[Any]]:
+            @wraps(func)
+            async def execute_request(self, *args, **kwargs) -> Any:
+                id = datetime.now().strftime('%Y%m%d%H%M%S')
+                self.queue.append(id)
 
-            result = await func(self, *args, **kwargs)
-            self.queue.remove(id)
-            return result
+                if self.user.ratelimit_remaining < 1:
+                    execution_time = self.user.ratelimit_reset + timedelta(seconds=len(self.queue))
+                    wait_time = (execution_time - datetime.now()).total_seconds()
+                    await asyncio.sleep(wait_time)
 
-        return execute_request
+                result = await func(self, *args, **kwargs)
+                self.queue.remove(id)
+                return result
 
-    @check_ratelimit
+            return execute_request
+
+    @Decorators.check_ratelimit
     async def get_request(self, endpoint: str = "", **kwargs) -> Dict:
         kwargs["raw_json"] = 1
         params = ["{}={}".format(k, kwargs[k]) for k in kwargs]
@@ -357,7 +342,7 @@ class RequestHandler:
             self.update(resp.headers)
             return await resp.json()
 
-    @check_ratelimit
+    @Decorators.check_ratelimit
     async def post_request(self, endpoint: str = "", url: str = "", data: Dict = {}, **kwargs) -> Dict:
         kwargs["raw_json"] = 1
         params = ["{}={}".format(k, kwargs[k]) for k in kwargs]

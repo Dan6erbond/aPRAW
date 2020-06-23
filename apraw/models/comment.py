@@ -1,7 +1,6 @@
 from typing import TYPE_CHECKING, AsyncIterator, Dict, List
 
 from ..endpoints import API_PATH
-from ..utils import snake_case_keys
 from .apraw_base import aPRAWBase
 from .redditor import Redditor
 from .subreddit import Subreddit

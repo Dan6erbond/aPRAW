@@ -1,4 +1,3 @@
-
 import asyncio
 from typing import TYPE_CHECKING, Any, AsyncIterator, Callable, List, Union
 
@@ -25,9 +24,27 @@ class ListingGenerator:
         self.subreddit = subreddit
 
     @classmethod
-    def get_listing_generator(cls, reddit: 'Reddit', endpoint: str,
-                              max_wait: int = 16, kind_filter: List[str] = [],
+    def get_listing_generator(cls, reddit: 'Reddit', endpoint: str, kind_filter: List[str] = [],
                               subreddit=None) -> Callable[[Any], AsyncIterator[aPRAWBase]]:
+        """
+        Get a listing generator for one-time requests without streams.
+
+        Parameters
+        ----------
+        reddit: Reddit
+            The `Reddit` object with which requests are performed.
+        endpoint: str
+            The endpoint for the listing generator to call.
+        kind_filter: List[str]
+            A list of kinds (e.g. 't2') that the listing generator should search for.
+        subreddit: Subreddit
+            The subreddit to inject into the Reddit items if possible.
+
+        Returns
+        -------
+        listing_generator: Callable[[Any], AsyncIterator[aPRAWBase]]
+            The listing generator that can be called later.
+        """
         async def get_listing(limit: int = 25, **kwargs) -> AsyncIterator[aPRAWBase]:
             last = None
             while True:
