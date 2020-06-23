@@ -19,6 +19,7 @@ sys.path.insert(0, os.path.abspath('..'))
 
 project = 'aPRAW'
 copyright = '2020, Dan6erbond'
+master_doc = "index"
 author = 'Dan6erbond'
 
 # The full version, including alpha/beta/rc tags
