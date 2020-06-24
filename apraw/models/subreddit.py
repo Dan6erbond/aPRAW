@@ -47,15 +47,6 @@ class Subreddit(aPRAWBase):
         async for submission in sub.new(): # use .new.stream() for endless polling
             print(submission.title, submission.body)
 
-    To store the names of all the moderators of the subreddit:
-
-    .. code-block:: python3
-
-        sub = await reddit.subreddit("aprawtest")
-        moderators = []
-        async for moderator in sub.moderators():
-            moderators.append(str(moderator))
-
     **Typical Attributes**
 
     This table describes attributes that typically belong to objects of this

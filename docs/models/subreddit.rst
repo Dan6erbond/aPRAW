@@ -7,6 +7,11 @@ This section describes the API of the Subreddit model and its helpers.
 
 .. contents::
 
+.. toctree::
+   :maxdepth: 2
+
+   subreddit_moderation
+
 Subreddit
 _________
 
@@ -17,20 +22,4 @@ A subreddit can be instantiated as follows:
     sub = await reddit.subreddit("aprawtest")
 
 .. autoclass:: Subreddit
-    :members:
-
-SubredditModerator
-__________________
-
-Subreddit moderators are usually retrieved as follows:
-
-.. code-block::python3
-
-    sub = await reddit.subreddit("aprawtest")
-    moderators = []
-
-    async for moderator in subreddit.moderators():
-        moderators.append(moderator)
-
-.. autoclass:: apraw.models.subreddit.SubredditModerator
     :members:
