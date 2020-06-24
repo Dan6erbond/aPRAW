@@ -13,14 +13,14 @@ from .utils import prepend_kind
 
 class Reddit:
     """
-    The Reddit class allows you to instantiate most base Reddit items.
+    The Reddit instance with which root requests can be made.
 
     Attributes
     ----------
     user: User
         An instance of the logged-in Reddit user.
     subreddits: ListingGenerator
-        A ListingGenerator that returns newly created subreddits, which can be streamed using `reddit.subreddits.stream()`.
+        A ListingGenerator that returns newly created subreddits, which can be streamed using :code:`reddit.subreddits.stream()`.
     """
 
     def __init__(self, praw_key: str = "", username: str = "", password: str = "",
