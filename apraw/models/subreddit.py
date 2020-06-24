@@ -154,7 +154,7 @@ class Subreddit(aPRAWBase):
         Parameters
         ----------
         reddit: Reddit
-            The Reddit instance with which requests are made.
+            The :code:`~apraw.Reddit` instance with which requests are made.
         data: Dict
             The data obtained from the /about endpoint.
         """
@@ -251,6 +251,16 @@ class SubredditModerator(aPRAWBase):
     """
 
     def __init__(self, reddit: 'Reddit', data: Dict):
+        """
+        Create a SubredditModerator instance.
+
+        Parameters
+        ----------
+        reddit: Reddit
+            The :code:`~apraw.Reddit` instance with which requests are made.
+        data: Dict
+            The data obtained from the API.
+        """
         super().__init__(reddit, data)
 
         self.added = datetime.utcfromtimestamp(data["date"])
@@ -279,6 +289,24 @@ class SubredditModerator(aPRAWBase):
 
 
 class SubredditModeration:
+    """
+    A helper class for grabbing listings to Subreddit moderation items.
+
+    Attributes
+    ----------
+    reports: ListingGenerator
+        Returns an instance of :class:`~apraw.models.ListingGenerator` mapped to grab reported items.
+    spam: ListingGenerator
+        Returns an instance of :class:`~apraw.models.ListingGenerator` mapped to grab items marked as spam.
+    modqueue: ListingGenerator
+        Returns an instance of :class:`~apraw.models.ListingGenerator` mapped to grab items in the modqueue.
+    unmoderated: ListingGenerator
+        Returns an instance of :class:`~apraw.models.ListingGenerator` mapped to grab unmoderated items.
+    edited: ListingGenerator
+        Returns an instance of :class:`~apraw.models.ListingGenerator` mapped to grab edited items.
+    log: ListingGenerator
+        Returns an instance of :class:`~apraw.models.ListingGenerator` mapped to grab mod actions in the subreddit log.
+    """
 
     def __init__(self, subreddit):
         self.subreddit = subreddit
@@ -311,8 +339,47 @@ class SubredditModeration:
 
 
 class ModAction:
+    """
+    A model representing mod actions taken on specific items.
+
+    **Typical Attributes**
+
+    This table describes attributes that typically belong to objects of this
+    class. Attributes are dynamically provided by the :class:`~apraw.models.aPRAWBase` class
+    and may vary depending on the status of the response and expected objects.
+
+    =========================== =========================================================================
+    Attribute                   Description
+    =========================== =========================================================================
+    ``action``                  The type of action performed.
+    ``created_utc``             The parsed UTC datetime of when the action was performed.
+    ``description``             The description added to the action if applicable.
+    ``details``                 The details of the action performed.
+    ``id``                      The ID of the mod action prepended with "ModAction_".
+    ``mod_id36``                The ID36 of the moderator who performed the action.
+    ``mod``                     The username of the moderator who performed the action.
+    ``sr_id36``                 The ID36 of the subreddit the action was performed on.
+    ``subreddit_name_prefixed`` The name of the subreddit the action was performed on prefixed with "r/".
+    ``subreddit``               The name of the subreddit the action was performed on.
+    ``target_author``           The author of the target item if applicable.
+    ``target_body``             The body of the target item if applicable.
+    ``target_fullname``         The id of the target with its kind prepended. (e.g. "t3_d5229o")
+    ``target_permalink``        The target of the comment or submission if applicable.
+    ``target_title``            The title of the submission if applicable.
+    =========================== =========================================================================
+    """
 
     def __init__(self, data, subreddit=None):
+        """
+        Create an instance of a ModAction.
+
+        Parameters
+        ----------
+        data: Dict
+            The data returned from the API endpoint.
+        subreddit: Subreddit
+            The subreddit this ModAction belongs to.
+        """
         self.data = data
         self.subreddit = subreddit
 
@@ -324,4 +391,12 @@ class ModAction:
                 setattr(self, key, d[key])
 
     async def mod(self) -> Redditor:
+        """
+        Returns the Redditor who performed this action.
+
+        Returns
+        -------
+        redditor: Redditor
+            The Redditor who performed this action.
+        """
         return await self.subreddit.reddit.redditor(self.mod)

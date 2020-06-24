@@ -3,17 +3,12 @@
 Subreddit
 =========
 
-This section describes the API of the Subreddit model and its helpers.
+This section describes the usage and members of the Subreddit model.
 
 .. contents::
 
-.. toctree::
-   :maxdepth: 2
-
-   subreddit_moderation
-
 Subreddit
-_________
+---------
 
 A subreddit can be instantiated as follows:
 
