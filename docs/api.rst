@@ -5,8 +5,8 @@ API Reference
 
 The following section outlines the API of aPRAW.
 
-Reddit
-------
+.. toctree::
+   :maxdepth: 2
 
-.. autoclass:: Reddit
-    :members:
+   reddit/index
+   models/index
