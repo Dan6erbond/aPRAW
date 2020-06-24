@@ -20,7 +20,7 @@ aPRAW can be installed directly from PyPi:
 Basic Concepts
 --------------
 
-aPRAW assumes that all the Reddit items know the loggeded-in Reddit instance. When grabbing items by using the built-in functions, this will be done automatically.
+aPRAW assumes that all the Reddit items know the logged-in Reddit instance. When grabbing items by using the built-in functions, this will be done automatically.
 
 Instantiating items with the API is very easy:
 
