@@ -10,3 +10,4 @@ This section contains the documentation and API of the implemented aPRAW models.
 
    subreddit/index
    redditor
+   listing_generator

@@ -1,5 +1,5 @@
 import asyncio
-from typing import TYPE_CHECKING, Any, AsyncIterator, Callable, List, Union
+from typing import TYPE_CHECKING, Any, AsyncIterator, Callable, List
 
 from ..utils import prepend_kind
 from .apraw_base import aPRAWBase
@@ -13,10 +13,45 @@ if TYPE_CHECKING:
 
 
 class ListingGenerator:
+    """
+    The model to request, parse and poll listings from Reddit.
+
+    Members
+    -------
+    reddit: Reddit
+        The :code:`~apraw.Reddit` instance with which requests are made.
+    endpoint: str
+        The endpoint to make requests on.
+    max_wait: int
+        The maximum amount of seconds to wait before re-requesting in streams.
+    kind_filter:
+        Kinds to return if given, otherwise all are returned.
+    subreddit: Subreddit
+        The subreddit to inject as a dependency into items if given.
+
+    .. note::
+        ListingGenerator will automatically make requests until none more are found or the limit has been reached.
+    """
 
     def __init__(self, reddit: 'Reddit', endpoint: str,
                  max_wait: int = 16, kind_filter: List[str] = [],
                  subreddit=None):
+        """
+        Create a ListingGenerator instance.
+
+        Parameters
+        ----------
+        reddit: Reddit
+            The :code:`~apraw.Reddit` instance with which requests are made.
+        endpoint: str
+            The endpoint to make requests on.
+        max_wait: int
+            The maximum amount of seconds to wait before re-requesting in streams.
+        kind_filter:
+            Kinds to return if given, otherwise all are returned.
+        subreddit: Subreddit
+            The subreddit to inject as a dependency into items if given.
+        """
         self.reddit = reddit
         self.endpoint = endpoint
         self.max_wait = max_wait
@@ -46,6 +81,21 @@ class ListingGenerator:
             The listing generator that can be called later.
         """
         async def get_listing(limit: int = 25, **kwargs) -> AsyncIterator[aPRAWBase]:
+            """
+            Yields items found in the listing.
+
+            Parameters
+            ----------
+            limit: int
+                The maximum amount of items to search. If ``None``, all are returned.
+            kwargs: \*\*Dict
+                Query parameters to append to the request URL.
+
+            Yields
+            ------
+            item: Subreddit or Comment or Submission or ModAction or WikiPageRevision or aPRAWBase
+                The item found in the listing.
+            """
             last = None
             while True:
                 kwargs["limit"] = limit if limit is not None else 100
@@ -91,12 +141,45 @@ class ListingGenerator:
         return get_listing
 
     async def get(self, *args, **kwargs) -> AsyncIterator[aPRAWBase]:
+        """
+        Yields items found in the listing.
+
+        Parameters
+        ----------
+        limit: int
+            The maximum amount of items to search. If ``None``, all are returned.
+        kwargs: \*\*Dict
+            Query parameters to append to the request URL.
+
+        Yields
+        ------
+        item: Subreddit or Comment or Submission or ModAction or WikiPageRevision or aPRAWBase
+            The item found in the listing.
+        """
         async for i in ListingGenerator.get_listing_generator(**vars(self))(*args, **kwargs):
             yield i
 
     __call__ = get
 
     async def stream(self, skip_existing: bool = False, **kwargs) -> AsyncIterator[aPRAWBase]:
+        """
+        Stream items from an endpoint.
+
+        Streams use the ``asyncio.sleep()`` call to wait in between requests.
+        If no items are found, the wait time is double until ``max_wait`` has been reached, at which point it's reset to 1.
+
+        Parameters
+        ----------
+        skip_existing: bool
+            Whether to skip items made before the call.
+        kwargs: \*\*Dict
+            Query parameters to append to the request URL.
+
+        Yields
+        ------
+        item: Subreddit or Comment or Submission or ModAction or WikiPageRevision or aPRAWBase
+            The item found in the listing.
+        """
         wait = 0
         ids = list()
 
