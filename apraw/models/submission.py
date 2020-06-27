@@ -270,7 +270,7 @@ class Submission(aPRAWBase):
             self._subreddit = await self.reddit.subreddit(self.data["subreddit"])
         return self._subreddit
 
-    async def author(self) -> Subreddit:
+    async def author(self) -> Subreddit: # TODO: Fix return type
         """
         Retrieve the author of the submission.
 
