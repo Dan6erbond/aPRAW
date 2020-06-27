@@ -53,6 +53,7 @@ class Redditor(aPRAWBase):
 
     .. warning::
         Suspended Redditors only return ``is_suspended`` and ``name``.
+
     """
 
     def __init__(self, reddit: 'Reddit', data: Dict):
