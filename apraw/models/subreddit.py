@@ -37,6 +37,9 @@ class Subreddit(aPRAWBase):
     top: ListingGenerator
         Returns an instance of :class:`~apraw.models.ListingGenerator` mapped to the top submissions endpoint.
 
+    .. warning::
+        Using the streams of non-new endpoints may result in receiving items multiple times, as their positions can change and be returned by the API after they've been removed from the internal tracker.
+
     **Examples**
 
     To grab new submissions made on a subreddit:
