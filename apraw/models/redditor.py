@@ -15,7 +15,7 @@ class Redditor(aPRAWBase):
     Members
     -------
     reddit: Reddit
-        The :code:`~apraw.Reddit` instance with which requests are made.
+        The :class:`~apraw.Reddit` instance with which requests are made.
     data: Dict
         The data obtained from the /about endpoint.
     comments: ListingGenerator

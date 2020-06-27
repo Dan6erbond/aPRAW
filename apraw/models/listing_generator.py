@@ -19,7 +19,7 @@ class ListingGenerator:
     Members
     -------
     reddit: Reddit
-        The :code:`~apraw.Reddit` instance with which requests are made.
+        The :class:`~apraw.Reddit` instance with which requests are made.
     endpoint: str
         The endpoint to make requests on.
     max_wait: int
@@ -42,7 +42,7 @@ class ListingGenerator:
         Parameters
         ----------
         reddit: Reddit
-            The :code:`~apraw.Reddit` instance with which requests are made.
+            The :class:`~apraw.Reddit` instance with which requests are made.
         endpoint: str
             The endpoint to make requests on.
         max_wait: int
@@ -67,7 +67,7 @@ class ListingGenerator:
         Parameters
         ----------
         reddit: Reddit
-            The `Reddit` object with which requests are performed.
+            The :class:`~apraw.Reddit` instance with which requests are made.
         endpoint: str
             The endpoint for the listing generator to call.
         kind_filter: List[str]
