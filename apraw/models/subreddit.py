@@ -16,8 +16,8 @@ class Subreddit(aPRAWBase):
     """
     The model representing subreddits.
 
-    Members
-    -------
+    Attributes
+    ----------
     quarantine: bool
         Whether the subreddit has been quarantined or not.
     mod: SubredditModeration
