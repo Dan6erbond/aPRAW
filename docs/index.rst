@@ -19,16 +19,23 @@ aPRAW is an asynchronous Reddit API wrapper.
 Documentation Contents
 ----------------------
 
+This is the documentation for aPRAW, a wrapper library for Python to aid in performing asynchronous requests to the Reddit API and interacting with its data.
+It's split into the following sections.
+
 .. toctree::
    :maxdepth: 2
+   :caption: Getting Started
 
-   intro
-   quickstart
-   api
+   getting_started/intro
+   getting_started/quickstart
 
+.. toctree::
+   :maxdepth: 2
+   :caption: API
 
+   api/index
 
-Indices and tables
-==================
+Index
+-----
 
 * :ref:`genindex`
