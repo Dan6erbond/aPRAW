@@ -18,8 +18,10 @@ class Subreddit(aPRAWBase):
 
     Attributes
     ----------
-    quarantine: bool
-        Whether the subreddit has been quarantined or not.
+    reddit: Reddit
+        The :code:`~apraw.Reddit` instance with which requests are made.
+    data: Dict
+        The data obtained from the /about endpoint.
     mod: SubredditModeration
         Returns an instance of :class:`~apraw.models.SubredditModeration`.
     modmail: SubredditModmail
