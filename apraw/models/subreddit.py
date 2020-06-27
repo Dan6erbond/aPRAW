@@ -16,8 +16,8 @@ class Subreddit(aPRAWBase):
     """
     The model representing subreddits.
 
-    Attributes
-    ----------
+    Members
+    -------
     reddit: Reddit
         The :code:`~apraw.Reddit` instance with which requests are made.
     data: Dict
@@ -297,8 +297,8 @@ class SubredditModeration:
     """
     A helper class for grabbing listings to Subreddit moderation items.
 
-    Attributes
-    ----------
+    Members
+    -------
     reports: ListingGenerator
         Returns an instance of :class:`~apraw.models.ListingGenerator` mapped to grab reported items.
     spam: ListingGenerator
