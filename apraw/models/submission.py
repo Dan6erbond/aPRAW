@@ -243,7 +243,7 @@ class Submission(aPRAWBase):
             cs = children[:100]
             children = children[100:]
 
-            def get_comments(comment_list, comments): # TODO: Fix shadowing
+            def get_comments(comment_list, comments):  # TODO: Fix shadowing
                 for i in comment_list:
                     if isinstance(i, list):
                         comments = get_comments(i, comments)
@@ -270,7 +270,7 @@ class Submission(aPRAWBase):
             self._subreddit = await self.reddit.subreddit(self.data["subreddit"])
         return self._subreddit
 
-    async def author(self) -> Subreddit: # TODO: Fix return type
+    async def author(self) -> Subreddit:  # TODO: Fix return type
         """
         Retrieve the author of the submission.
 
