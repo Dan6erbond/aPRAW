@@ -15,8 +15,8 @@ class Reddit:
     """
     The Reddit instance with which root requests can be made.
 
-    Attributes
-    ----------
+    Members
+    -------
     user: User
         An instance of the logged-in Reddit user.
     subreddits: ListingGenerator

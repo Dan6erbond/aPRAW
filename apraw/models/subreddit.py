@@ -18,8 +18,10 @@ class Subreddit(aPRAWBase):
 
     Members
     -------
-    quarantine: bool
-        Whether the subreddit has been quarantined or not.
+    reddit: Reddit
+        The :code:`~apraw.Reddit` instance with which requests are made.
+    data: Dict
+        The data obtained from the /about endpoint.
     mod: SubredditModeration
         Returns an instance of :class:`~apraw.models.SubredditModeration`.
     modmail: SubredditModmail
@@ -36,6 +38,9 @@ class Subreddit(aPRAWBase):
         Returns an instance of :class:`~apraw.models.ListingGenerator` mapped to the rising submissions endpoint.
     top: ListingGenerator
         Returns an instance of :class:`~apraw.models.ListingGenerator` mapped to the top submissions endpoint.
+
+    .. warning::
+        Using the streams of non-new endpoints may result in receiving items multiple times, as their positions can change and be returned by the API after they've been removed from the internal tracker.
 
     **Examples**
 
@@ -292,8 +297,8 @@ class SubredditModeration:
     """
     A helper class for grabbing listings to Subreddit moderation items.
 
-    Attributes
-    ----------
+    Members
+    -------
     reports: ListingGenerator
         Returns an instance of :class:`~apraw.models.ListingGenerator` mapped to grab reported items.
     spam: ListingGenerator

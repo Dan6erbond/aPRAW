@@ -9,3 +9,5 @@ This section contains the documentation and API of the implemented aPRAW models.
    :maxdepth: 2
 
    subreddit/index
+   redditor
+   listing_generator
