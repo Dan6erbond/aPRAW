@@ -1,7 +1,7 @@
 .. currentmodule:: apraw.models
 
 Subreddit Modmail
-====================
+=================
 
 This section details the usage of models related to subreddit modmail.
 
