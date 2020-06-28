@@ -16,6 +16,22 @@ grant_type=password
 @submissionId = h7mna9
 @commentId = fuoew5r
 
+# @name getSubreddit
+GET {{baseUrl}}/r/{{subreddit}}/about
+User-Agent: {{user_agent}}
+Content-Type: application/json
+Authorization: {{getToken.response.body.token_type}} {{getToken.response.body.access_token}}
+
+###
+
+# @name getNonexistentSubreddit
+GET {{baseUrl}}/r/asjdfkljaskldf/about
+User-Agent: {{user_agent}}
+Content-Type: application/json
+Authorization: {{getToken.response.body.token_type}} {{getToken.response.body.access_token}}
+
+###
+
 # @name getComment
 GET {{baseUrl}}/api/info?id=t1_{{commentId}}
 User-Agent: {{user_agent}}

@@ -33,3 +33,13 @@ class TestReddit:
             break
 
         assert isinstance(subreddit, apraw.models.subreddit.Subreddit)
+
+    @pytest.mark.asyncio
+    async def test_reddit_user_karma(self, reddit: apraw.Reddit):
+        user = await reddit.user.me()
+        karma = await user.karma()
+
+        assert isinstance(karma, list)
+        if karma:
+            assert isinstance(karma[0], apraw.models.Karma)
+            assert isinstance(await karma[0].subreddit(), apraw.models.Subreddit)
