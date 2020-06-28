@@ -23,7 +23,7 @@ class Redditor(aPRAWBase):
     submissions: ListingGenerator
         Returns an instance of :class:`~apraw.models.ListingGenerator` mapped to fetch the Redditor's submission.
     subreddit: Sureddit
-        An instance of :code:`~apraw.models.Subreddit` for the Redditor's profile subreddit.
+        An instance of :class:`~apraw.models.Subreddit` for the Redditor's profile subreddit.
 
     **Typical Attributes**
 
