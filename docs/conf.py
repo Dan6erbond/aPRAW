@@ -18,9 +18,9 @@ sys.path.insert(0, os.path.abspath('..'))
 # -- Project information -----------------------------------------------------
 
 project = 'aPRAW'
-copyright = '2020, Dan6erbond'
+copyright = '2020, RaviAnand Mohabir'
 master_doc = "index"
-author = 'Dan6erbond'
+author = 'RaviAnand Mohabir'
 
 # The full version, including alpha/beta/rc tags
 release = '0.3.2-alpha'
