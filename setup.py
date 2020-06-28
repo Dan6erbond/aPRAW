@@ -1,11 +1,12 @@
 import setuptools
+from apraw import __version__, __tag__
 
 with open("README.md", "r", encoding="utf8") as fh:
     long_description = fh.read()
 
 setuptools.setup(
     name="aPRAW",
-    version="0.3.2-alpha",
+    version="{}-{}".format(__version__, __tag__) if __tag__ else __version__,
     author="Dan6erbond",
     author_email="moravrav@gmail.com",
     description="aPRAW is an asynchronous Reddit API wrapper written in Python.",

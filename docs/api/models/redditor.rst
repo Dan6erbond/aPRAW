@@ -5,11 +5,6 @@ Redditor
 
 This section describes the usage and members of the Redditor model.
 
-.. contents::
-
-Redditor
---------
-
 A Redditor can be instantiated as follows:
 
 .. code-block:: python3

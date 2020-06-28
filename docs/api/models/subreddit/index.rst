@@ -5,8 +5,6 @@ Subreddit
 
 This section contains the documentation and API of the subreddit models and helpers.
 
-.. contents::
-
 .. toctree::
    :maxdepth: 2
 

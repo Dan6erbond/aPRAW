@@ -70,7 +70,10 @@ Basic Concepts
 aPRAW assumes that all the Reddit items know the logged-in Reddit instance.
 When grabbing items by using the built-in functions, this will be done automatically through dependency injection.
 
-Instantiating items with the API is very easy:
+Instantiating Models
+********************
+
+Most items can be retrieved from the base Reddit object like so:
 
 .. code-block:: python3
 

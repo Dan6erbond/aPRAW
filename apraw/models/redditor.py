@@ -15,7 +15,7 @@ class Redditor(aPRAWBase):
     Members
     -------
     reddit: Reddit
-        The :code:`~apraw.Reddit` instance with which requests are made.
+        The :class:`~apraw.Reddit` instance with which requests are made.
     data: Dict
         The data obtained from the /about endpoint.
     comments: ListingGenerator
@@ -53,6 +53,7 @@ class Redditor(aPRAWBase):
 
     .. warning::
         Suspended Redditors only return ``is_suspended`` and ``name``.
+
     """
 
     def __init__(self, reddit: 'Reddit', data: Dict):
@@ -62,7 +63,7 @@ class Redditor(aPRAWBase):
         Parameters
         ----------
         reddit: Reddit
-            The :code:`~apraw.Reddit` instance with which requests are made.
+            The :class:`~apraw.Reddit` instance with which requests are made.
         data: Dict
             The data obtained from the /about endpoint.
         """

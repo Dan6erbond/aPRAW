@@ -77,7 +77,7 @@ Of course, aPRAW is open-source under the GPLv3 license and all additions and bu
 
 ## Documentation
 
-Still on its way!
+The full API documentation can be found on [Read The Docs](http://apraw.readthedocs.io/).
 
 ## Roadmap
 
