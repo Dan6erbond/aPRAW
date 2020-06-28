@@ -137,7 +137,7 @@ class Submission(aPRAWBase):
     ================================= ============================================================================
 
     .. note::
-        Many of these attributes are only available for submissions where the logged-in user is a moderator.
+        Many of these attributes are only available if the logged-in user has moderator access to the item.
 
     """
 
@@ -196,9 +196,10 @@ class Submission(aPRAWBase):
         reload: bool
             Whether to force reload the data.
 
-            .. note::
+            .. warning::
                 ``reload`` and ``refresh`` arguments will be replaced by refreshables in future releases of aPRAW, as
                 they are alpha features.
+
         kwargs: \*\*Dict
             Query parameters to append to the request URL.
 

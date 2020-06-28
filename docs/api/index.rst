@@ -10,3 +10,4 @@ The following section outlines the API of aPRAW.
 
    reddit/index
    models/index
+   other/index

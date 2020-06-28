@@ -11,9 +11,63 @@ if TYPE_CHECKING:
 
 
 class User:
+    """
+    A class to store the authentication credentials and handle ratelimit information.
+
+    Members
+    -------
+    reddit: Reddit
+        The :class:`~apraw.Reddit` instance with which requests are made.
+    username: str
+        The username given to the Reddit instance or obtained via ``praw.ini``.
+    password: str
+        The password given to the Reddit instance or obtained via ``praw.ini``.
+    client_id: str
+        The client ID given to the Reddit instance or obtained via ``praw.ini``.
+    client_secret: str
+        The client secret given to the Reddit instance or obtained via ``praw.ini``.
+    user_agent: str
+        The user agent given to the Reddit instance or defaulted to aPRAW's version.
+    password_grant: str
+        The data to be used when making a token request with the 'password' ``grant_type``.
+    access_data: Dict
+        A dictionary containing the access token and user agent for request headers.
+    token_expires: datetime
+        The datetime on which the previously retrieved token will expire. Defaults to the past to obtain a token
+        immediately the first time.
+    ratelimit_remaining: int
+        The number of requests remaining in the current ratelimit window.
+    ratelimit_used: int
+        The number of requests previously used in the current ratelimit window.
+    ratelimit_reset: datetime
+        The datetime on which the ratelimit window will be reset.
+    """
 
     def __init__(self, reddit: 'Reddit', username: str, password: str, client_id: str,
                  client_secret: str, user_agent: str):
+        """
+        Create an instance of the authenticated user.
+
+        Parameters
+        ----------
+        reddit: Reddit
+            The :class:`~apraw.Reddit` instance with which requests are made.
+        username: str
+            The username given to the Reddit instance or obtained via ``praw.ini``.
+        password: str
+            The password given to the Reddit instance or obtained via ``praw.ini``.
+        client_id: str
+            The client ID given to the Reddit instance or obtained via ``praw.ini``.
+        client_secret: str
+            The client secret given to the Reddit instance or obtained via ``praw.ini``.
+        user_agent: str
+            The user agent given to the Reddit instance or defaulted to aPRAW's version.
+
+        Raises
+        ------
+        Exception
+            If the login credentials given are empty or incomplete.
+        """
         self.reddit = reddit
 
         self.username = username
@@ -42,6 +96,14 @@ class User:
         self.ratelimit_reset = datetime.now()
 
     def get_auth_session(self) -> aiohttp.ClientSession:
+        """
+        Retrieve an ``aiohttp.ClientSesssion`` with which the authentication token can be obtained.
+
+        Returns
+        -------
+        session: aiohttp.ClientSession
+            The session using the BasicAuth setup to obtain tokens with.
+        """
         if self._auth_session is None:
             auth = aiohttp.BasicAuth(
                 login=self.client_id,
@@ -50,11 +112,27 @@ class User:
         return self._auth_session
 
     def get_client_session(self) -> aiohttp.ClientSession:
+        """
+        Retrieve the ``aiohttp.ClientSesssion`` with which regular requests are made.
+
+        Returns
+        -------
+        session: aiohttp.ClientSession
+            The session with which requests should be made.
+        """
         if self._client_session is None:
             self._client_session = aiohttp.ClientSession()
         return self._client_session
 
     async def me(self) -> 'AuthenticatedUser':
+        """
+        Retrieve an instance of :class:`~apraw.models.AuthenticatedUser` for the logged-in user.
+
+        Returns
+        -------
+        user: AuthenticatedUser
+            The logged-in user.
+        """
         if not self._auth_user:
             data = await self.reddit.get_request(API_PATH["me"])
             self._auth_user = AuthenticatedUser(self.reddit, data)
@@ -62,13 +140,34 @@ class User:
 
 
 class AuthenticatedUser(Redditor):
+    """
+    The model representing the logged-in user.
+
+    This model inherits from :class:`~apraw.models.Redditor` and thus all its attributes and features. View those docs
+    for further information.
+
+    Members
+    -------
+    reddit: Reddit
+        The :class:`~apraw.Reddit` instance with which requests are made.
+    data: Dict
+        The data obtained from the /about endpoint.
+    """
 
     def __init__(self, reddit: 'Reddit', data: Dict):
         super().__init__(reddit, data)
 
         self._karma = None
 
-    async def karma(self):
+    async def karma(self):  # TODO: Implement
+        """
+        Retrieve the karma breakdown for the logged-in user.
+
+        Returns
+        -------
+        karma: AuthenticatedUser
+            The logged-in user.
+        """
         if not self._karma:
             data = await self.reddit.get_request(API_PATH["me"])
             self._karma = AuthenticatedUser(self.reddit, data)
