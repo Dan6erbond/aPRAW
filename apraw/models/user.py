@@ -177,12 +177,13 @@ class AuthenticatedUser(Redditor):
         Returns
         -------
         karma: List[Karma]
-            The logged-in user.
+            The parsed ``KarmaList`` for the logged-in user.
         """
         if not self._karma:
             resp = await self.reddit.get_request(API_PATH["me_karma"])
             self._karma = [Karma(self.reddit, d) for d in resp["data"]]
         return self._karma
+
 
 class Karma(aPRAWBase):
     """
@@ -194,6 +195,20 @@ class Karma(aPRAWBase):
         The :class:`~apraw.Reddit` instance with which requests are made.
     data: Dict
         The data obtained from the /about endpoint.
+
+    **Typical Attributes**
+
+    This table describes attributes that typically belong to objects of this
+    class. Attributes are dynamically provided by the :class:`~apraw.models.aPRAWBase` class
+    and may vary depending on the status of the response and expected objects.
+
+    ================= ===================================================
+    Attribute         Description
+    ================= ===================================================
+    ``sr``            The name of the subreddit the karma was obtained on
+    ``comment_karma`` The amount of karma obtained on the subreddit.
+    ``link_karma``    The amount of link karma obtained on the subreddit.
+    ================= ===================================================
     """
 
     def __init__(self, reddit: 'Reddit', data: Dict):
