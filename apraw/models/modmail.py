@@ -62,27 +62,27 @@ class ModmailConversation(aPRAWBase):
     class. Attributes are dynamically provided by the :class:`~apraw.models.aPRAWBase` class
     and may vary depending on the status of the response and expected objects.
 
-    ======================== ==========================================================================================
-    Attribute                Description
-    ======================== ==========================================================================================
-    ``isAuto``               ``bool``
-    ``objIds``               A list of dictionaries containing the objects with their IDs and keys.
-    ``isRepliable``          Whether the conversation can be replied to.
-    ``lastUserUpdate``       A timestamp of the last user update or ``None``.
-    ``isInternal``           Whether it's an internal mod conversation.
-    ``lastModUpdate``        A timestamp of the last moderator update or ``None``.
-    ``lastUpdated``          A timestamp of the last update made overall.
-    ``authors``              A list of dictionaries containing authors by name with additional meta information such as
-                             ``isMod``, ``isAdmin``, ``isOp``, ``isParticipant``, ``isHidden``, ``id``, ``isDeleted``.
-    ``owner``                A dictionary describing the subreddit this conversation is held in.
-    ``id``                   The ID of this conversation.
-    ``isHighlighted``        Whether the conversation has been highlighted.
-    ``subject``              The subject of this conversation.
-    ``participant``          ``Dict``
-    ``state``                ``int``
-    ``lastUnread``           ``None``
-    ``numMessages``          The number of messages in this conversation.
-    ======================== ==========================================================================================
+    ================== ==========================================================================================
+    Attribute          Description
+    ================== ==========================================================================================
+    ``isAuto``         ``bool``
+    ``objIds``         A list of dictionaries containing the objects with their IDs and keys.
+    ``isRepliable``    Whether the conversation can be replied to.
+    ``lastUserUpdate`` A timestamp of the last user update or ``None``.
+    ``isInternal``     Whether it's an internal mod conversation.
+    ``lastModUpdate``  A timestamp of the last moderator update or ``None``.
+    ``lastUpdated``    A timestamp of the last update made overall.
+    ``authors``        A list of dictionaries containing authors by name with additional meta information such as
+                       ``isMod``, ``isAdmin``, ``isOp``, ``isParticipant``, ``isHidden``, ``id``, ``isDeleted``.
+    ``owner``          A dictionary describing the subreddit this conversation is held in.
+    ``id``             The ID of this conversation.
+    ``isHighlighted``  Whether the conversation has been highlighted.
+    ``subject``        The subject of this conversation.
+    ``participant``    ``Dict``
+    ``state``          ``int``
+    ``lastUnread``     ``None``
+    ``numMessages``    The number of messages in this conversation.
+    ================== ==========================================================================================
     """
 
     def __init__(self, reddit: 'Reddit', data: Dict,
