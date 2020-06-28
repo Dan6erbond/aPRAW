@@ -1,10 +1,11 @@
 from datetime import datetime
-from typing import TYPE_CHECKING, Dict
+from typing import TYPE_CHECKING, Dict, List
 
 import aiohttp
 
 from ..endpoints import API_PATH
 from .redditor import Redditor
+from .apraw_base import aPRAWBase
 
 if TYPE_CHECKING:
     from ..reddit import Reddit
@@ -155,20 +156,68 @@ class AuthenticatedUser(Redditor):
     """
 
     def __init__(self, reddit: 'Reddit', data: Dict):
+        """
+        Create an instance of AuthenticatedUser.
+
+        Parameters
+        ----------
+        reddit : Reddit
+            The :class:`~apraw.Reddit` instance with which requests are made.
+        data : Dict
+            The data obtained from the /about endpoint.
+        """
         super().__init__(reddit, data)
 
-        self._karma = None
+        self._karma = list()
 
-    async def karma(self):  # TODO: Implement
+    async def karma(self) -> List['Karma']:
         """
         Retrieve the karma breakdown for the logged-in user.
 
         Returns
         -------
-        karma: AuthenticatedUser
+        karma: List[Karma]
             The logged-in user.
         """
         if not self._karma:
-            data = await self.reddit.get_request(API_PATH["me"])
-            self._karma = AuthenticatedUser(self.reddit, data)
+            resp = await self.reddit.get_request(API_PATH["me_karma"])
+            self._karma = [Karma(self.reddit, d) for d in resp["data"]]
         return self._karma
+
+class Karma(aPRAWBase):
+    """
+    A model representing subreddit karma.
+
+    Members
+    -------
+    reddit: Reddit
+        The :class:`~apraw.Reddit` instance with which requests are made.
+    data: Dict
+        The data obtained from the /about endpoint.
+    """
+
+    def __init__(self, reddit: 'Reddit', data: Dict):
+        """
+        Create an instance of Karma
+
+        Parameters
+        ----------
+        reddit : Reddit
+            An instance of :class:`~apraw.Reddit`with which requests are made.
+        data : Dict
+            The data obtained from the /about endpoint.
+        """
+        super().__init__(reddit, data)
+
+        self._subreddit = None
+
+    async def subreddit(self):
+        """
+        Retrieve the subreddit on which the karma was obtained.
+
+        Returns
+        -------
+        subreddit: Subreddit
+            The subreddit on which the karma was obtained.
+        """
+        return await self.reddit.subreddit(self.sr)
