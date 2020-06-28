@@ -70,14 +70,14 @@ If you have any questions regarding aPRAW and its usage...
    - Use the `#💬general` chat for discussion about the library and talking to other users.
    - Use the `#❓questions` to post questions. The developers will try to get back to you as quickly as possible, but other users can help as well!
    - Use the `#💡ideas` if you have any ideas for the framework but don't know how to implement them, or just want to throw in the suggestion.
-   
+
 ### Contributing
-   
+
 Of course, aPRAW is open-source under the GPLv3 license and all additions and bug reports in the form of issues and pull requests are welcome! For further information, view the [contribution guidelines](.github/CONTRIBUTING.md) and have fun coding!
 
 ## Documentation
 
-Still on its way!
+The full API documentation can be found on [Read The Docs](http://apraw.readthedocs.io/).
 
 ## Roadmap
 

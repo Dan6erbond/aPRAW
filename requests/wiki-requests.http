@@ -1,0 +1,113 @@
+# @name getToken
+POST https://www.reddit.com/api/v1/access_token
+User-Agent: {{user_agent}}
+Content-Type: application/x-www-form-urlencoded
+Authorization: Basic {{client_id}}:{{client_secret}}
+
+grant_type=password
+&username={{username}}
+&password={{password}}
+
+###
+
+@baseUrl = https://oauth.reddit.com
+
+@subreddit = aPRAWTest
+@wikiPage = index
+@editor = Dan6erbond
+
+@testPage = test
+@testContent = #Test\n\nThis is a test wiki page.
+@testReason = Edit page with test data
+
+@revisionKind = WikiRevision
+
+###
+
+# @name getWiki
+GET {{baseUrl}}/r/{{subreddit}}/wiki/pages
+User-Agent: {{user_agent}}
+Content-Type: application/json
+Authorization: {{getToken.response.body.token_type}} {{getToken.response.body.access_token}}
+
+###
+
+# @name getWikiRevisions
+GET {{baseUrl}}/r/{{subreddit}}/wiki/revisions
+User-Agent: {{user_agent}}
+Content-Type: application/json
+Authorization: {{getToken.response.body.token_type}} {{getToken.response.body.access_token}}
+
+###
+
+# @name getWikipageRevisions
+GET {{baseUrl}}/r/{{subreddit}}/wiki/revisions/{{testPage}}
+User-Agent: {{user_agent}}
+Content-Type: application/json
+Authorization: {{getToken.response.body.token_type}} {{getToken.response.body.access_token}}
+
+###
+
+# @name getWikiPage
+GET {{baseUrl}}/r/{{subreddit}}/wiki/{{wikiPage}}
+User-Agent: {{user_agent}}
+Content-Type: application/json
+Authorization: {{getToken.response.body.token_type}} {{getToken.response.body.access_token}}
+
+###
+
+# @name createWikiPage
+POST {{baseUrl}}/r/{{subreddit}}/api/wiki/edit
+User-Agent: {{user_agent}}
+Content-Type: application/json
+Authorization: {{getToken.response.body.token_type}} {{getToken.response.body.access_token}}
+
+{
+  "page": "{{testPage}}",
+  "reason": "Create page"
+}
+
+###
+
+# @name editWikiPage
+POST {{baseUrl}}/r/{{subreddit}}/api/wiki/edit
+User-Agent: {{user_agent}}
+Content-Type: application/json
+Authorization: {{getToken.response.body.token_type}} {{getToken.response.body.access_token}}
+
+{
+  "page": "{{testPage}}",
+  "content": "{{testContent}}",
+  "reason": "{{testReason}}"
+}
+
+###
+
+@act = add
+
+# @name toggleWikiEditor
+POST {{baseUrl}}/r/{{subreddit}}/api/wiki/alloweditor/{{act}}
+User-Agent: {{user_agent}}
+Content-Type: application/json
+Authorization: {{getToken.response.body.token_type}} {{getToken.response.body.access_token}}
+
+{
+  "page": "{{testPage}}",
+  "username": "{{username}}"
+}
+
+###
+
+@revisionId = 88db6212-b2ec-11ea-a24c-0e24a7ec20a7
+@revision = {{revisionKind}}_{{revisionId}}
+
+# @name hideWikiRevision
+POST {{baseUrl}}/r/{{subreddit}}/api/wiki/hide
+User-Agent: {{user_agent}}
+Content-Type: application/json
+Authorization: {{getToken.response.body.token_type}} {{getToken.response.body.access_token}}
+
+{
+  "page": "{{testPage}}",
+  "revision": "{{revision}}"
+}

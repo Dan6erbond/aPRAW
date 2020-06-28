@@ -1,9 +1,10 @@
 """List of Reddit API endpoints known to aPRAW."""
-
+from typing import Dict, Any, Union
 
 BASE_URL = "https://oauth.reddit.com{}?{}"
 
-API_PATH = {
+API_PATH: Dict[str, str] = {
+    "comment"              : "/r/{sub}/comments/{submission}/_/{id}",
     "compose"              : "/api/compose",
     "info"                 : "/api/info",
     "me"                   : "/api/v1/me",
@@ -30,5 +31,13 @@ API_PATH = {
     "subreddits_new"       : "/subreddits/new",
     "user_about"           : "/user/{user}/about",
     "user_comments"        : "/user/{user}/comments",
-    "user_submissions"     : "/user/{user}/submitted"
+    "user_submissions"     : "/user/{user}/submitted",
+    "wiki"                 : "/r/{sub}/wiki/pages",
+    "wiki_alloweditor"     : "/r/{sub}/api/wiki/alloweditor/{act}",
+    "wiki_edit"            : "/r/{sub}/api/wiki/edit",
+    "wiki_hide"            : "/r/{sub}/api/wiki/hide",
+    "wiki_page"            : "/r/{sub}/wiki/{page}",
+    "wiki_page_revisions"  : "/r/{sub}/wiki/revisions/{page}",
+    "wiki_revert"          : "/r/{sub}/api/wiki/revert",
+    "wiki_revisions"       : "/r/{sub}/wiki/revisions"
 }

@@ -6,9 +6,9 @@
 
 **`banhammer.Subreddit.__init__()`**
 
- - [ ] `praw.Reddit.user.me()`
+ - [x] ~~`praw.Reddit.user.me()`~~
  - [x] ~~`praw.models.Subreddit.moderator()`~~
- - [ ] `praw.models.Subreddit.user_is_moderator`
+ - [x] ~~`praw.models.Subreddit.user_is_moderator`~~
 
 **`banhammer.Subreddit.get_contact_url()`**
 
@@ -30,23 +30,23 @@
  - [x] ~~`praw.models.Subreddit.id`~~
  - [x] ~~`praw.models.Submisison.id`~~
  - [x] ~~`praw.models.Subreddit.new()`~~
- - [ ] `praw.models.Subreddit.comments()`
+ - [x] ~~`praw.models.Subreddit.comments()`~~
  - [x] ~~`praw.models.Comment.id`~~
- - [ ] `praw.models.Subreddit.mod.reports()`
- - [ ] `praw.models.Subreddit.modmail.conversations()`
- - [ ] `praw.models.ModmailConversation.messages`
- - [ ] `praw.models.ModmailMessage.id`
- - [ ] `praw.models.Subreddit.mod.modqueue()`
- - [ ] `praw.models.Subreddit.mod.log()`
- - [ ] `praw.models.ModAction.id`
- - [ ] `praw.models.ModAction.action`
+ - [x] ~~`praw.models.Subreddit.mod.reports()`~~
+ - [x] ~~`praw.models.Subreddit.modmail.conversations()`~~
+ - [x] ~~`praw.models.ModmailConversation.messages`~~
+ - [x] ~~`praw.models.ModmailMessage.id`~~
+ - [x] ~~`praw.models.Subreddit.mod.modqueue()`~~
+ - [x] ~~`praw.models.Subreddit.mod.log()`~~
+ - [x] ~~`praw.models.ModAction.id`~~
+ - [x] ~~`praw.models.ModAction.action`~~
 
 **`banhammer.RedditItem.get_author()`**
 
  - [x] ~~`praw.models.Submission.author`~~
  - [x] ~~`praw.models.Comment.author`~~
- - [ ] `praw.models.ModmailConversation.authors`
- - [ ] `praw.models.ModAction.author`
+ - [x] ~~`praw.models.ModmailConversation.authors`~~
+ - [x] ~~`praw.models.ModAction.author`~~
 
 **`banhammer.RedditItem.is_author_removed()`**
 
@@ -57,7 +57,7 @@
  - [x] ~~`praw.models.Submission.subreddit`~~
  - [ ] `praw.models.Submission.__str__()`
  - [x] ~~`praw.models.Comment.subreddit`~~
- - [ ] `praw.models.Comment.submission`
+ - [x] ~~`praw.models.Comment.submission`~~
  - [ ] `praw.models.Comment.__str()`
  - [x] ~~`praw.models.ModmailConversation.id`~~
  - [ ] `praw.models.Message.was_comment`
@@ -69,9 +69,9 @@
  - [ ] `praw.models.Comment.__str__()`
  - [x] ~~`praw.models.Comment.subreddit`~~
  - [x] ~~`praw.models.Comment.author`~~
- - [ ] `praw.models.Comment.permalink`
- - [ ] `praw.models.Comment.title` -> doesn't exist
- - [ ] `praw.models.Comment.selftext` -> doesn't exist
+ - [x] `praw.models.Comment.permalink`
+ - [x] ~~`praw.models.Comment.title`~~ -> doesn't exist
+ - [x] ~~`praw.models.Comment.selftext`~~ -> doesn't exist
  - [ ] `praw.models.Submission.__str__()`
  - [x] ~~`praw.models.Submission.subreddit`~~
  - [x] ~~`praw.models.Submission.author`~~
