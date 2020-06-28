@@ -40,4 +40,6 @@ class TestReddit:
         karma = await user.karma()
 
         assert isinstance(karma, list)
-        if karma: assert isinstance(karma[0], apraw.models.Karma)
+        if karma:
+            assert isinstance(karma[0], apraw.models.Karma)
+            assert isinstance(await karma[0].subreddit(), apraw.models.Subreddit)
