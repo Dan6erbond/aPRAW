@@ -1,7 +1,7 @@
 from typing import TYPE_CHECKING, AsyncIterator, Dict, List
 
 from ..endpoints import API_PATH
-from .apraw_base import aPRAWBase
+from .helpers.apraw_base import aPRAWBase
 from .redditor import Redditor
 from .subreddit import Subreddit
 

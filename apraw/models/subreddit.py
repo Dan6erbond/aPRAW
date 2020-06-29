@@ -1,12 +1,12 @@
 from datetime import datetime
 from typing import TYPE_CHECKING, AsyncIterator, Dict, Union
 
-from .apraw_base import aPRAWBase
+from ..endpoints import API_PATH
+from ..utils import snake_case_keys
+from .helpers.apraw_base import aPRAWBase
 from .modmail import SubredditModmail
 from .redditor import Redditor
 from .subreddit_wiki import SubredditWiki
-from ..endpoints import API_PATH
-from ..utils import snake_case_keys
 
 if TYPE_CHECKING:
     from ..reddit import Reddit
@@ -171,7 +171,7 @@ class Subreddit(aPRAWBase):
         self.modmail = SubredditModmail(self)
         self.wiki = SubredditWiki(self)
 
-        from .listing_generator import ListingGenerator
+        from .helpers.listing_generator import ListingGenerator
         self.comments = ListingGenerator(
             self.reddit, API_PATH["subreddit_comments"].format(
                 sub=self.display_name), subreddit=self)
@@ -316,7 +316,7 @@ class SubredditModeration:
     def __init__(self, subreddit):
         self.subreddit = subreddit
 
-        from .listing_generator import ListingGenerator
+        from .helpers.listing_generator import ListingGenerator
         self.reports = ListingGenerator(
             self.subreddit.reddit,
             API_PATH["subreddit_reports"].format(

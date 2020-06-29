@@ -1,10 +1,10 @@
 from typing import TYPE_CHECKING, AsyncIterator, Dict, List
 
-from .apraw_base import aPRAWBase
+from ..endpoints import API_PATH
 from .comment import Comment
+from .helpers.apraw_base import aPRAWBase
 from .redditor import Redditor
 from .subreddit import Subreddit
-from ..endpoints import API_PATH
 
 if TYPE_CHECKING:
     from ..reddit import Reddit

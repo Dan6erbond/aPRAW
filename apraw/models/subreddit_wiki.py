@@ -1,8 +1,8 @@
 from typing import TYPE_CHECKING, Dict, List, Union
 
-from .apraw_base import aPRAWBase
-from .redditor import Redditor
 from ..endpoints import API_PATH
+from .helpers.apraw_base import aPRAWBase
+from .redditor import Redditor
 
 if TYPE_CHECKING:
     from ..reddit import Reddit
@@ -16,7 +16,7 @@ class SubredditWiki:
 
         self._data = None
 
-        from .listing_generator import ListingGenerator
+        from .helpers.listing_generator import ListingGenerator
         self.revisions = ListingGenerator(
             subreddit.reddit, API_PATH["wiki_revisions"].format(
                 sub=self.subreddit))
@@ -54,7 +54,7 @@ class SubredditWikipage(aPRAWBase):
         self.name = name
         self.subreddit = subreddit
 
-        from .listing_generator import ListingGenerator
+        from .helpers.listing_generator import ListingGenerator
         self.revisions = ListingGenerator(
             subreddit.reddit, API_PATH["wiki_page_revisions"].format(
                 sub=self.subreddit, page=self.name))

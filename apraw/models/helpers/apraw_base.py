@@ -1,10 +1,10 @@
 from datetime import datetime
 from typing import TYPE_CHECKING, Any, Dict
 
-from ..utils import snake_case_keys
+from ...utils import snake_case_keys
 
 if TYPE_CHECKING:
-    from ..reddit import Reddit
+    from ...reddit import Reddit
 
 
 class aPRAWBase:
@@ -21,6 +21,7 @@ class aPRAWBase:
     data: Dict
         The data obtained from the /about endpoint.
     """
+
     def __init__(self, reddit: 'Reddit', data: Dict[str, Any]):
         """
         Initialize the base information.

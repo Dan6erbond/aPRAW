@@ -1,7 +1,7 @@
 from typing import TYPE_CHECKING, Dict
 
 from ..endpoints import API_PATH
-from .apraw_base import aPRAWBase
+from .helpers.apraw_base import aPRAWBase
 
 if TYPE_CHECKING:
     from .subreddit import Subreddit
@@ -84,7 +84,7 @@ class Redditor(aPRAWBase):
         else:
             self.subreddit = None
 
-        from .listing_generator import ListingGenerator
+        from .helpers.listing_generator import ListingGenerator
         self.comments = ListingGenerator(
             self.reddit,
             API_PATH["user_comments"].format(
