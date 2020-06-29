@@ -178,7 +178,7 @@ class Submission(aPRAWBase, DeletableMixin, HideableMixin,
         AuthorMixin.__init__(self, author)
         SubredditMixin.__init__(self, subreddit)
 
-        self.mod = PostModeration(reddit, self)
+        self.mod = SubmissionModeration(reddit, self)
 
         self._full_data = full_data
         self._comments = list()
