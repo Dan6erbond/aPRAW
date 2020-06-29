@@ -2,6 +2,13 @@ from typing import TYPE_CHECKING, AsyncIterator, Dict, List
 
 from ..endpoints import API_PATH
 from .helpers.apraw_base import aPRAWBase
+from .helpers.item_moderation import PostModeration
+from .mixins.deletable import DeletableMixin
+from .mixins.hideable import HideableMixin
+from .mixins.savable import SavableMixin
+from .mixins.votable import VotableMixin
+from .mixins.author import AuthorMixin
+from .mixins.subreddit import SubredditMixin
 from .redditor import Redditor
 from .subreddit import Subreddit
 
@@ -10,7 +17,9 @@ if TYPE_CHECKING:
     from .submission import Submission
 
 
-class Comment(aPRAWBase):
+class Comment(aPRAWBase, DeletableMixin, HideableMixin,
+              SavableMixin, VotableMixin, AuthorMixin,
+              SubredditMixin):
     """
     The model representing comments.
 
@@ -20,6 +29,8 @@ class Comment(aPRAWBase):
         The :class:`~apraw.Reddit` instance with which requests are made.
     data: Dict
         The data obtained from the /about endpoint.
+    mod: CommentModeration
+        The :class:`~apraw.models.CommentModeration` instance to aid in moderating the comment.
     kind: str
         The item's kind / type.
     subreddit_name: str
@@ -133,29 +144,18 @@ class Comment(aPRAWBase):
         replies: List[Comment]
             A list of replies made to this comment.
         """
-        super().__init__(reddit, data, reddit.comment_kind)
+        aPRAWBase.__init__(reddit, data, reddit.link_kind)
+        AuthorMixin.__init__(author)
+        SubredditMixin.__init__(subreddit)
+
+        self.mod = CommentModeration(reddit, self)
 
         self._submission = submission
-        self._author = author
-        self._subreddit = subreddit
         self._full_data = None
         self._replies = replies
 
         self.subreddit_name = data["subreddit"]
         self.url = "https://www.reddit.com" + data["permalink"]
-
-    async def author(self) -> Redditor:
-        """
-        Retrieve the comment's author as a :class:`~apraw.models.Redditor`.
-
-        Returns
-        -------
-        author: Redditor
-            The comment's author.
-        """
-        if self._author is None:
-            self._author = await self.reddit.redditor(self.data["author"])
-        return self._author
 
     async def submission(self) -> 'Submission':
         """
@@ -172,19 +172,6 @@ class Comment(aPRAWBase):
             self._submission = Submission(
                 self.reddit, link["data"]["children"][0]["data"])
         return self._submission
-
-    async def subreddit(self) -> Subreddit:
-        """
-        Retrieve the subreddit this comment was made in as a :class:`~apraw.models.Subreddit`.
-
-        Returns
-        -------
-        subreddit: Subreddit
-            The subreddit this comment was made in.
-        """
-        if self._subreddit is None:
-            self._subreddit = await self.reddit.subreddit(self.subreddit_name)
-        return self._subreddit
 
     async def full_data(self, refresh: bool = False) -> Dict:
         """
@@ -264,3 +251,42 @@ class Comment(aPRAWBase):
 
         for reply in self._replies:
             yield reply
+
+
+class CommentModeration(PostModeration):
+    """
+    A helper class to moderate comments.
+
+    Members
+    -------
+    reddit: Reddit
+        The :class:`~apraw.Reddit` instance with which requests are made.
+    fullname: str
+        The ID prepended with the kind of the item this helper belongs to.
+    """
+
+    def __init__(self, reddit: 'Reddit', comment: Comment):
+        """
+        Create an instance of ``CommentModeration``.
+
+        Parameters
+        ----------
+        reddit : Reddit
+            The :class:`~apraw.Reddit` instance with which requests are made.
+        comment : Comment
+            The comment this helper performs requests for.
+        """
+        super().__init__(reddit, comment)
+
+    async def show_comment(self):
+        """
+        Mark a comment that it should not be collapsed because of crowd control.
+
+        The comment could still be collapsed for other reasons.
+
+        Returns
+        -------
+        resp: Dict
+            The API response JSON.
+        """
+        return await self.reddit.post_request(API_PATH["mod_show_comment"], id=self.fullname)
