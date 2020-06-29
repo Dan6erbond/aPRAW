@@ -32,12 +32,12 @@ class TestCommentModeration:
         await comment.mod.remove()
         comment = await reddit.comment("fuoew5r")
 
-        assert comment.removed_by.lower() == reddit.user.username.lower()
+        assert comment.banned_by.lower() == reddit.user.username.lower()
 
         await comment.mod.approve()
 
     @pytest.mark.asyncio
-    async def test_comment_mod_remove(self, reddit):
+    async def test_comment_mod_lock(self, reddit):
         comment = await reddit.comment("fuoew5r")
         await comment.mod.lock()
         comment = await reddit.comment("fuoew5r")
