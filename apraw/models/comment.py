@@ -33,8 +33,6 @@ class Comment(aPRAWBase, DeletableMixin, HideableMixin,
         The :class:`~apraw.models.CommentModeration` instance to aid in moderating the comment.
     kind: str
         The item's kind / type.
-    subreddit_name: str
-        The name of the subreddit this comment was made in.
     url: str
         The URL pointing to this comment.
 
@@ -144,9 +142,9 @@ class Comment(aPRAWBase, DeletableMixin, HideableMixin,
         replies: List[Comment]
             A list of replies made to this comment.
         """
-        aPRAWBase.__init__(reddit, data, reddit.link_kind)
-        AuthorMixin.__init__(author)
-        SubredditMixin.__init__(subreddit)
+        aPRAWBase.__init__(self, reddit, data, reddit.link_kind)
+        AuthorMixin.__init__(self, author)
+        SubredditMixin.__init__(self, subreddit)
 
         self.mod = CommentModeration(reddit, self)
 
@@ -154,7 +152,6 @@ class Comment(aPRAWBase, DeletableMixin, HideableMixin,
         self._full_data = None
         self._replies = replies
 
-        self.subreddit_name = data["subreddit"]
         self.url = "https://www.reddit.com" + data["permalink"]
 
     async def submission(self) -> 'Submission':

@@ -20,5 +20,5 @@ class SubredditMixin:
             The subreddit this item was made in.
         """
         if self._subreddit is None:
-            self._subreddit = await self.reddit.subreddit(self.subreddit_name)
+            self._subreddit = await self.reddit.subreddit(self.data["subreddit"])
         return self._subreddit
