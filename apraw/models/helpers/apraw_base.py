@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import TYPE_CHECKING, Any, Dict
 
-from ...utils import snake_case_keys
+from ...utils import prepend_kind, snake_case_keys
 
 if TYPE_CHECKING:
     from ...reddit import Reddit
@@ -57,3 +57,8 @@ class aPRAWBase:
 
         if "created_utc" in data:
             self.created_utc = datetime.utcfromtimestamp(data["created_utc"])
+
+    @property
+    def fullname(self):
+        return prepend_kind(self.name if hasattr(
+            self, "name") else self.id, self.kind)
