@@ -142,7 +142,7 @@ class Comment(aPRAWBase, DeletableMixin, HideableMixin,
         replies: List[Comment]
             A list of replies made to this comment.
         """
-        aPRAWBase.__init__(self, reddit, data, reddit.link_kind)
+        aPRAWBase.__init__(self, reddit, data, reddit.comment_kind)
         AuthorMixin.__init__(self, author)
         SubredditMixin.__init__(self, subreddit)
 
