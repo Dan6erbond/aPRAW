@@ -3,6 +3,15 @@ from typing import TYPE_CHECKING, AsyncIterator, Dict, List
 from ..endpoints import API_PATH
 from .comment import Comment
 from .helpers.apraw_base import aPRAWBase
+from .helpers.item_moderation import PostModeration
+from .mixins.author import AuthorMixin
+from .mixins.deletable import DeletableMixin
+from .mixins.hideable import HideableMixin
+from .mixins.nsfwable import NSFWableMixin
+from .mixins.savable import SavableMixin
+from .mixins.spoilerable import SpoilerableMixin
+from .mixins.subreddit import SubredditMixin
+from .mixins.votable import VotableMixin
 from .redditor import Redditor
 from .subreddit import Subreddit
 
@@ -10,7 +19,9 @@ if TYPE_CHECKING:
     from ..reddit import Reddit
 
 
-class Submission(aPRAWBase):
+class Submission(aPRAWBase, DeletableMixin, HideableMixin,
+                 NSFWableMixin, SavableMixin, VotableMixin,
+                 AuthorMixin, SubredditMixin, SpoilerableMixin):
     """
     The model representing submissions.
 
@@ -20,6 +31,8 @@ class Submission(aPRAWBase):
         The :class:`~apraw.Reddit` instance with which requests are made.
     data: Dict
         The data obtained from the /about endpoint.
+    mod: SubmissionModeration
+        The :class:`~apraw.models.SubmissionModeration` instance to aid in moderating the submission.
     kind: str
         The item's kind / type.
 
@@ -161,12 +174,14 @@ class Submission(aPRAWBase):
         author: Redditor
             The author of this submission as a :class:`~apraw.models.Redditor`.
         """
-        super().__init__(reddit, data, reddit.link_kind)
+        aPRAWBase.__init__(self, reddit, data, reddit.link_kind)
+        AuthorMixin.__init__(self, author)
+        SubredditMixin.__init__(self, subreddit)
+
+        self.mod = SubmissionModeration(reddit, self)
 
         self._full_data = full_data
         self._comments = list()
-        self._subreddit = subreddit
-        self._author = author
 
         self.original_content = data["is_original_content"]
 
@@ -260,28 +275,71 @@ class Submission(aPRAWBase):
 
         return comments
 
-    async def subreddit(self) -> Subreddit:
+
+class SubmissionModeration(PostModeration, NSFWableMixin, SpoilerableMixin):
+    """
+    A helper class to moderate submissions.
+
+    Members
+    -------
+    reddit: Reddit
+        The :class:`~apraw.Reddit` instance with which requests are made.
+    fullname: str
+        The ID prepended with the kind of the item this helper belongs to.
+    """
+
+    def __init__(self, reddit: 'Reddit', submission: Submission):
         """
-        Retrieve the subreddit the submission was made on.
+        Create an instance of ``SubmissionModeration``.
+
+        Parameters
+        ----------
+        reddit : Reddit
+            The :class:`~apraw.Reddit` instance with which requests are made.
+        submission : Submission
+            The submission this helper performs requests for.
+        """
+        super().__init__(reddit, submission)
+
+    async def sticky(self, position: int = 1, to_profile: bool = False):
+        """
+        Sticky a submission in its subreddit.
+
+        Parameters
+        ----------
+        position : int
+            The "slot" the submission will be stickied to.
+        to_profile : bool
+            Whether the submission will be stickied to the user profile.
 
         Returns
         -------
-        subreddit: Subreddit
-            The subreddit the submission was made on.
+        resp: Dict
+            The API response JSON.
         """
-        if self._subreddit is None:
-            self._subreddit = await self.reddit.subreddit(self.data["subreddit"])
-        return self._subreddit
+        return await self.reddit.post_request(API_PATH["mod_sticky"], **{
+            "id": self.fullname,
+            "num": position,
+            "state": True,
+            "to_profile": to_profile
+        })
 
-    async def author(self) -> Subreddit:  # TODO: Fix return type
+    async def unsticky(self, to_profile: bool = False):
         """
-        Retrieve the author of the submission.
+        Unsticky a submission from its subreddit.
+
+        Parameters
+        ----------
+        to_profile : bool
+            Whether the submission will be unstickied from the user profile.
 
         Returns
         -------
-        author: Redditor
-            The author of the submission.
+        resp: Dict
+            The API response JSON.
         """
-        if self._author is None:
-            self._author = await self.reddit.redditor(self.data["author"])
-        return self._author
+        return await self.reddit.post_request(API_PATH["mod_sticky"], **{
+            "id": self.fullname,
+            "state": False,
+            "to_profile": to_profile
+        })

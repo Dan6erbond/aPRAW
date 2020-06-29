@@ -98,8 +98,7 @@ class ListingGenerator:
             if len(listing) <= 0:
                 break
 
-            last = listing.last.name if hasattr(
-                listing.last, "name") else listing.last.id
+            last = listing.last.fullname
 
             for item in listing:
                 if self.kind_filter and item.kind not in self.kind_filter:
