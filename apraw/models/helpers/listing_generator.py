@@ -86,31 +86,30 @@ class ListingGenerator:
             A model of the item's data if kind couldn't be identified.
         """
         last = None
+
         while True:
             kwargs["limit"] = limit if limit is not None else 100
-            if last is not None:
+
+            if last:
                 kwargs["after"] = last
 
             listing = await self.reddit.get_listing(self.endpoint, self.subreddit, **kwargs)
 
             if len(listing) <= 0:
                 break
+
+            last = listing.last.name if hasattr(
+                listing.last, "name") else listing.last.id
+
             for item in listing:
                 if self.kind_filter and item.kind not in self.kind_filter:
                     continue
-
-                if isinstance(item, WikipageRevision):
-                    last = prepend_kind(
-                        item.id, self.reddit.wiki_revision_kind)
-                elif item.kind in [self.reddit.link_kind, self.reddit.subreddit_kind, self.reddit.comment_kind]:
-                    last = item.name
-                elif item.kind == self.reddit.modaction_kind:
-                    last = item.id
 
                 if limit is not None:
                     limit -= 1
 
                 yield item
+
             if limit is not None and limit < 1:
                 break
 
