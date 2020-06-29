@@ -1,8 +1,8 @@
 from typing import TYPE_CHECKING, Dict, List, Union
 
-from .apraw_base import aPRAWBase
-from .redditor import Redditor
 from ..endpoints import API_PATH
+from .helpers.apraw_base import aPRAWBase
+from .redditor import Redditor
 
 if TYPE_CHECKING:
     from ..reddit import Reddit
@@ -16,7 +16,7 @@ class SubredditWiki:
 
         self._data = None
 
-        from .listing_generator import ListingGenerator
+        from .helpers.listing_generator import ListingGenerator
         self.revisions = ListingGenerator(
             subreddit.reddit, API_PATH["wiki_revisions"].format(
                 sub=self.subreddit))
@@ -49,12 +49,12 @@ class SubredditWiki:
 class SubredditWikipage(aPRAWBase):
 
     def __init__(self, name: str, subreddit: 'Subreddit', data: Dict = None):
-        super().__init__(subreddit.reddit, data)
+        super().__init__(subreddit.reddit, data, subreddit.reddit.wikipage_kind)
 
         self.name = name
         self.subreddit = subreddit
 
-        from .listing_generator import ListingGenerator
+        from .helpers.listing_generator import ListingGenerator
         self.revisions = ListingGenerator(
             subreddit.reddit, API_PATH["wiki_page_revisions"].format(
                 sub=self.subreddit, page=self.name))
@@ -102,7 +102,7 @@ class SubredditWikipage(aPRAWBase):
 class WikipageRevision(aPRAWBase):
 
     def __init__(self, reddit: 'Reddit', data: Dict = None):
-        super().__init__(reddit, data)
+        super().__init__(reddit, data, reddit.wiki_revision_kind)
 
         self.author = Redditor(reddit, data["author"]["data"])
 

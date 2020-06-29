@@ -1,7 +1,7 @@
 from typing import TYPE_CHECKING, Dict
 
 from ..endpoints import API_PATH
-from .apraw_base import aPRAWBase
+from .helpers.apraw_base import aPRAWBase
 
 if TYPE_CHECKING:
     from .subreddit import Subreddit
@@ -102,8 +102,6 @@ class ModmailConversation(aPRAWBase):
         super().__init__(reddit, data)
 
         self._data = None
-
-        self.id = data["id"]
         self._owner = owner
 
     async def owner(self) -> 'Subreddit':

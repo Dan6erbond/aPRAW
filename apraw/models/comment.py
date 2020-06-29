@@ -1,7 +1,7 @@
 from typing import TYPE_CHECKING, AsyncIterator, Dict, List
 
 from ..endpoints import API_PATH
-from .apraw_base import aPRAWBase
+from .helpers.apraw_base import aPRAWBase
 from .redditor import Redditor
 from .subreddit import Subreddit
 
@@ -20,6 +20,8 @@ class Comment(aPRAWBase):
         The :class:`~apraw.Reddit` instance with which requests are made.
     data: Dict
         The data obtained from the /about endpoint.
+    kind: str
+        The item's kind / type.
     subreddit_name: str
         The name of the subreddit this comment was made in.
     url: str
@@ -131,7 +133,7 @@ class Comment(aPRAWBase):
         replies: List[Comment]
             A list of replies made to this comment.
         """
-        super().__init__(reddit, data)
+        super().__init__(reddit, data, reddit.comment_kind)
 
         self._submission = submission
         self._author = author

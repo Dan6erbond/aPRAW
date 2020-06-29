@@ -1,7 +1,7 @@
 from typing import TYPE_CHECKING, Dict
 
 from ..endpoints import API_PATH
-from .apraw_base import aPRAWBase
+from .helpers.apraw_base import aPRAWBase
 
 if TYPE_CHECKING:
     from .subreddit import Subreddit
@@ -18,6 +18,8 @@ class Redditor(aPRAWBase):
         The :class:`~apraw.Reddit` instance with which requests are made.
     data: Dict
         The data obtained from the /about endpoint.
+    kind: str
+        The item's kind / type.
     comments: ListingGenerator
         Returns an instance of :class:`~apraw.models.ListingGenerator` mapped to fetch the Redditor's comments.
     submissions: ListingGenerator
@@ -67,7 +69,7 @@ class Redditor(aPRAWBase):
         data: Dict
             The data obtained from the /about endpoint.
         """
-        super().__init__(reddit, data)
+        super().__init__(reddit, data, reddit.account_kind)
 
         self.reddit = reddit
         self.data = data
@@ -84,7 +86,7 @@ class Redditor(aPRAWBase):
         else:
             self.subreddit = None
 
-        from .listing_generator import ListingGenerator
+        from .helpers.listing_generator import ListingGenerator
         self.comments = ListingGenerator(
             self.reddit,
             API_PATH["user_comments"].format(
