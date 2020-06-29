@@ -69,7 +69,7 @@ class ItemModeration:
         return await self.reddit.post_request(API_PATH["mod_remove"], id=self.fullname)
 
     async def distinguish(self,
-                          how: DISTINGUISHMENT_OPTIONS,
+                          how: DISTINGUISHMENT_OPTIONS = "yes",
                           sticky: bool = False):
         """
         Distinguish the Reddit item.
