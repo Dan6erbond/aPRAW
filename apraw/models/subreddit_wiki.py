@@ -49,7 +49,7 @@ class SubredditWiki:
 class SubredditWikipage(aPRAWBase):
 
     def __init__(self, name: str, subreddit: 'Subreddit', data: Dict = None):
-        super().__init__(subreddit.reddit, data)
+        super().__init__(subreddit.reddit, data, subreddit.reddit.wikipage_kind)
 
         self.name = name
         self.subreddit = subreddit
@@ -102,7 +102,7 @@ class SubredditWikipage(aPRAWBase):
 class WikipageRevision(aPRAWBase):
 
     def __init__(self, reddit: 'Reddit', data: Dict = None):
-        super().__init__(reddit, data)
+        super().__init__(reddit, data, reddit.wiki_revision_kind)
 
         self.author = Redditor(reddit, data["author"]["data"])
 

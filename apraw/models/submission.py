@@ -20,6 +20,8 @@ class Submission(aPRAWBase):
         The :class:`~apraw.Reddit` instance with which requests are made.
     data: Dict
         The data obtained from the /about endpoint.
+    kind: str
+        The item's kind / type.
 
     **Typical Attributes**
 
@@ -159,7 +161,7 @@ class Submission(aPRAWBase):
         author: Redditor
             The author of this submission as a :class:`~apraw.models.Redditor`.
         """
-        super().__init__(reddit, data)
+        super().__init__(reddit, data, reddit.link_kind)
 
         self._full_data = full_data
         self._comments = list()

@@ -20,6 +20,8 @@ class Comment(aPRAWBase):
         The :class:`~apraw.Reddit` instance with which requests are made.
     data: Dict
         The data obtained from the /about endpoint.
+    kind: str
+        The item's kind / type.
     subreddit_name: str
         The name of the subreddit this comment was made in.
     url: str
@@ -131,7 +133,7 @@ class Comment(aPRAWBase):
         replies: List[Comment]
             A list of replies made to this comment.
         """
-        super().__init__(reddit, data)
+        super().__init__(reddit, data, reddit.comment_kind)
 
         self._submission = submission
         self._author = author

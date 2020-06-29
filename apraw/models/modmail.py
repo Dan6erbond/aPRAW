@@ -102,8 +102,6 @@ class ModmailConversation(aPRAWBase):
         super().__init__(reddit, data)
 
         self._data = None
-
-        self.id = data["id"]
         self._owner = owner
 
     async def owner(self) -> 'Subreddit':

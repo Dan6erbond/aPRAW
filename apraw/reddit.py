@@ -64,6 +64,7 @@ class Reddit:
         self.modaction_kind = "modaction"
         self.listing_kind = "Listing"
         self.wiki_revision_kind = "WikiRevision"
+        self.wikipage_kind = "wikipage"
 
         self.subreddits = ListingGenerator(self, API_PATH["subreddits_new"])
         self.request_handler = RequestHandler(self.user)

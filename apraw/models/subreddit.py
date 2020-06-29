@@ -22,6 +22,8 @@ class Subreddit(aPRAWBase):
         The :class:`~apraw.Reddit` instance with which requests are made.
     data: Dict
         The data obtained from the /about endpoint.
+    kind: str
+        The item's kind / type.
     mod: SubredditModeration
         Returns an instance of :class:`~apraw.models.SubredditModeration`.
     modmail: SubredditModmail
@@ -163,7 +165,7 @@ class Subreddit(aPRAWBase):
         data: Dict
             The data obtained from the /about endpoint.
         """
-        super().__init__(reddit, data)
+        super().__init__(reddit, data, reddit.subreddit_kind)
 
         self.quarantine = data["quarantine"] if "quarantine" in data else False
 
@@ -343,9 +345,18 @@ class SubredditModeration:
                 sub=self.subreddit.display_name), subreddit=self.subreddit)
 
 
-class ModAction:
+class ModAction(aPRAWBase):
     """
     A model representing mod actions taken on specific items.
+
+    Members
+    -------
+    reddit: Reddit
+        The :class:`~apraw.Reddit` instance with which requests are made.
+    data: Dict
+        The data obtained from the /about endpoint.
+    kind: str
+        The item's kind / type.
 
     **Typical Attributes**
 
@@ -374,7 +385,7 @@ class ModAction:
     =========================== =========================================================================
     """
 
-    def __init__(self, data, subreddit=None):
+    def __init__(self, reddit, data, subreddit=None):
         """
         Create an instance of a ModAction.
 
@@ -385,15 +396,9 @@ class ModAction:
         subreddit: Subreddit
             The subreddit this ModAction belongs to.
         """
-        self.data = data
+        super().__init__(reddit, data, reddit.modaction_kind)
+
         self.subreddit = subreddit
-
-        self.created_utc = datetime.utcfromtimestamp(data["created_utc"])
-
-        d = snake_case_keys(data)
-        for key in d:
-            if not hasattr(self, key):
-                setattr(self, key, d[key])
 
     async def mod(self) -> Redditor:
         """
