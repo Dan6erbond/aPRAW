@@ -3,8 +3,6 @@
 Submission
 ==========
 
-This section describes the usage and members of the Submission model.
-
 A Submission can either be instantiated by using its ID, or by going through subreddits:
 
 .. code-block:: python3
@@ -17,3 +15,4 @@ A Submission can either be instantiated by using its ID, or by going through sub
 
 .. autoclass:: Submission
     :members:
+    :inherited-members:

@@ -15,3 +15,4 @@ comments can be obtained from the submission they were made in like so:
 
 .. autoclass:: Comment
     :members:
+    :inherited-members:

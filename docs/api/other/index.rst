@@ -10,3 +10,4 @@ This section contains the documentation of implemented base and helper classes u
 
    listing_generator
    apraw_base
+   item_moderation
