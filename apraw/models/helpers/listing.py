@@ -106,5 +106,13 @@ class Listing(aPRAWBase, Iterator):
         return item
 
     @property
-    def last(self):
-        return self[len(self) - 1]
+    def last(self) -> aPRAWBase:
+        """
+        Return the last item in the listing.
+
+        Returns
+        -------
+        item: aPRAWBase
+            The last item in the listing.
+        """
+        return self[len(self) - 1] if len(self) > 0 else None
