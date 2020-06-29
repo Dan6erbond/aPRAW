@@ -7,6 +7,7 @@ from ..submission import Submission
 from ..subreddit import ModAction, Subreddit
 from ..subreddit_wiki import WikipageRevision
 from .apraw_base import aPRAWBase
+from .listing import Listing
 
 if TYPE_CHECKING:
     from ...reddit import Reddit
@@ -58,90 +59,8 @@ class ListingGenerator:
         self.kind_filter = kind_filter
         self.subreddit = subreddit
 
-    @classmethod
-    def get_listing_generator(cls, reddit: 'Reddit', endpoint: str, kind_filter: List[str] = [],
-                              subreddit=None) -> Callable[[Any], AsyncIterator[aPRAWBase]]:
-        """
-        Get a listing generator for one-time requests without streams.
-
-        Parameters
-        ----------
-        reddit: Reddit
-            The :class:`~apraw.Reddit` instance with which requests are made.
-        endpoint: str
-            The endpoint for the listing generator to call.
-        kind_filter: List[str]
-            A list of kinds (e.g. 't2') that the listing generator should search for.
-        subreddit: Subreddit
-            The subreddit to inject into the Reddit items if possible.
-
-        Returns
-        -------
-        listing_generator: Callable[[Any], AsyncIterator[aPRAWBase]]
-            The listing generator that can be called later.
-        """
-        async def get_listing(limit: int = 25, **kwargs) -> AsyncIterator[aPRAWBase]:
-            """
-            Yields items found in the listing.
-
-            Parameters
-            ----------
-            limit: int
-                The maximum amount of items to search. If ``None``, all are returned.
-            kwargs: \*\*Dict
-                Query parameters to append to the request URL.
-
-            Yields
-            ------
-            item: Subreddit or Comment or Submission or ModAction or WikiPageRevision or aPRAWBase
-                The item found in the listing.
-            """
-            last = None
-            while True:
-                kwargs["limit"] = limit if limit is not None else 100
-                if last is not None:
-                    kwargs["after"] = last
-                req = await reddit.get_request(endpoint, **kwargs)
-                if len(req["data"]["children"]) <= 0:
-                    break
-                for i in req["data"]["children"]:
-                    wiki_page = "page" in i
-
-                    if wiki_page and kind_filter and reddit.wiki_revision_kind not in kind_filter:
-                        continue
-                    elif not wiki_page and kind_filter and i["kind"] in kind_filter:
-                        continue
-
-                    if wiki_page:
-                        last = prepend_kind(i["id"], reddit.wiki_revision_kind)
-                    elif i["kind"] in [reddit.link_kind,
-                                       reddit.subreddit_kind, reddit.comment_kind]:
-                        last = i["data"]["name"]
-                    elif i["kind"] == reddit.modaction_kind:
-                        last = i["data"]["id"]
-
-                    if limit is not None:
-                        limit -= 1
-
-                    if wiki_page:
-                        yield WikipageRevision(reddit, i)
-                    elif i["kind"] == reddit.link_kind:
-                        yield Submission(reddit, i["data"], subreddit=subreddit)
-                    elif i["kind"] == reddit.subreddit_kind:
-                        yield Subreddit(reddit, i["data"])
-                    elif i["kind"] == reddit.comment_kind:
-                        yield Comment(reddit, i["data"], subreddit=subreddit)
-                    elif i["kind"] == reddit.modaction_kind:
-                        yield ModAction(i["data"], subreddit)
-                    else:
-                        yield aPRAWBase(i["data"] if "data" in i else i)
-                if limit is not None and limit < 1:
-                    break
-
-        return get_listing
-
-    async def get(self, *args, **kwargs) -> AsyncIterator[aPRAWBase]:
-        """
+    async def get(self, limit: int = 25, **kwargs) -> AsyncIterator[aPRAWBase]:
+        r"""
         Yields items found in the listing.
 
         Parameters
@@ -153,16 +72,52 @@ class ListingGenerator:
 
         Yields
         ------
-        item: Subreddit or Comment or Submission or ModAction or WikiPageRevision or aPRAWBase
-            The item found in the listing.
+        subreddit: Subreddit
+            The subreddit found in the listing.
+        comment: Comment
+            The comment found in the listing.
+        submission: Submission
+            The submission found in the listing.
+        mod_action: ModAction
+            The mod action found in the listing.
+        wikipage_revision: WikipageRevision
+            The wikipage revision found in the listing.
+        item: aPRAWBase
+            A model of the item's data if kind couldn't be identified.
         """
-        async for i in ListingGenerator.get_listing_generator(**vars(self))(*args, **kwargs):
-            yield i
+        last = None
+        while True:
+            kwargs["limit"] = limit if limit is not None else 100
+            if last is not None:
+                kwargs["after"] = last
+
+            listing = await self.reddit.get_listing(self.endpoint, self.subreddit, **kwargs)
+
+            if len(listing) <= 0:
+                break
+            for item in listing:
+                if self.kind_filter and item.kind not in self.kind_filter:
+                    continue
+
+                if isinstance(item, WikipageRevision):
+                    last = prepend_kind(
+                        item.id, self.reddit.wiki_revision_kind)
+                elif item.kind in [self.reddit.link_kind, self.reddit.subreddit_kind, self.reddit.comment_kind]:
+                    last = item.name
+                elif item.kind == self.reddit.modaction_kind:
+                    last = item.id
+
+                if limit is not None:
+                    limit -= 1
+
+                yield item
+            if limit is not None and limit < 1:
+                break
 
     __call__ = get
 
     async def stream(self, skip_existing: bool = False, **kwargs) -> AsyncIterator[aPRAWBase]:
-        """
+        r"""
         Stream items from an endpoint.
 
         Streams use the ``asyncio.sleep()`` call to wait in between requests.
@@ -177,8 +132,18 @@ class ListingGenerator:
 
         Yields
         ------
-        item: Subreddit or Comment or Submission or ModAction or WikiPageRevision or aPRAWBase
-            The item found in the listing.
+        subreddit: Subreddit
+            The subreddit found in the listing.
+        comment: Comment
+            The comment found in the listing.
+        submission: Submission
+            The submission found in the listing.
+        mod_action: ModAction
+            The mod action found in the listing.
+        wikipage_revision: WikipageRevision
+            The wikipage revision found in the listing.
+        item: aPRAWBase
+            A model of the item's data if kind couldn't be identified.
         """
         wait = 0
         ids = list()
