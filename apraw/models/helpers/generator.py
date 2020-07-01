@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, AsyncIterator, Awaitable
+from typing import TYPE_CHECKING, AsyncIterator, Awaitable, List
 
 from .apraw_base import aPRAWBase
 from ..comment import Comment
@@ -31,8 +31,8 @@ class ListingGenerator(AsyncIterator):
         ListingGenerator will automatically make requests until none more are found or the limit has been reached.
     """
 
-    def __init__(self, reddit: 'Reddit', endpoint: str, limit: int = 100, subreddit: Subreddit = None, kind_filter=None,
-                 **kwargs):
+    def __init__(self, reddit: 'Reddit', endpoint: str, limit: int = 100, subreddit: Subreddit = None,
+                 kind_filter: List[str] = None, **kwargs):
         r"""
         Create a ``ListingGenerator`` instance.
 
@@ -55,7 +55,7 @@ class ListingGenerator(AsyncIterator):
         self.endpoint = endpoint
         self.limit = limit if limit else 1024
         self.subreddit = subreddit
-        self.params = kwargs
+        self.params = {**kwargs, "limit": self.limit}
         self.listing = None
         self.kind_filter = kind_filter
         self._index = 0
@@ -107,16 +107,12 @@ class ListingGenerator(AsyncIterator):
         """
         Retrieve the next batch of items and store them in a :class:`~apraw.models.Listing`.
         """
-        if self.limit < 1:
-            raise StopAsyncIteration()
-
-        kwargs = {**self.params, "limit": self.limit}
+        kwargs = {**self.params}
 
         if self.listing:
             kwargs["after"] = self.listing.last.fullname
 
         self.listing = await self.reddit.get_listing(self.endpoint, self.subreddit, self.kind_filter, **kwargs)
-        self.limit -= len(self.listing)
 
         if len(self.listing) <= 0:
             raise StopAsyncIteration()
