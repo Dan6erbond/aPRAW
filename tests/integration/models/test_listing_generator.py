@@ -9,33 +9,23 @@ class TestListingGenerator:
     @pytest.mark.asyncio
     async def test_listing_generator_get(self, reddit):
         subreddit = await reddit.subreddit("aprawtest")
-        listing_generator = subreddit.new
+        submission_found = False
 
-        async for submission in listing_generator.get():
-            assert isinstance(submission, apraw.models.Submission)
+        async for submission in subreddit.new():
+            if submission.id == "h7mna9":
+                submission_found = True
+                break
 
-    @pytest.mark.asyncio
-    async def test_listing_generator_call(self, reddit):
-        subreddit = await reddit.subreddit("aprawtest")
-        listing_generator = subreddit.new
-        assert listing_generator.__call__ == listing_generator.get
+        assert submission_found
 
     @pytest.mark.asyncio
     async def test_listing_generator_stream(self, reddit):
-        subreddit = await reddit.subreddit("askreddit")
-        listing_generator = subreddit.new
+        subreddit = await reddit.subreddit("aprawtest")
+        submission_found = False
 
-        i = 0
-        async for submission in listing_generator.stream():
-            i += 1
-            assert isinstance(submission, apraw.models.Submission)
-            if i >= 5: break
+        async for submission in subreddit.new.stream():
+            if submission.id == "h7mna9":
+                submission_found = True
+                break
 
-        time_started = datetime.utcnow()
-
-        i = 0
-        async for submission in listing_generator.stream(True):
-            i += 1
-            assert isinstance(submission, apraw.models.Submission)
-            assert submission.created_utc >= time_started
-            if i >= 5: break
+        assert submission_found
