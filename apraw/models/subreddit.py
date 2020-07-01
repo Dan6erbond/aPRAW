@@ -186,14 +186,17 @@ class Subreddit(aPRAWBase):
                                 *args, **kwargs)
 
     def hot(self, *args, **kwargs):
+        from .helpers.generator import ListingGenerator
         return ListingGenerator(self.reddit, API_PATH["subreddit_hot"].format(sub=self.display_name), subreddit=self,
                                 *args, **kwargs)
 
     def rising(self, *args, **kwargs):
+        from .helpers.generator import ListingGenerator
         return ListingGenerator(self.reddit, API_PATH["subreddit_rising"].format(sub=self.display_name), *args,
                                 **kwargs)
 
     def top(self, *args, **kwargs):
+        from .helpers.generator import ListingGenerator
         return ListingGenerator(self.reddit, API_PATH["subreddit_top"].format(sub=self.display_name), subreddit=self,
                                 *args, **kwargs)
 
@@ -332,36 +335,42 @@ class SubredditModeration:
 
     @streamable
     def reports(self, *args, **kwargs):
+        from .helpers.generator import ListingGenerator
         return ListingGenerator(self.subreddit.reddit,
                                 API_PATH["subreddit_reports"].format(sub=self.subreddit.display_name),
                                 subreddit=self.subreddit, *args, **kwargs)
 
     @streamable
     def spam(self, *args, **kwargs):
+        from .helpers.generator import ListingGenerator
         return ListingGenerator(self.subreddit.reddit,
                                 API_PATH["subreddit_spam"].format(sub=self.subreddit.display_name),
                                 subreddit=self.subreddit, *args, **kwargs)
 
     @streamable
     def modqueue(self, *args, **kwargs):
+        from .helpers.generator import ListingGenerator
         return ListingGenerator(self.subreddit.reddit,
                                 API_PATH["subreddit_modqueue"].format(sub=self.subreddit.display_name),
                                 subreddit=self.subreddit, *args, **kwargs)
 
     @streamable
     def unmoderated(self, *args, **kwargs):
+        from .helpers.generator import ListingGenerator
         return ListingGenerator(self.subreddit.reddit,
                                 API_PATH["subreddit_unmoderated"].format(sub=self.subreddit.display_name),
                                 subreddit=self.subreddit, *args, **kwargs)
 
     @streamable
     def edited(self, *args, **kwargs):
+        from .helpers.generator import ListingGenerator
         return ListingGenerator(self.subreddit.reddit,
                                 API_PATH["subreddit_edited"].format(sub=self.subreddit.display_name),
                                 subreddit=self.subreddit, *args, **kwargs)
 
     @streamable
     def log(self, *args, **kwargs):
+        from .helpers.generator import ListingGenerator
         return ListingGenerator(self.subreddit.reddit,
                                 API_PATH["subreddit_log"].format(sub=self.subreddit.display_name),
                                 subreddit=self.subreddit, *args, **kwargs)
