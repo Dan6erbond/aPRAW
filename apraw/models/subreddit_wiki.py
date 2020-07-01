@@ -16,8 +16,8 @@ class SubredditWiki:
 
         self._data = None
 
-        from .helpers.listing_generator import ListingGenerator
-        self.revisions = ListingGenerator(
+        from .helpers.stream import ListingStream
+        self.revisions = ListingStream(
             subreddit.reddit, API_PATH["wiki_revisions"].format(
                 sub=self.subreddit))
 
@@ -54,8 +54,8 @@ class SubredditWikipage(aPRAWBase):
         self.name = name
         self.subreddit = subreddit
 
-        from .helpers.listing_generator import ListingGenerator
-        self.revisions = ListingGenerator(
+        from .helpers.stream import ListingStream
+        self.revisions = ListingStream(
             subreddit.reddit, API_PATH["wiki_page_revisions"].format(
                 sub=self.subreddit, page=self.name))
 

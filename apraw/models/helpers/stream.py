@@ -1,21 +1,17 @@
 import asyncio
-from typing import TYPE_CHECKING, Any, AsyncIterator, Callable, List
+from typing import TYPE_CHECKING, AsyncIterator, List
 
-from ...utils import prepend_kind
-from ..comment import Comment
-from ..submission import Submission
-from ..subreddit import ModAction, Subreddit
-from ..subreddit_wiki import WikipageRevision
 from .apraw_base import aPRAWBase
-from .listing import Listing
+from .generator import ListingGenerator
+from ..subreddit import Subreddit
 
 if TYPE_CHECKING:
     from ...reddit import Reddit
 
 
-class ListingGenerator:
+class ListingStream:
     """
-    The model to request, parse and poll listings from Reddit.
+    The model to request and poll listings from Reddit.
 
     Members
     -------
@@ -35,8 +31,8 @@ class ListingGenerator:
     """
 
     def __init__(self, reddit: 'Reddit', endpoint: str,
-                 max_wait: int = 16, kind_filter: List[str] = [],
-                 subreddit=None):
+                 max_wait: int = 16, kind_filter: List[str] = None,
+                 subreddit: Subreddit = None):
         """
         Create a ListingGenerator instance.
 
@@ -59,9 +55,9 @@ class ListingGenerator:
         self.kind_filter = kind_filter
         self.subreddit = subreddit
 
-    async def get(self, limit: int = 25, **kwargs) -> AsyncIterator[aPRAWBase]:
+    def get(self, limit: int = 25, **kwargs) -> AsyncIterator[aPRAWBase]:
         r"""
-        Yields items found in the listing.
+        Returns a :class:`~apraw.models.ListingGenerator` mapped to the given endpoints and other arguments.
 
         Parameters
         ----------
@@ -70,47 +66,12 @@ class ListingGenerator:
         kwargs: \*\*Dict
             Query parameters to append to the request URL.
 
-        Yields
-        ------
-        subreddit: Subreddit
-            The subreddit found in the listing.
-        comment: Comment
-            The comment found in the listing.
-        submission: Submission
-            The submission found in the listing.
-        mod_action: ModAction
-            The mod action found in the listing.
-        wikipage_revision: WikipageRevision
-            The wikipage revision found in the listing.
-        item: aPRAWBase
-            A model of the item's data if kind couldn't be identified.
+        Returns
+        -------
+        generator: ListingGenerator
+            A :class:`~apraw.models.ListingGenerator` instance with which items can be retrieved.
         """
-        last = None
-
-        while True:
-            kwargs["limit"] = limit if limit is not None else 100
-
-            if last:
-                kwargs["after"] = last
-
-            listing = await self.reddit.get_listing(self.endpoint, self.subreddit, **kwargs)
-
-            if len(listing) <= 0:
-                break
-
-            last = listing.last.fullname
-
-            for item in listing:
-                if self.kind_filter and item.kind not in self.kind_filter:
-                    continue
-
-                if limit is not None:
-                    limit -= 1
-
-                yield item
-
-            if limit is not None and limit < 1:
-                break
+        return ListingGenerator(self.reddit, self.endpoint, limit, self.subreddit, self.kind_filter, **kwargs)
 
     __call__ = get
 
@@ -144,21 +105,22 @@ class ListingGenerator:
             A model of the item's data if kind couldn't be identified.
         """
         wait = 0
-        ids = list()
+        fullnames = list()
 
         if skip_existing:
             async for s in self.get(1, **kwargs):
-                ids.append(s.id)
+                fullnames.append(s.fullname)
                 break
 
         while True:
             found = False
-            async for s in self.get(100, **kwargs):
-                if s.id in ids:
+            items = [i async for i in self.get(100, **kwargs)]
+            for s in reversed(items):
+                if s.fullname in fullnames:
                     break
-                if len(ids) >= 301:
-                    ids = ids[1:]
-                ids.append(s.id)
+                if len(fullnames) >= 301:
+                    fullnames = fullnames[1:]
+                fullnames.append(s.fullname)
                 found = True
                 yield s
 

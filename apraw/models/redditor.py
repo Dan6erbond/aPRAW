@@ -86,12 +86,12 @@ class Redditor(aPRAWBase):
         else:
             self.subreddit = None
 
-        from .helpers.listing_generator import ListingGenerator
-        self.comments = ListingGenerator(
+        from .helpers.stream import ListingStream
+        self.comments = ListingStream(
             self.reddit,
             API_PATH["user_comments"].format(
                 user=self))
-        self.submissions = ListingGenerator(
+        self.submissions = ListingStream(
             self.reddit,
             API_PATH["user_submissions"].format(
                 user=self))

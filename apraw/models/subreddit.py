@@ -1,12 +1,11 @@
 from datetime import datetime
 from typing import TYPE_CHECKING, AsyncIterator, Dict, Union
 
-from ..endpoints import API_PATH
-from ..utils import snake_case_keys
 from .helpers.apraw_base import aPRAWBase
 from .modmail import SubredditModmail
 from .redditor import Redditor
 from .subreddit_wiki import SubredditWiki
+from ..endpoints import API_PATH
 
 if TYPE_CHECKING:
     from ..reddit import Reddit
@@ -173,18 +172,18 @@ class Subreddit(aPRAWBase):
         self.modmail = SubredditModmail(self)
         self.wiki = SubredditWiki(self)
 
-        from .helpers.listing_generator import ListingGenerator
-        self.comments = ListingGenerator(
+        from .helpers.stream import ListingStream
+        self.comments = ListingStream(
             self.reddit, API_PATH["subreddit_comments"].format(
                 sub=self.display_name), subreddit=self)
-        self.new = ListingGenerator(self.reddit,
-                                    API_PATH["subreddit_new"].format(sub=self.display_name), subreddit=self)
-        self.hot = ListingGenerator(self.reddit,
-                                    API_PATH["subreddit_hot"].format(sub=self.display_name), subreddit=self)
-        self.rising = ListingGenerator(
+        self.new = ListingStream(self.reddit,
+                                 API_PATH["subreddit_new"].format(sub=self.display_name), subreddit=self)
+        self.hot = ListingStream(self.reddit,
+                                 API_PATH["subreddit_hot"].format(sub=self.display_name), subreddit=self)
+        self.rising = ListingStream(
             self.reddit, API_PATH["subreddit_rising"].format(sub=self.display_name))
-        self.top = ListingGenerator(self.reddit,
-                                    API_PATH["subreddit_top"].format(sub=self.display_name), subreddit=self)
+        self.top = ListingStream(self.reddit,
+                                 API_PATH["subreddit_top"].format(sub=self.display_name), subreddit=self)
 
     def __str__(self):
         """
@@ -318,28 +317,28 @@ class SubredditModeration:
     def __init__(self, subreddit):
         self.subreddit = subreddit
 
-        from .helpers.listing_generator import ListingGenerator
-        self.reports = ListingGenerator(
+        from .helpers.stream import ListingStream
+        self.reports = ListingStream(
             self.subreddit.reddit,
             API_PATH["subreddit_reports"].format(
                 sub=self.subreddit.display_name), subreddit=self.subreddit)
-        self.spam = ListingGenerator(
+        self.spam = ListingStream(
             self.subreddit.reddit,
             API_PATH["subreddit_spam"].format(
                 sub=self.subreddit.display_name), subreddit=self.subreddit)
-        self.modqueue = ListingGenerator(
+        self.modqueue = ListingStream(
             self.subreddit.reddit,
             API_PATH["subreddit_modqueue"].format(
                 sub=self.subreddit.display_name), subreddit=self.subreddit)
-        self.unmoderated = ListingGenerator(
+        self.unmoderated = ListingStream(
             self.subreddit.reddit,
             API_PATH["subreddit_unmoderated"].format(
                 sub=self.subreddit.display_name), subreddit=self.subreddit)
-        self.edited = ListingGenerator(
+        self.edited = ListingStream(
             self.subreddit.reddit,
             API_PATH["subreddit_edited"].format(
                 sub=self.subreddit.display_name), subreddit=self.subreddit)
-        self.log = ListingGenerator(
+        self.log = ListingStream(
             self.subreddit.reddit,
             API_PATH["subreddit_log"].format(
                 sub=self.subreddit.display_name), subreddit=self.subreddit)
