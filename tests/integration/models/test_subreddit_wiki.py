@@ -93,16 +93,8 @@ class TestSubredditWiki:
         subreddit = await reddit.subreddit("aprawtest")
         page = await subreddit.wiki.page("test")
 
-        revision = None
-        first_passed = False
+        revisions = [r async for r in page.revisions()]
 
-        async for r in page.revisions():
-            if not first_passed:
-                first_passed = True
-            else:
-                revision = r
-                break
-
-        resp = await page.revert(revision)
+        resp = await page.revert(revisions[1])
 
         assert resp is True
