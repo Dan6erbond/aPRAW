@@ -7,7 +7,7 @@ from typing import Any, Awaitable, Callable, Dict, List, Union
 
 from .endpoints import API_PATH, BASE_URL
 from .models import (Comment, Listing, Redditor, Submission,
-                     Subreddit, User, ListingStream)
+                     Subreddit, User, ListingGenerator, streamable)
 from .utils import prepend_kind
 
 
@@ -66,8 +66,11 @@ class Reddit:
         self.wiki_revision_kind = "WikiRevision"
         self.wikipage_kind = "wikipage"
 
-        self.subreddits = ListingStream(self, API_PATH["subreddits_new"])
         self.request_handler = RequestHandler(self.user)
+
+    @streamable
+    def subreddits(self, *args, **kwargs):
+        return ListingGenerator(self, API_PATH["subreddits_new"], *args, **kwargs)
 
     async def get_request(self, *args, **kwargs):
         """

@@ -1,7 +1,9 @@
 from typing import TYPE_CHECKING, Dict
 
-from ..endpoints import API_PATH
 from .helpers.apraw_base import aPRAWBase
+from .helpers.generator import ListingGenerator
+from .helpers.streamable import streamable
+from ..endpoints import API_PATH
 
 if TYPE_CHECKING:
     from .subreddit import Subreddit
@@ -86,15 +88,13 @@ class Redditor(aPRAWBase):
         else:
             self.subreddit = None
 
-        from .helpers.stream import ListingStream
-        self.comments = ListingStream(
-            self.reddit,
-            API_PATH["user_comments"].format(
-                user=self))
-        self.submissions = ListingStream(
-            self.reddit,
-            API_PATH["user_submissions"].format(
-                user=self))
+    @streamable
+    def comments(self, *args, **kwargs):
+        return ListingGenerator(self.reddit, API_PATH["user_comments"].format(user=self), *args, **kwargs)
+
+    @streamable
+    def submissions(self, *args, **kwargs):
+        return ListingGenerator(self.reddit, API_PATH["user_submissions"].format(user=self), *args, **kwargs)
 
     def __str__(self):
         """

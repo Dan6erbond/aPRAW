@@ -2,6 +2,8 @@ from datetime import datetime
 from typing import TYPE_CHECKING, AsyncIterator, Dict, Union
 
 from .helpers.apraw_base import aPRAWBase
+from .helpers.generator import ListingGenerator
+from .helpers.streamable import streamable
 from .modmail import SubredditModmail
 from .redditor import Redditor
 from .subreddit_wiki import SubredditWiki
@@ -172,18 +174,27 @@ class Subreddit(aPRAWBase):
         self.modmail = SubredditModmail(self)
         self.wiki = SubredditWiki(self)
 
-        from .helpers.stream import ListingStream
-        self.comments = ListingStream(
-            self.reddit, API_PATH["subreddit_comments"].format(
-                sub=self.display_name), subreddit=self)
-        self.new = ListingStream(self.reddit,
-                                 API_PATH["subreddit_new"].format(sub=self.display_name), subreddit=self)
-        self.hot = ListingStream(self.reddit,
-                                 API_PATH["subreddit_hot"].format(sub=self.display_name), subreddit=self)
-        self.rising = ListingStream(
-            self.reddit, API_PATH["subreddit_rising"].format(sub=self.display_name))
-        self.top = ListingStream(self.reddit,
-                                 API_PATH["subreddit_top"].format(sub=self.display_name), subreddit=self)
+    @streamable
+    def comments(self, *args, **kwargs):
+        return ListingGenerator(self.reddit, API_PATH["subreddit_comments"].format(sub=self.display_name),
+                                subreddit=self, *args, **kwargs)
+
+    @streamable
+    def new(self, *args, **kwargs):
+        return ListingGenerator(self.reddit, API_PATH["subreddit_new"].format(sub=self.display_name), subreddit=self,
+                                *args, **kwargs)
+
+    def hot(self, *args, **kwargs):
+        return ListingGenerator(self.reddit, API_PATH["subreddit_hot"].format(sub=self.display_name), subreddit=self,
+                                *args, **kwargs)
+
+    def rising(self, *args, **kwargs):
+        return ListingGenerator(self.reddit, API_PATH["subreddit_rising"].format(sub=self.display_name), *args,
+                                **kwargs)
+
+    def top(self, *args, **kwargs):
+        return ListingGenerator(self.reddit, API_PATH["subreddit_top"].format(sub=self.display_name), subreddit=self,
+                                *args, **kwargs)
 
     def __str__(self):
         """
@@ -231,7 +242,8 @@ class Subreddit(aPRAWBase):
         response: Dict
             The API response JSON as a dictionary.
         """
-        return await self.reddit.message(API_PATH["subreddit"].format(sub=self.display_name), subject, text, str(from_sr))
+        return await self.reddit.message(API_PATH["subreddit"].format(sub=self.display_name), subject, text,
+                                         str(from_sr))
 
 
 class SubredditModerator(aPRAWBase):
@@ -317,31 +329,41 @@ class SubredditModeration:
     def __init__(self, subreddit):
         self.subreddit = subreddit
 
-        from .helpers.stream import ListingStream
-        self.reports = ListingStream(
-            self.subreddit.reddit,
-            API_PATH["subreddit_reports"].format(
-                sub=self.subreddit.display_name), subreddit=self.subreddit)
-        self.spam = ListingStream(
-            self.subreddit.reddit,
-            API_PATH["subreddit_spam"].format(
-                sub=self.subreddit.display_name), subreddit=self.subreddit)
-        self.modqueue = ListingStream(
-            self.subreddit.reddit,
-            API_PATH["subreddit_modqueue"].format(
-                sub=self.subreddit.display_name), subreddit=self.subreddit)
-        self.unmoderated = ListingStream(
-            self.subreddit.reddit,
-            API_PATH["subreddit_unmoderated"].format(
-                sub=self.subreddit.display_name), subreddit=self.subreddit)
-        self.edited = ListingStream(
-            self.subreddit.reddit,
-            API_PATH["subreddit_edited"].format(
-                sub=self.subreddit.display_name), subreddit=self.subreddit)
-        self.log = ListingStream(
-            self.subreddit.reddit,
-            API_PATH["subreddit_log"].format(
-                sub=self.subreddit.display_name), subreddit=self.subreddit)
+    @streamable
+    def reports(self, *args, **kwargs):
+        return ListingGenerator(self.subreddit.reddit,
+                                API_PATH["subreddit_reports"].format(sub=self.subreddit.display_name),
+                                subreddit=self.subreddit, *args, **kwargs)
+
+    @streamable
+    def spam(self, *args, **kwargs):
+        return ListingGenerator(self.subreddit.reddit,
+                                API_PATH["subreddit_spam"].format(sub=self.subreddit.display_name),
+                                subreddit=self.subreddit, *args, **kwargs)
+
+    @streamable
+    def modqueue(self, *args, **kwargs):
+        return ListingGenerator(self.subreddit.reddit,
+                                API_PATH["subreddit_modqueue"].format(sub=self.subreddit.display_name),
+                                subreddit=self.subreddit, *args, **kwargs)
+
+    @streamable
+    def unmoderated(self, *args, **kwargs):
+        return ListingGenerator(self.subreddit.reddit,
+                                API_PATH["subreddit_unmoderated"].format(sub=self.subreddit.display_name),
+                                subreddit=self.subreddit, *args, **kwargs)
+
+    @streamable
+    def edited(self, *args, **kwargs):
+        return ListingGenerator(self.subreddit.reddit,
+                                API_PATH["subreddit_edited"].format(sub=self.subreddit.display_name),
+                                subreddit=self.subreddit, *args, **kwargs)
+
+    @streamable
+    def log(self, *args, **kwargs):
+        return ListingGenerator(self.subreddit.reddit,
+                                API_PATH["subreddit_log"].format(sub=self.subreddit.display_name),
+                                subreddit=self.subreddit, *args, **kwargs)
 
 
 class ModAction(aPRAWBase):

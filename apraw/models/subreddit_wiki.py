@@ -1,8 +1,10 @@
 from typing import TYPE_CHECKING, Dict, List, Union
 
-from ..endpoints import API_PATH
 from .helpers.apraw_base import aPRAWBase
+from .helpers.generator import ListingGenerator
+from .helpers.streamable import streamable
 from .redditor import Redditor
+from ..endpoints import API_PATH
 
 if TYPE_CHECKING:
     from ..reddit import Reddit
@@ -13,13 +15,12 @@ class SubredditWiki:
 
     def __init__(self, subreddit: 'Subreddit'):
         self.subreddit = subreddit
-
         self._data = None
 
-        from .helpers.stream import ListingStream
-        self.revisions = ListingStream(
-            subreddit.reddit, API_PATH["wiki_revisions"].format(
-                sub=self.subreddit))
+    @streamable
+    def revisions(self, *args, **kwargs):
+        return ListingGenerator(self.subreddit.reddit, API_PATH["wiki_revisions"].format(sub=self.subreddit), *args,
+                                **kwargs)
 
     async def data(self, refresh=False) -> Dict:
         if self._data is None:
@@ -54,10 +55,10 @@ class SubredditWikipage(aPRAWBase):
         self.name = name
         self.subreddit = subreddit
 
-        from .helpers.stream import ListingStream
-        self.revisions = ListingStream(
-            subreddit.reddit, API_PATH["wiki_page_revisions"].format(
-                sub=self.subreddit, page=self.name))
+    @streamable
+    def revisions(self, *args, **kwargs):
+        return ListingGenerator(self.subreddit.reddit, API_PATH["wiki_page_revisions"].format(
+            sub=self.subreddit, page=self.name), *args, **kwargs)
 
     async def _alloweditor(self, username: str, act: str):
         resp = await self.subreddit.reddit.post_request(
