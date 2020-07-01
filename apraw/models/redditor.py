@@ -1,7 +1,6 @@
 from typing import TYPE_CHECKING, Dict
 
 from .helpers.apraw_base import aPRAWBase
-from .helpers.generator import ListingGenerator
 from .helpers.streamable import streamable
 from ..endpoints import API_PATH
 
@@ -90,10 +89,12 @@ class Redditor(aPRAWBase):
 
     @streamable
     def comments(self, *args, **kwargs):
+        from .helpers.generator import ListingGenerator
         return ListingGenerator(self.reddit, API_PATH["user_comments"].format(user=self), *args, **kwargs)
 
     @streamable
     def submissions(self, *args, **kwargs):
+        from .helpers.generator import ListingGenerator
         return ListingGenerator(self.reddit, API_PATH["user_submissions"].format(user=self), *args, **kwargs)
 
     def __str__(self):

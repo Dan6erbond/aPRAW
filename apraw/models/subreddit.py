@@ -2,7 +2,6 @@ from datetime import datetime
 from typing import TYPE_CHECKING, AsyncIterator, Dict, Union
 
 from .helpers.apraw_base import aPRAWBase
-from .helpers.generator import ListingGenerator
 from .helpers.streamable import streamable
 from .modmail import SubredditModmail
 from .redditor import Redditor
@@ -176,11 +175,13 @@ class Subreddit(aPRAWBase):
 
     @streamable
     def comments(self, *args, **kwargs):
+        from .helpers.generator import ListingGenerator
         return ListingGenerator(self.reddit, API_PATH["subreddit_comments"].format(sub=self.display_name),
                                 subreddit=self, *args, **kwargs)
 
     @streamable
     def new(self, *args, **kwargs):
+        from .helpers.generator import ListingGenerator
         return ListingGenerator(self.reddit, API_PATH["subreddit_new"].format(sub=self.display_name), subreddit=self,
                                 *args, **kwargs)
 

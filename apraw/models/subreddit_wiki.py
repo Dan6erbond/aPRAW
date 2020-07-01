@@ -1,7 +1,6 @@
 from typing import TYPE_CHECKING, Dict, List, Union
 
 from .helpers.apraw_base import aPRAWBase
-from .helpers.generator import ListingGenerator
 from .helpers.streamable import streamable
 from .redditor import Redditor
 from ..endpoints import API_PATH
@@ -19,6 +18,7 @@ class SubredditWiki:
 
     @streamable
     def revisions(self, *args, **kwargs):
+        from .helpers.generator import ListingGenerator
         return ListingGenerator(self.subreddit.reddit, API_PATH["wiki_revisions"].format(sub=self.subreddit), *args,
                                 **kwargs)
 
@@ -57,6 +57,7 @@ class SubredditWikipage(aPRAWBase):
 
     @streamable
     def revisions(self, *args, **kwargs):
+        from .helpers.generator import ListingGenerator
         return ListingGenerator(self.subreddit.reddit, API_PATH["wiki_page_revisions"].format(
             sub=self.subreddit, page=self.name), *args, **kwargs)
 
