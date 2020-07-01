@@ -15,15 +15,15 @@ class streamable:
         self.max_wait = max_wait
         self.attribute_name = attribute_name
 
-    def __call__(self, **kwargs):
-        return self.func(**kwargs)
+    def __call__(self, *args, **kwargs):
+        return self.func(*args, **kwargs)
 
-    async def stream(self, skip_existing: bool = False, **kwargs):
+    async def stream(self, skip_existing: bool = False, *args, **kwargs):
         wait = 0
         seen_attributes = list()
 
         if skip_existing:
-            items = [i async for i in self.func(1, **kwargs)]
+            items = [i async for i in self.func(1, *args, **kwargs)]
             for item in reversed(items):
                 seen_attributes.append(getattr(item, self.attribute_name))
                 break
