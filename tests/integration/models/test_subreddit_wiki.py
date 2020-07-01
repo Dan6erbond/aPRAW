@@ -105,4 +105,4 @@ class TestSubredditWiki:
 
         resp = await page.revert(revision)
 
-        assert resp == True
+        assert resp is True
