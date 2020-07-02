@@ -21,10 +21,6 @@ class Redditor(aPRAWBase):
         The data obtained from the /about endpoint.
     kind: str
         The item's kind / type.
-    comments: ListingGenerator
-        Returns an instance of :class:`~apraw.models.ListingGenerator` mapped to fetch the Redditor's comments.
-    submissions: ListingGenerator
-        Returns an instance of :class:`~apraw.models.ListingGenerator` mapped to fetch the Redditor's submission.
     subreddit: Sureddit
         An instance of :class:`~apraw.models.Subreddit` for the Redditor's profile subreddit.
 
@@ -89,11 +85,53 @@ class Redditor(aPRAWBase):
 
     @streamable
     def comments(self, *args, **kwargs):
+        """
+        Returns an instance of :class:`~apraw.models.ListingGenerator` mapped to fetch the Redditor's comments.
+
+        .. note::
+            This listing can be streamed doing the following:
+
+            .. code-block:: python3
+
+                for comment in redditor.comments.stream():
+                    print(comment)
+
+        Parameters
+        ----------
+        kwargs: \*\*Dict
+            :class:`~apraw.models.ListingGenerator` ``kwargs``.
+
+        Returns
+        -------
+        generator: ListingGenerator
+            A :class:`~apraw.models.ListingGenerator` mapped to fetch the Redditor's comments.
+        """
         from .helpers.generator import ListingGenerator
         return ListingGenerator(self.reddit, API_PATH["user_comments"].format(user=self), *args, **kwargs)
 
     @streamable
     def submissions(self, *args, **kwargs):
+        """
+        Returns an instance of :class:`~apraw.models.ListingGenerator` mapped to fetch the Redditor's submissions.
+
+        .. note::
+            This listing can be streamed doing the following:
+
+            .. code-block:: python3
+
+                for comment in redditor.submissions.stream():
+                    print(comment)
+
+        Parameters
+        ----------
+        kwargs: \*\*Dict
+            :class:`~apraw.models.ListingGenerator` ``kwargs``.
+
+        Returns
+        -------
+        generator: ListingGenerator
+            A :class:`~apraw.models.ListingGenerator` mapped to fetch the Redditor's submissions.
+        """
         from .helpers.generator import ListingGenerator
         return ListingGenerator(self.reddit, API_PATH["user_submissions"].format(user=self), *args, **kwargs)
 
