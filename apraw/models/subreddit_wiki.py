@@ -18,6 +18,27 @@ class SubredditWiki:
 
     @streamable
     def revisions(self, *args, **kwargs):
+        """
+        Returns an instance of :class:`~apraw.models.ListingGenerator` mapped to recent wikipage revisions.
+
+        .. note::
+            This listing can be streamed doing the following:
+
+            .. code-block:: python3
+
+                for comment in subreddit.wiki.stream():
+                    print(comment)
+
+        Parameters
+        ----------
+        kwargs: \*\*Dict
+            :class:`~apraw.models.ListingGenerator` ``kwargs``.
+
+        Returns
+        -------
+        generator: ListingGenerator
+            A :class:`~apraw.models.ListingGenerator` mapped to recent wikipage revisions.
+        """
         from .helpers.generator import ListingGenerator
         return ListingGenerator(self.subreddit.reddit, API_PATH["wiki_revisions"].format(sub=self.subreddit), *args,
                                 **kwargs)
@@ -57,6 +78,27 @@ class SubredditWikipage(aPRAWBase):
 
     @streamable
     def revisions(self, *args, **kwargs):
+        """
+        Returns an instance of :class:`~apraw.models.ListingGenerator` mapped to fetch specific wikipage revisions.
+
+        .. note::
+            This listing can be streamed doing the following:
+
+            .. code-block:: python3
+
+                for comment in subreddit.wiki.page("test").stream():
+                    print(comment)
+
+        Parameters
+        ----------
+        kwargs: \*\*Dict
+            :class:`~apraw.models.ListingGenerator` ``kwargs``.
+
+        Returns
+        -------
+        generator: ListingGenerator
+            A :class:`~apraw.models.ListingGenerator` mapped to fetch specific wikipage revisions.
+        """
         from .helpers.generator import ListingGenerator
         return ListingGenerator(self.subreddit.reddit, API_PATH["wiki_page_revisions"].format(
             sub=self.subreddit, page=self.name), *args, **kwargs)
