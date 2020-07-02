@@ -48,7 +48,9 @@ It's split into the following sections.
    :maxdepth: 2
    :caption: API
 
-   api/index
+   api/reddit/index
+   api/models/index
+   api/other/index
 
 Index
 -----

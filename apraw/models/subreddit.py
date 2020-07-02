@@ -1,12 +1,12 @@
 from datetime import datetime
 from typing import TYPE_CHECKING, AsyncIterator, Dict, Union
 
-from ..endpoints import API_PATH
-from ..utils import snake_case_keys
 from .helpers.apraw_base import aPRAWBase
+from .helpers.streamable import streamable
 from .modmail import SubredditModmail
 from .redditor import Redditor
 from .subreddit_wiki import SubredditWiki
+from ..endpoints import API_PATH
 
 if TYPE_CHECKING:
     from ..reddit import Reddit
@@ -30,19 +30,6 @@ class Subreddit(aPRAWBase):
         Returns an instance of :class:`~apraw.models.SubredditModmail`.
     wiki: SubredditWiki
         Returns an instance of :class:`~apraw.models.SubredditWiki`.
-    comments: ListingGenerator
-        Returns an instance of :class:`~apraw.models.ListingGenerator` mapped to the comments endpoint.
-    new: ListingGenerator
-        Returns an instance of :class:`~apraw.models.ListingGenerator` mapped to the new submissions endpoint.
-    hot: ListingGenerator
-        Returns an instance of :class:`~apraw.models.ListingGenerator` mapped to the hot submissions endpoint.
-    rising: ListingGenerator
-        Returns an instance of :class:`~apraw.models.ListingGenerator` mapped to the rising submissions endpoint.
-    top: ListingGenerator
-        Returns an instance of :class:`~apraw.models.ListingGenerator` mapped to the top submissions endpoint.
-
-    .. warning::
-        Using the streams of non-new endpoints may result in receiving items multiple times, as their positions can change and be returned by the API after they've been removed from the internal tracker.
 
     **Examples**
 
@@ -173,18 +160,113 @@ class Subreddit(aPRAWBase):
         self.modmail = SubredditModmail(self)
         self.wiki = SubredditWiki(self)
 
-        from .helpers.listing_generator import ListingGenerator
-        self.comments = ListingGenerator(
-            self.reddit, API_PATH["subreddit_comments"].format(
-                sub=self.display_name), subreddit=self)
-        self.new = ListingGenerator(self.reddit,
-                                    API_PATH["subreddit_new"].format(sub=self.display_name), subreddit=self)
-        self.hot = ListingGenerator(self.reddit,
-                                    API_PATH["subreddit_hot"].format(sub=self.display_name), subreddit=self)
-        self.rising = ListingGenerator(
-            self.reddit, API_PATH["subreddit_rising"].format(sub=self.display_name))
-        self.top = ListingGenerator(self.reddit,
-                                    API_PATH["subreddit_top"].format(sub=self.display_name), subreddit=self)
+    @streamable
+    def comments(self, *args, **kwargs):
+        """
+        Returns an instance of :class:`~apraw.models.ListingGenerator` mapped to the comments endpoint.
+
+        .. note::
+            This listing can be streamed doing the following:
+
+            .. code-block:: python3
+
+                for comment in subreddit.comments.stream():
+                    print(comment)
+
+        Parameters
+        ----------
+        kwargs: \*\*Dict
+            :class:`~apraw.models.ListingGenerator` ``kwargs``.
+
+        Returns
+        -------
+        generator: ListingGenerator
+            A :class:`~apraw.models.ListingGenerator` mapped to the comments endpoint.
+        """
+        from .helpers.generator import ListingGenerator
+        return ListingGenerator(self.reddit, API_PATH["subreddit_comments"].format(sub=self.display_name),
+                                subreddit=self, *args, **kwargs)
+
+    @streamable
+    def new(self, *args, **kwargs):
+        """
+        Returns an instance of :class:`~apraw.models.ListingGenerator` mapped to the new submissions endpoint.
+
+        .. note::
+            This listing can be streamed doing the following:
+
+            .. code-block:: python3
+
+                for comment in submissions.new.stream():
+                    print(comment)
+
+        Parameters
+        ----------
+        kwargs: \*\*Dict
+            :class:`~apraw.models.ListingGenerator` ``kwargs``.
+
+        Returns
+        -------
+        generator: ListingGenerator
+            A :class:`~apraw.models.ListingGenerator` mapped to the new submissions endpoint.
+        """
+        from .helpers.generator import ListingGenerator
+        return ListingGenerator(self.reddit, API_PATH["subreddit_new"].format(sub=self.display_name), subreddit=self,
+                                *args, **kwargs)
+
+    def hot(self, *args, **kwargs):
+        """
+        Returns an instance of :class:`~apraw.models.ListingGenerator` mapped to the hot submissions endpoint.
+
+        Parameters
+        ----------
+        kwargs: \*\*Dict
+            :class:`~apraw.models.ListingGenerator` ``kwargs``.
+
+        Returns
+        -------
+        generator: ListingGenerator
+            A :class:`~apraw.models.ListingGenerator` mapped to the hot submissions endpoint.
+        """
+        from .helpers.generator import ListingGenerator
+        return ListingGenerator(self.reddit, API_PATH["subreddit_hot"].format(sub=self.display_name), subreddit=self,
+                                *args, **kwargs)
+
+    def rising(self, *args, **kwargs):
+        """
+        Returns an instance of :class:`~apraw.models.ListingGenerator` mapped to the rising submissions endpoint.
+
+        Parameters
+        ----------
+        kwargs: \*\*Dict
+            :class:`~apraw.models.ListingGenerator` ``kwargs``.
+
+        Returns
+        -------
+        generator: ListingGenerator
+            A :class:`~apraw.models.ListingGenerator` mapped to the rising submissions endpoint.
+        """
+        from .helpers.generator import ListingGenerator
+        return ListingGenerator(self.reddit, API_PATH["subreddit_rising"].format(sub=self.display_name), *args,
+                                **kwargs)
+
+    def top(self, *args, **kwargs):
+        """
+        Returns an instance of :class:`~apraw.models.ListingGenerator` mapped to the top submissions endpoint.
+
+        Parameters
+        ----------
+        kwargs: \*\*Dict
+            :class:`~apraw.models.ListingGenerator` ``kwargs``.
+
+        Returns
+        -------
+        generator: ListingGenerator
+            A :class:`~apraw.models.ListingGenerator` mapped to the top submissions endpoint.
+        """
+        from .helpers.generator import ListingGenerator
+        return ListingGenerator(self.reddit, API_PATH["subreddit_top"].format(sub=self.display_name), subreddit=self,
+                                *args, **kwargs)
 
     def __str__(self):
         """
@@ -232,7 +314,8 @@ class Subreddit(aPRAWBase):
         response: Dict
             The API response JSON as a dictionary.
         """
-        return await self.reddit.message(API_PATH["subreddit"].format(sub=self.display_name), subject, text, str(from_sr))
+        return await self.reddit.message(API_PATH["subreddit"].format(sub=self.display_name), subject, text,
+                                         str(from_sr))
 
 
 class SubredditModerator(aPRAWBase):
@@ -301,48 +384,188 @@ class SubredditModeration:
 
     Members
     -------
-    reports: ListingGenerator
-        Returns an instance of :class:`~apraw.models.ListingGenerator` mapped to grab reported items.
-    spam: ListingGenerator
-        Returns an instance of :class:`~apraw.models.ListingGenerator` mapped to grab items marked as spam.
-    modqueue: ListingGenerator
-        Returns an instance of :class:`~apraw.models.ListingGenerator` mapped to grab items in the modqueue.
-    unmoderated: ListingGenerator
-        Returns an instance of :class:`~apraw.models.ListingGenerator` mapped to grab unmoderated items.
-    edited: ListingGenerator
-        Returns an instance of :class:`~apraw.models.ListingGenerator` mapped to grab edited items.
-    log: ListingGenerator
-        Returns an instance of :class:`~apraw.models.ListingGenerator` mapped to grab mod actions in the subreddit log.
+    subreddit: Subreddit
+        The subreddit this helper instance belongs to and performs requests for.
     """
 
-    def __init__(self, subreddit):
+    def __init__(self, subreddit: Subreddit):
+        """
+        Create an instance of ``SubredditModeration``.
+
+        Parameters
+        ----------
+        subreddit: Subreddit
+            The subreddit this helper instance belongs to and performs requests for.
+        """
         self.subreddit = subreddit
 
-        from .helpers.listing_generator import ListingGenerator
-        self.reports = ListingGenerator(
-            self.subreddit.reddit,
-            API_PATH["subreddit_reports"].format(
-                sub=self.subreddit.display_name), subreddit=self.subreddit)
-        self.spam = ListingGenerator(
-            self.subreddit.reddit,
-            API_PATH["subreddit_spam"].format(
-                sub=self.subreddit.display_name), subreddit=self.subreddit)
-        self.modqueue = ListingGenerator(
-            self.subreddit.reddit,
-            API_PATH["subreddit_modqueue"].format(
-                sub=self.subreddit.display_name), subreddit=self.subreddit)
-        self.unmoderated = ListingGenerator(
-            self.subreddit.reddit,
-            API_PATH["subreddit_unmoderated"].format(
-                sub=self.subreddit.display_name), subreddit=self.subreddit)
-        self.edited = ListingGenerator(
-            self.subreddit.reddit,
-            API_PATH["subreddit_edited"].format(
-                sub=self.subreddit.display_name), subreddit=self.subreddit)
-        self.log = ListingGenerator(
-            self.subreddit.reddit,
-            API_PATH["subreddit_log"].format(
-                sub=self.subreddit.display_name), subreddit=self.subreddit)
+    @streamable
+    def reports(self, *args, **kwargs):
+        """
+        Returns an instance of :class:`~apraw.models.ListingGenerator` mapped to grab reported items.
+
+        .. note::
+            This listing can be streamed doing the following:
+
+            .. code-block:: python3
+
+                for comment in subreddit.mod.reports.stream():
+                    print(comment)
+
+        Parameters
+        ----------
+        kwargs: \*\*Dict
+            :class:`~apraw.models.ListingGenerator` ``kwargs``.
+
+        Returns
+        -------
+        generator: ListingGenerator
+            A :class:`~apraw.models.ListingGenerator` mapped to grab reported items.
+        """
+        from .helpers.generator import ListingGenerator
+        return ListingGenerator(self.subreddit.reddit,
+                                API_PATH["subreddit_reports"].format(sub=self.subreddit.display_name),
+                                subreddit=self.subreddit, *args, **kwargs)
+
+    @streamable
+    def spam(self, *args, **kwargs):
+        """
+        Returns an instance of :class:`~apraw.models.ListingGenerator` mapped to grab items marked as spam.
+
+        .. note::
+            This listing can be streamed doing the following:
+
+            .. code-block:: python3
+
+                for comment in subreddit.mod.spam.stream():
+                    print(comment)
+
+        Parameters
+        ----------
+        kwargs: \*\*Dict
+            :class:`~apraw.models.ListingGenerator` ``kwargs``.
+
+        Returns
+        -------
+        generator: ListingGenerator
+            A :class:`~apraw.models.ListingGenerator` mapped to grab items marked as spam.
+        """
+        from .helpers.generator import ListingGenerator
+        return ListingGenerator(self.subreddit.reddit,
+                                API_PATH["subreddit_spam"].format(sub=self.subreddit.display_name),
+                                subreddit=self.subreddit, *args, **kwargs)
+
+    @streamable
+    def modqueue(self, *args, **kwargs):
+        """
+        Returns an instance of :class:`~apraw.models.ListingGenerator` mapped to grab items in the modqueue.
+
+        .. note::
+            This listing can be streamed doing the following:
+
+            .. code-block:: python3
+
+                for comment in subreddit.mod.modqueue.stream():
+                    print(comment)
+
+        Parameters
+        ----------
+        kwargs: \*\*Dict
+            :class:`~apraw.models.ListingGenerator` ``kwargs``.
+
+        Returns
+        -------
+        generator: ListingGenerator
+            A :class:`~apraw.models.ListingGenerator` mapped to grab items in the modqueue.
+        """
+        from .helpers.generator import ListingGenerator
+        return ListingGenerator(self.subreddit.reddit,
+                                API_PATH["subreddit_modqueue"].format(sub=self.subreddit.display_name),
+                                subreddit=self.subreddit, *args, **kwargs)
+
+    @streamable
+    def unmoderated(self, *args, **kwargs):
+        """
+        Returns an instance of :class:`~apraw.models.ListingGenerator` mapped to grab unmoderated items.
+
+        .. note::
+            This listing can be streamed doing the following:
+
+            .. code-block:: python3
+
+                for comment in subreddit.mod.unmoderated.stream():
+                    print(comment)
+
+        Parameters
+        ----------
+        kwargs: \*\*Dict
+            :class:`~apraw.models.ListingGenerator` ``kwargs``.
+
+        Returns
+        -------
+        generator: ListingGenerator
+            A :class:`~apraw.models.ListingGenerator` mapped to grab unmoderated items.
+        """
+        from .helpers.generator import ListingGenerator
+        return ListingGenerator(self.subreddit.reddit,
+                                API_PATH["subreddit_unmoderated"].format(sub=self.subreddit.display_name),
+                                subreddit=self.subreddit, *args, **kwargs)
+
+    @streamable
+    def edited(self, *args, **kwargs):
+        """
+        Returns an instance of :class:`~apraw.models.ListingGenerator` mapped to grab edited items.
+
+        .. note::
+            This listing can be streamed doing the following:
+
+            .. code-block:: python3
+
+                for comment in subreddit.mod.edited.stream():
+                    print(comment)
+
+        Parameters
+        ----------
+        kwargs: \*\*Dict
+            :class:`~apraw.models.ListingGenerator` ``kwargs``.
+
+        Returns
+        -------
+        generator: ListingGenerator
+            A :class:`~apraw.models.ListingGenerator` mapped to grab edited items.
+        """
+        from .helpers.generator import ListingGenerator
+        return ListingGenerator(self.subreddit.reddit,
+                                API_PATH["subreddit_edited"].format(sub=self.subreddit.display_name),
+                                subreddit=self.subreddit, *args, **kwargs)
+
+    @streamable
+    def log(self, *args, **kwargs):
+        """
+        Returns an instance of :class:`~apraw.models.ListingGenerator` mapped to grab mod actions in the subreddit log.
+
+        .. note::
+            This listing can be streamed doing the following:
+
+            .. code-block:: python3
+
+                for comment in subreddit.mod.log.stream():
+                    print(comment)
+
+        Parameters
+        ----------
+        kwargs: \*\*Dict
+            :class:`~apraw.models.ListingGenerator` ``kwargs``.
+
+        Returns
+        -------
+        generator: ListingGenerator
+            A :class:`~apraw.models.ListingGenerator` mapped to grab mod actions in the subreddit log.
+        """
+        from .helpers.generator import ListingGenerator
+        return ListingGenerator(self.subreddit.reddit,
+                                API_PATH["subreddit_log"].format(sub=self.subreddit.display_name),
+                                subreddit=self.subreddit, *args, **kwargs)
 
 
 class ModAction(aPRAWBase):

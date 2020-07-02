@@ -133,3 +133,4 @@ praw.ini
 /.vscode
 build.zip
 /img
+/tests/output

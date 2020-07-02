@@ -1,4 +1,3 @@
-from ...endpoints import API_PATH
 from ..redditor import Redditor
 
 

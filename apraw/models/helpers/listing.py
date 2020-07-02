@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Dict, Iterator
+from typing import TYPE_CHECKING, Dict, Iterator, List
 
 from ..comment import Comment
 from ..submission import Submission
@@ -16,18 +16,41 @@ class Listing(aPRAWBase, Iterator):
 
     Members
     -------
+    reddit: Reddit
+        The :class:`~apraw.Reddit` instance with which requests are made.
+    data: Dict
+        The data retrieved from the endpoint.
+    kind_filter:
+        Kinds to return if given, otherwise all are returned.
+    subreddit: Subreddit
+        The subreddit to inject into items as their owner.
     CHILD_ATTRIBUTE: str
         The attribute in the data that contains the listing's items.
     """
 
     CHILD_ATTRIBUTE = "children"
 
-    def __init__(self, reddit: 'Reddit', data: Dict,
+    def __init__(self, reddit: 'Reddit', data: Dict, kind_filter: List[str] = None,
                  subreddit: Subreddit = None):
+        """
+        Create a ``Listing`` instance.
+
+        Parameters
+        ----------
+        reddit: Reddit
+            The :class:`~apraw.Reddit` instance with which requests are made.
+        data: Dict
+            The data retrieved from the endpoint.
+        kind_filter:
+            Kinds to return if given, otherwise all are returned.
+        subreddit: Subreddit
+            The subreddit to inject into items as their owner.
+        """
         super().__init__(reddit, data, reddit.listing_kind)
 
         self._index = 0
         self._subreddit = subreddit
+        self._kind_filter = kind_filter if kind_filter else []
 
     def __len__(self) -> int:
         """
@@ -42,7 +65,7 @@ class Listing(aPRAWBase, Iterator):
 
     def __iter__(self) -> Iterator[aPRAWBase]:
         """
-        Permit ListingGenerator to operate as an iterator.
+        Permit Listing to operate as an iterator.
 
         Returns
         -------
@@ -53,7 +76,7 @@ class Listing(aPRAWBase, Iterator):
 
     def __next__(self) -> aPRAWBase:
         """
-        Permit ListingGenerator to operate as a generator.
+        Permit Listing to operate as a generator.
 
         Returns
         -------
@@ -81,7 +104,6 @@ class Listing(aPRAWBase, Iterator):
             The searched item.
         """
         data = getattr(self, self.CHILD_ATTRIBUTE)[index]
-        item = None
 
         if "page" in data:
             item = WikipageRevision(self.reddit, data)

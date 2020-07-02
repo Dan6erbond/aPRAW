@@ -61,4 +61,5 @@ class aPRAWBase:
     @property
     def fullname(self):
         return prepend_kind(self.name if hasattr(
-            self, "name") else self.id, self.kind)
+            self, "name") else self.id, self.kind) if self.kind else self.name if hasattr(
+            self, "name") else self.id

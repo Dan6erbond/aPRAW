@@ -6,8 +6,8 @@ from functools import wraps
 from typing import Any, Awaitable, Callable, Dict, List, Union
 
 from .endpoints import API_PATH, BASE_URL
-from .models import (Comment, Listing, ListingGenerator, Redditor, Submission,
-                     Subreddit, User)
+from .models import (Comment, Listing, Redditor, Submission,
+                     Subreddit, User, ListingGenerator, streamable)
 from .utils import prepend_kind
 
 
@@ -19,8 +19,6 @@ class Reddit:
     -------
     user: User
         An instance of the logged-in Reddit user.
-    subreddits: ListingGenerator
-        A ListingGenerator that returns newly created subreddits, which can be streamed using :code:`reddit.subreddits.stream()`.
     """
 
     def __init__(self, praw_key: str = "", username: str = "", password: str = "",
@@ -66,8 +64,24 @@ class Reddit:
         self.wiki_revision_kind = "WikiRevision"
         self.wikipage_kind = "wikipage"
 
-        self.subreddits = ListingGenerator(self, API_PATH["subreddits_new"])
         self.request_handler = RequestHandler(self.user)
+
+    @streamable
+    def subreddits(self, *args, **kwargs):
+        """
+        A :class:`~apraw.models.ListingGenerator` that returns newly created subreddits, which can be streamed using :code:`reddit.subreddits.stream()`.
+
+        Parameters
+        ----------
+        kwargs: \*\*Dict
+            :class:`~apraw.models.ListingGenerator` ``kwargs``.
+
+        Returns
+        -------
+        generator: ListingGenerator
+            A :class:`~apraw.models.ListingGenerator` that retrieves newly created subreddits.
+        """
+        return ListingGenerator(self, API_PATH["subreddits_new"], *args, **kwargs)
 
     async def get_request(self, *args, **kwargs):
         """
@@ -109,8 +123,8 @@ class Reddit:
         """
         return await self.request_handler.post_request(*args, **kwargs)
 
-    async def get_listing(self, endpoint: str, subreddit: Subreddit = None, **kwargs):
-        """
+    async def get_listing(self, endpoint: str, subreddit: Subreddit = None, kind_filter: List[str] = None, **kwargs):
+        r"""
         Retrieve a listing from an endpoint.
 
         Parameters
@@ -119,6 +133,8 @@ class Reddit:
             The endpoint to be appended after the base URL (https://oauth.reddit.com/).
         subreddit: Subreddit
             The subreddit to dependency inject into retrieved items when possible.
+        kind_filter:
+            Kinds to return if given, otherwise all are returned.
         kwargs: \*\*Dict
             Query parameters to be appended after the URL.
 
@@ -128,7 +144,7 @@ class Reddit:
             The listing containing all the endpoint's children.
         """
         resp = await self.get_request(endpoint, **kwargs)
-        return Listing(self, resp["data"], subreddit)
+        return Listing(self, resp["data"], subreddit, kind_filter)
 
     async def subreddit(self, display_name: str) -> Subreddit:
         """
@@ -339,10 +355,10 @@ class RequestHandler:
 
                 if self.user.ratelimit_remaining < 1:
                     execution_time = self.user.ratelimit_reset + \
-                        timedelta(seconds=len(self.queue))
+                                     timedelta(seconds=len(self.queue))
                     wait_time = (
-                        execution_time -
-                        datetime.now()).total_seconds()
+                            execution_time -
+                            datetime.now()).total_seconds()
                     await asyncio.sleep(wait_time)
 
                 result = await func(self, *args, **kwargs)
