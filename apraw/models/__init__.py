@@ -9,5 +9,5 @@ from .redditor import Redditor
 from .submission import Submission, SubmissionModeration
 from .subreddit import (ModAction, Subreddit, SubredditModeration,
                         SubredditModerator, SubredditModmail)
-from .subreddit_wiki import WikipageRevision
+from .subreddit_wiki import WikipageRevision, SubredditWiki, SubredditWikipage
 from .user import AuthenticatedUser, Karma, User

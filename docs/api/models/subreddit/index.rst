@@ -11,3 +11,4 @@ This section contains the documentation and API of the subreddit models and help
    subreddit
    subreddit_moderation
    subreddit_modmail
+   subreddit_wiki
