@@ -19,8 +19,6 @@ class Reddit:
     -------
     user: User
         An instance of the logged-in Reddit user.
-    subreddits: ListingGenerator
-        A ListingGenerator that returns newly created subreddits, which can be streamed using :code:`reddit.subreddits.stream()`.
     """
 
     def __init__(self, praw_key: str = "", username: str = "", password: str = "",
@@ -70,6 +68,19 @@ class Reddit:
 
     @streamable
     def subreddits(self, *args, **kwargs):
+        """
+        A :class:`~apraw.models.ListingGenerator` that returns newly created subreddits, which can be streamed using :code:`reddit.subreddits.stream()`.
+
+        Parameters
+        ----------
+        kwargs: \*\*Dict
+            :class:`~apraw.models.ListingGenerator` ``kwargs``.
+
+        Returns
+        -------
+        generator: ListingGenerator
+            A :class:`~apraw.models.ListingGenerator` that retrieves newly created subreddits.
+        """
         return ListingGenerator(self, API_PATH["subreddits_new"], *args, **kwargs)
 
     async def get_request(self, *args, **kwargs):
