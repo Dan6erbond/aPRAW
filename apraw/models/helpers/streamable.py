@@ -65,7 +65,8 @@ class Streamable:
         """
         Make streamable callable to return result of decorated function.
         """
-        return self.func(self.instance, *args, **kwargs)
+        async for item in self.func(self.instance, *args, **kwargs):
+            yield item
 
     async def stream(self, skip_existing: bool = False, *args, **kwargs):
         """
