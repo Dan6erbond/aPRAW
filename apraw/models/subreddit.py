@@ -155,6 +155,7 @@ class Subreddit(aPRAWBase):
         super().__init__(reddit, data, reddit.subreddit_kind)
 
         self.quarantine = data["quarantine"] if "quarantine" in data else False
+        self.quaran = SubredditQuarantine(self)
 
         self.mod = SubredditModeration(self)
         self.modmail = SubredditModmail(self)
@@ -316,6 +317,15 @@ class Subreddit(aPRAWBase):
         """
         return await self.reddit.message(API_PATH["subreddit"].format(sub=self.display_name), subject, text,
                                          str(from_sr))
+
+
+class SubredditQuarantine:
+
+    def __init__(self, subreddit: 'Subreddit'):
+        self.subreddit = subreddit
+
+    async def opt_in(self):
+
 
 
 class SubredditModerator(aPRAWBase):
