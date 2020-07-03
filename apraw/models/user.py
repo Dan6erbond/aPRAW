@@ -3,9 +3,9 @@ from typing import TYPE_CHECKING, Dict, List
 
 import aiohttp
 
-from ..endpoints import API_PATH
 from .helpers.apraw_base import aPRAWBase
-from .redditor import Redditor
+from .reddit.redditor import Redditor
+from ..endpoints import API_PATH
 
 if TYPE_CHECKING:
     from ..reddit import Reddit

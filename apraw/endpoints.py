@@ -1,5 +1,5 @@
 """List of Reddit API endpoints known to aPRAW."""
-from typing import Dict, Any, Union
+from typing import Dict
 
 BASE_URL = "https://oauth.reddit.com{}?{}"
 

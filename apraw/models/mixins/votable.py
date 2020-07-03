@@ -1,4 +1,4 @@
-from ...endpoints import API_PATH
+from ...const import API_PATH
 
 
 class VotableMixin:

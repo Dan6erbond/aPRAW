@@ -31,8 +31,8 @@ class TestSubreddit:
             break
 
         assert isinstance(
-            report, apraw.models.submission.Submission) or isinstance(
-            report, apraw.models.comment.Comment)
+            report, apraw.models.Submission) or isinstance(
+            report, apraw.models.Comment)
 
     @pytest.mark.asyncio
     async def test_subreddit_moderation_log(self, reddit):
@@ -43,4 +43,4 @@ class TestSubreddit:
             log = l
             break
 
-        assert isinstance(log, apraw.models.subreddit.ModAction)
+        assert isinstance(log, apraw.models.ModAction)

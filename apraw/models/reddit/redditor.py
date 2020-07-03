@@ -1,12 +1,12 @@
 from typing import TYPE_CHECKING, Dict
 
-from .helpers.apraw_base import aPRAWBase
-from .helpers.streamable import Streamable
-from ..endpoints import API_PATH
+from ..helpers.apraw_base import aPRAWBase
+from ..helpers.streamable import Streamable
+from ...const import API_PATH
 
 if TYPE_CHECKING:
-    from .subreddit import Subreddit
-    from ..reddit import Reddit
+    from ..subreddit.subreddit import Subreddit
+    from ...reddit import Reddit
 
 
 class Redditor(aPRAWBase):
@@ -78,7 +78,7 @@ class Redditor(aPRAWBase):
             sub["id"] = sub["name"].replace("t5_", "")
             if "created_utc" not in sub:
                 sub["created_utc"] = data["created_utc"]
-            from .subreddit import Subreddit
+            from apraw.models.subreddit.subreddit import Subreddit
             self.subreddit = Subreddit(self.reddit, sub)
         else:
             self.subreddit = None
@@ -106,7 +106,7 @@ class Redditor(aPRAWBase):
         generator: ListingGenerator
             A :class:`~apraw.models.ListingGenerator` mapped to fetch the Redditor's comments.
         """
-        from .helpers.generator import ListingGenerator
+        from ..helpers.generator import ListingGenerator
         return ListingGenerator(self.reddit, API_PATH["user_comments"].format(user=self), *args, **kwargs)
 
     @Streamable.streamable
@@ -132,7 +132,7 @@ class Redditor(aPRAWBase):
         generator: ListingGenerator
             A :class:`~apraw.models.ListingGenerator` mapped to fetch the Redditor's submissions.
         """
-        from .helpers.generator import ListingGenerator
+        from ..helpers.generator import ListingGenerator
         return ListingGenerator(self.reddit, API_PATH["user_submissions"].format(user=self), *args, **kwargs)
 
     def __str__(self):

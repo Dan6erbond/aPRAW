@@ -1,10 +1,11 @@
 from typing import TYPE_CHECKING, Dict, Iterator, List
 
-from ..comment import Comment
-from ..submission import Submission
-from ..subreddit import ModAction, Subreddit
-from ..subreddit_wiki import WikipageRevision
 from .apraw_base import aPRAWBase
+from ..reddit.comment import Comment
+from ..reddit.submission import Submission
+from ..subreddit.subreddit import Subreddit
+from ..subreddit.moderation import ModAction
+from ..subreddit.wiki import WikipageRevision
 
 if TYPE_CHECKING:
     from ...reddit import Reddit

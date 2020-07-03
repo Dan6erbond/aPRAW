@@ -1,12 +1,12 @@
 from typing import TYPE_CHECKING, Dict
 
-from ..endpoints import API_PATH
-from .helpers.apraw_base import aPRAWBase
+from ..helpers.apraw_base import aPRAWBase
+from ...const import API_PATH
 
 if TYPE_CHECKING:
-    from .subreddit import Subreddit
-    from .redditor import Redditor
-    from ..reddit import Reddit
+    from ..subreddit.subreddit import Subreddit
+    from ..reddit.redditor import Redditor
+    from ...reddit import Reddit
 
 
 class SubredditModmail:

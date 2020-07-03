@@ -1,7 +1,7 @@
 from enum import Enum
 from typing import TYPE_CHECKING, NewType
 
-from ...endpoints import API_PATH
+from ...const import API_PATH
 from .apraw_base import aPRAWBase
 
 if TYPE_CHECKING:

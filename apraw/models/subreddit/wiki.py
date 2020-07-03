@@ -1,12 +1,12 @@
 from typing import TYPE_CHECKING, Dict, List, Union
 
-from .helpers.apraw_base import aPRAWBase
-from .helpers.streamable import Streamable
-from .redditor import Redditor
-from ..endpoints import API_PATH
+from ..helpers.apraw_base import aPRAWBase
+from ..helpers.streamable import Streamable
+from ..reddit.redditor import Redditor
+from ...const import API_PATH
 
 if TYPE_CHECKING:
-    from ..reddit import Reddit
+    from ...reddit import Reddit
     from .subreddit import Subreddit
 
 
@@ -39,7 +39,7 @@ class SubredditWiki:
         generator: ListingGenerator
             A :class:`~apraw.models.ListingGenerator` mapped to recent wikipage revisions.
         """
-        from .helpers.generator import ListingGenerator
+        from ..helpers.generator import ListingGenerator
         return ListingGenerator(self.subreddit.reddit, API_PATH["wiki_revisions"].format(sub=self.subreddit), *args,
                                 **kwargs)
 
@@ -99,7 +99,7 @@ class SubredditWikipage(aPRAWBase):
         generator: ListingGenerator
             A :class:`~apraw.models.ListingGenerator` mapped to fetch specific wikipage revisions.
         """
-        from .helpers.generator import ListingGenerator
+        from ..helpers.generator import ListingGenerator
         return ListingGenerator(self.subreddit.reddit, API_PATH["wiki_page_revisions"].format(
             sub=self.subreddit, page=self.name), *args, **kwargs)
 

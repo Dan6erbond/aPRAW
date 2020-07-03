@@ -1,10 +1,10 @@
 from typing import TYPE_CHECKING, AsyncIterator, Awaitable, List
 
 from .apraw_base import aPRAWBase
-from ..comment import Comment
-from ..submission import Submission
-from ..subreddit import ModAction, Subreddit
-from ..subreddit_wiki import WikipageRevision
+from ..reddit.comment import Comment
+from ..reddit.submission import Submission
+from ..subreddit.subreddit import Subreddit
+from ..subreddit.moderation import ModAction
 
 if TYPE_CHECKING:
     from ...reddit import Reddit
