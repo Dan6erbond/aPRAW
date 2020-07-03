@@ -1,10 +1,10 @@
 from typing import TYPE_CHECKING, AsyncIterator, Awaitable, List
 
 from .apraw_base import aPRAWBase
-from ..comment import Comment
-from ..submission import Submission
-from ..subreddit import ModAction, Subreddit
-from ..subreddit_wiki import WikipageRevision
+from ..reddit.comment import Comment
+from ..reddit.submission import Submission
+from ..subreddit.moderation import ModAction
+from ..subreddit.subreddit import Subreddit
 
 if TYPE_CHECKING:
     from ...reddit import Reddit
@@ -58,7 +58,6 @@ class ListingGenerator(AsyncIterator):
         self.params = {**kwargs, "limit": self.limit}
         self.listing = None
         self.kind_filter = kind_filter
-        self._index = 0
         self._yielded = 0
 
     def __aiter__(self) -> AsyncIterator[aPRAWBase]:
@@ -93,15 +92,21 @@ class ListingGenerator(AsyncIterator):
         item: aPRAWBase
             A model of the item's data if kind couldn't be identified.
         """
-        if self.listing is not None and len(self.listing) == 0 or self._yielded >= self.limit:
+        if self._yielded >= self.limit:
             raise StopAsyncIteration()
 
-        if self.listing is None or self._index >= len(self.listing):
+        if self.listing is None:
             await self._next_batch()
 
-        self._index += 1
-        self._yielded += 1
-        return self.listing[self._index - 1]
+        try:
+            item = next(self.listing)
+            self._yielded += 1
+            return item
+        except StopIteration:
+            if self._yielded < self.limit:
+                await self._next_batch()
+            else:
+                raise StopAsyncIteration()
 
     async def _next_batch(self):
         """
@@ -116,5 +121,3 @@ class ListingGenerator(AsyncIterator):
 
         if len(self.listing) <= 0:
             raise StopAsyncIteration()
-
-        self._index = 0

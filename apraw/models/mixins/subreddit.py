@@ -1,5 +1,4 @@
-from ...endpoints import API_PATH
-from ..subreddit import Subreddit
+from ..subreddit.subreddit import Subreddit
 
 
 class SubredditMixin:

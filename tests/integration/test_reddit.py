@@ -32,7 +32,7 @@ class TestReddit:
             subreddit = sub
             break
 
-        assert isinstance(subreddit, apraw.models.subreddit.Subreddit)
+        assert isinstance(subreddit, apraw.models.Subreddit)
 
     @pytest.mark.asyncio
     async def test_reddit_user_karma(self, reddit: apraw.Reddit):

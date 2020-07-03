@@ -1,4 +1,4 @@
-from ..redditor import Redditor
+from ..reddit.redditor import Redditor
 
 
 class AuthorMixin:

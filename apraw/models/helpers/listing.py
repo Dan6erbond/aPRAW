@@ -1,10 +1,12 @@
 from typing import TYPE_CHECKING, Dict, Iterator, List
 
-from ..comment import Comment
-from ..submission import Submission
-from ..subreddit import ModAction, Subreddit
-from ..subreddit_wiki import WikipageRevision
 from .apraw_base import aPRAWBase
+from ..reddit.comment import Comment
+from ..reddit.message import Message
+from ..reddit.submission import Submission
+from ..subreddit.moderation import ModAction
+from ..subreddit.subreddit import Subreddit
+from ..subreddit.wiki import WikipageRevision
 
 if TYPE_CHECKING:
     from ...reddit import Reddit
@@ -83,11 +85,16 @@ class Listing(aPRAWBase, Iterator):
         item: aPRAWBase
             The next item in the listing.
         """
-        if self._index >= len(self):
-            raise StopIteration()
+        while True:
+            if self._index >= len(self):
+                raise StopIteration()
+            self._index += 1
+            item = self[self._index - 1]
 
-        self._index += 1
-        return self[self._index - 1]
+            if not self._kind_filter or self._kind_filter and item.kind in self._kind_filter:
+                break
+
+        return item
 
     def __getitem__(self, index: int) -> aPRAWBase:
         """
@@ -108,22 +115,17 @@ class Listing(aPRAWBase, Iterator):
         if "page" in data:
             item = WikipageRevision(self.reddit, data)
         elif data["kind"] == self.reddit.link_kind:
-            item = Submission(
-                self.reddit,
-                data["data"],
-                subreddit=self._subreddit)
+            item = Submission(self.reddit, data["data"], subreddit=self._subreddit)
         elif data["kind"] == self.reddit.subreddit_kind:
             item = Subreddit(self.reddit, data["data"])
         elif data["kind"] == self.reddit.comment_kind:
-            item = Comment(
-                self.reddit,
-                data["data"],
-                subreddit=self._subreddit)
+            item = Comment(self.reddit, data["data"], subreddit=self._subreddit)
         elif data["kind"] == self.reddit.modaction_kind:
             item = ModAction(self.reddit, data["data"], self._subreddit)
+        elif data["kind"] == self.reddit.message_kind:
+            item = Message(self.reddit, data["data"])
         else:
-            item = aPRAWBase(self.reddit,
-                             data["data"] if "data" in data else data)
+            item = aPRAWBase(self.reddit, data["data"] if "data" in data else data)
 
         return item
 
