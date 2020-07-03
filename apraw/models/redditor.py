@@ -1,7 +1,7 @@
 from typing import TYPE_CHECKING, Dict
 
 from .helpers.apraw_base import aPRAWBase
-from .helpers.streamable import streamable
+from .helpers.streamable import Streamable
 from ..endpoints import API_PATH
 
 if TYPE_CHECKING:
@@ -83,7 +83,7 @@ class Redditor(aPRAWBase):
         else:
             self.subreddit = None
 
-    @streamable
+    @Streamable.streamable
     def comments(self, *args, **kwargs):
         """
         Returns an instance of :class:`~apraw.models.ListingGenerator` mapped to fetch the Redditor's comments.
@@ -109,7 +109,7 @@ class Redditor(aPRAWBase):
         from .helpers.generator import ListingGenerator
         return ListingGenerator(self.reddit, API_PATH["user_comments"].format(user=self), *args, **kwargs)
 
-    @streamable
+    @Streamable.streamable
     def submissions(self, *args, **kwargs):
         """
         Returns an instance of :class:`~apraw.models.ListingGenerator` mapped to fetch the Redditor's submissions.
