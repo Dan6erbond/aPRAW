@@ -7,7 +7,7 @@ from typing import Any, Awaitable, Callable, Dict, List, Union
 
 from .endpoints import API_PATH, BASE_URL
 from .models import (Comment, Listing, Redditor, Submission,
-                     Subreddit, User, ListingGenerator, streamable)
+                     Subreddit, User, ListingGenerator, Streamable)
 from .utils import prepend_kind
 
 
@@ -66,7 +66,7 @@ class Reddit:
 
         self.request_handler = RequestHandler(self.user)
 
-    @streamable
+    @Streamable.streamable
     def subreddits(self, *args, **kwargs):
         """
         A :class:`~apraw.models.ListingGenerator` that returns newly created subreddits, which can be streamed using :code:`reddit.subreddits.stream()`.

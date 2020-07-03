@@ -1,7 +1,7 @@
 from typing import TYPE_CHECKING, Dict, List, Union
 
 from .helpers.apraw_base import aPRAWBase
-from .helpers.streamable import streamable
+from .helpers.streamable import Streamable
 from .redditor import Redditor
 from ..endpoints import API_PATH
 
@@ -16,7 +16,7 @@ class SubredditWiki:
         self.subreddit = subreddit
         self._data = None
 
-    @streamable
+    @Streamable.streamable
     def revisions(self, *args, **kwargs):
         """
         Returns an instance of :class:`~apraw.models.ListingGenerator` mapped to recent wikipage revisions.
@@ -76,7 +76,7 @@ class SubredditWikipage(aPRAWBase):
         self.name = name
         self.subreddit = subreddit
 
-    @streamable
+    @Streamable.streamable
     def revisions(self, *args, **kwargs):
         """
         Returns an instance of :class:`~apraw.models.ListingGenerator` mapped to fetch specific wikipage revisions.
