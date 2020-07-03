@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, AsyncIterator, Dict, List
+from typing import TYPE_CHECKING, AsyncIterator, Dict, List, AsyncGenerator
 
 from .comment import Comment
 from .redditor import Redditor
@@ -237,11 +237,12 @@ class Submission(aPRAWBase, DeletableMixin, HideableMixin,
                             c["data"],
                             submission=self))
                 if c["kind"] == "more":
-                    self._comments.extend(await self.morechildren(c["data"]["children"]))
+                    mc = [c async for c in self.morechildren(c["data"]["children"])]
+                    self._comments.extend(mc)
         for c in self._comments:
             yield c
 
-    async def morechildren(self, children) -> List[Comment]:
+    async def morechildren(self, children) -> AsyncGenerator[Comment, None]:
         """
         Retrieves further comments made in the submission.
 
@@ -255,8 +256,6 @@ class Submission(aPRAWBase, DeletableMixin, HideableMixin,
         comments: List[Comment]
             A list of the comments retrieved from the endpoint using their IDs.
         """
-        comments = list()
-
         while len(children) > 0:
             cs = children[:100]
             children = children[100:]
@@ -265,9 +264,7 @@ class Submission(aPRAWBase, DeletableMixin, HideableMixin,
 
             for i in data["json"]["data"]["things"]:
                 if isinstance(i, dict) and "kind" in i and i["kind"] == self.reddit.comment_kind:
-                    comments.append(Comment(self.reddit, i["data"], submission=self))
-
-        return comments
+                    yield Comment(self.reddit, i["data"], submission=self)
 
 
 class SubmissionModeration(PostModeration, NSFWableMixin, SpoilerableMixin):

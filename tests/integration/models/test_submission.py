@@ -31,7 +31,7 @@ class TestSubmission:
         async for comment in submission.comments():
             children.append(comment.id)
 
-        for comment in await submission.morechildren(children):
+        async for comment in submission.morechildren(children):
             assert isinstance(comment, apraw.models.Comment)
 
 
