@@ -19,18 +19,21 @@ class Streamable:
 
     @classmethod
     def streamable(cls,
-                   func: Union[Callable[[Any, int, Any], AsyncIterator[aPRAWBase]], AsyncGenerator[aPRAWBase]] = None,
+                   func: Union[
+                       Callable[[Any, int, Any], AsyncIterator[aPRAWBase]], AsyncGenerator[aPRAWBase, None]] = None,
                    max_wait: int = 16,
                    attribute_name: str = "fullname"):
         if func:
             return Streamable(func)
         else:
-            def wrapper(_func: Union[Callable[[Any, int, Any], AsyncIterator[aPRAWBase]], AsyncGenerator[aPRAWBase]]):
+            def wrapper(
+                    _func: Union[Callable[[Any, int, Any], AsyncIterator[aPRAWBase]], AsyncGenerator[aPRAWBase, None]]):
                 return Streamable(_func, max_wait, attribute_name)
 
             return wrapper
 
-    def __init__(self, func: Union[Callable[[Any, int, Any], AsyncIterator[aPRAWBase]], AsyncGenerator[aPRAWBase]],
+    def __init__(self,
+                 func: Union[Callable[[Any, int, Any], AsyncIterator[aPRAWBase]], AsyncGenerator[aPRAWBase, None]],
                  max_wait: int = 16,
                  attribute_name: str = "fullname"):
         """
