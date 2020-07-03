@@ -100,14 +100,14 @@ class Streamable:
         seen_attributes = list()
 
         if skip_existing:
-            items = [i async for i in self(self.instance, 1, *args, **kwargs)]
+            items = [i async for i in self(1, *args, **kwargs)]
             for item in reversed(items):
                 seen_attributes.append(getattr(item, self.attribute_name))
                 break
 
         while True:
             found = False
-            items = [i async for i in self(self.instance, 100, *args, **kwargs)]
+            items = [i async for i in self(100, *args, **kwargs)]
             for item in reversed(items):
                 attribute = getattr(item, self.attribute_name)
 
