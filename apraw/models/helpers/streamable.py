@@ -1,12 +1,11 @@
 import asyncio
 from functools import update_wrapper
-from typing import AsyncIterator, Callable, Any
+from typing import AsyncIterator, Callable, Any, Union, AsyncGenerator
 
 from .apraw_base import aPRAWBase
 
 
-# noinspection PyPep8Naming
-class streamable:
+class Streamable:
     """
     A decorator to make functions returning a generator streamable.
 
@@ -18,7 +17,21 @@ class streamable:
         The attribute name to use as a unique identifier for returned objects.
     """
 
-    def __init__(self, func: Callable[[Any, int, Any], AsyncIterator[Any]], max_wait: int = 16,
+    @classmethod
+    def streamable(cls,
+                   func: Union[Callable[[Any, int, Any], AsyncIterator[aPRAWBase]], AsyncGenerator[aPRAWBase]] = None,
+                   max_wait: int = 16,
+                   attribute_name: str = "fullname"):
+        if func:
+            return Streamable(func)
+        else:
+            def wrapper(_func: Union[Callable[[Any, int, Any], AsyncIterator[aPRAWBase]], AsyncGenerator[aPRAWBase]]):
+                return Streamable(_func, max_wait, attribute_name)
+
+            return wrapper
+
+    def __init__(self, func: Union[Callable[[Any, int, Any], AsyncIterator[aPRAWBase]], AsyncGenerator[aPRAWBase]],
+                 max_wait: int = 16,
                  attribute_name: str = "fullname"):
         """
         Create an instance of the streamable object.
