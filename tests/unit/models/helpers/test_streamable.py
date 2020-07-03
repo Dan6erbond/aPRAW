@@ -5,6 +5,18 @@ from apraw.models import Streamable
 
 class TestStreamable:
     @pytest.mark.asyncio
+    async def test_streamable_parameters(self):
+        items = list(range(20))
+
+        @Streamable.streamable(max_wait=12)
+        async def async_generator():
+            for i in items:
+                yield i
+
+        result = [i async for i in async_generator()]
+        assert result == items
+
+    @pytest.mark.asyncio
     async def test_streamable_async_generator(self):
         items = list(range(20))
 
