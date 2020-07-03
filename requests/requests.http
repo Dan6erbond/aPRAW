@@ -4,14 +4,60 @@ User-Agent: {{user_agent}}
 Content-Type: application/x-www-form-urlencoded
 Authorization: Basic {{client_id}}:{{client_secret}}
 
-grant_type=password&username={{username}}&password={{password}}
+grant_type=password
+&username={{username}}
+&password={{password}}
 
 ###
 
-@commentId = fulsybg
+@baseUrl = https://oauth.reddit.com
+
+@subreddit = aPRAWTest
+@submissionId = h7mna9
+@commentId = fuoew5r
+
+# @name getSubreddit
+GET {{baseUrl}}/r/{{subreddit}}/about
+User-Agent: {{user_agent}}
+Content-Type: application/json
+Authorization: {{getToken.response.body.token_type}} {{getToken.response.body.access_token}}
+
+###
+
+# @name getNonexistentSubreddit
+GET {{baseUrl}}/r/asjdfkljaskldf/about
+User-Agent: {{user_agent}}
+Content-Type: application/json
+Authorization: {{getToken.response.body.token_type}} {{getToken.response.body.access_token}}
+
+###
 
 # @name getComment
-GET https://oauth.reddit.com/api/info?id=t1_{{commentId}}
+GET {{baseUrl}}/api/info?id=t1_{{commentId}}
+User-Agent: {{user_agent}}
+Content-Type: application/json
+Authorization: {{getToken.response.body.token_type}} {{getToken.response.body.access_token}}
+
+###
+
+# @name getReplies
+GET {{baseUrl}}/r/{{subreddit}}/comments/{{submissionId}}/_/{{commentId}}
+User-Agent: {{user_agent}}
+Content-Type: application/json
+Authorization: {{getToken.response.body.token_type}} {{getToken.response.body.access_token}}
+
+###
+
+# @name getUser
+GET {{baseUrl}}/api/v1/me
+User-Agent: {{user_agent}}
+Content-Type: application/json
+Authorization: {{getToken.response.body.token_type}} {{getToken.response.body.access_token}}
+
+###
+
+# @name getKarma
+GET {{baseUrl}}/api/v1/me/karma
 User-Agent: {{user_agent}}
 Content-Type: application/json
 Authorization: {{getToken.response.body.token_type}} {{getToken.response.body.access_token}}

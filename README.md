@@ -22,7 +22,7 @@ Asynchronous Python Reddit API Wrapper by [Dan6erbond](https://dan6erbond.github
 
 ## Installation
 
-aPRAW requires a release of Python 3.6 or newer as it uses the inbuilt `async` and `await` syntax. You can install PRAW via pip:
+aPRAW requires a release of Python 3.6 or newer as it uses the inbuilt `async` and `await` syntax. You can install aPRAW via pip:
 
 ```pip install apraw```
 
@@ -66,18 +66,18 @@ If you have any questions regarding aPRAW and its usage...
 
  - Join the [/r/aPRAW](https://reddit.com/r/aPRAW) subreddit
    - Feel free to post a question in the questions thread or make your own post if it could start a big discussion!
- - Join the [aPRAW Discord server](https://discord.gg/KSHFEw4)
+ - Join the [aPRAW Discord server](https://discord.gg/66avTS7)
    - Use the `#💬general` chat for discussion about the library and talking to other users.
    - Use the `#❓questions` to post questions. The developers will try to get back to you as quickly as possible, but other users can help as well!
    - Use the `#💡ideas` if you have any ideas for the framework but don't know how to implement them, or just want to throw in the suggestion.
-   
+
 ### Contributing
-   
+
 Of course, aPRAW is open-source under the GPLv3 license and all additions and bug reports in the form of issues and pull requests are welcome! For further information, view the [contribution guidelines](.github/CONTRIBUTING.md) and have fun coding!
 
 ## Documentation
 
-Still on its way!
+The full API documentation can be found on [Read The Docs](http://apraw.readthedocs.io/).
 
 ## Roadmap
 

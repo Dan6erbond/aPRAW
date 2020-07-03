@@ -96,7 +96,7 @@ celerybeat-schedule
 *.sage.py
 
 # Environments
-.env
+*.env
 .venv
 env/
 venv/
@@ -132,3 +132,5 @@ praw.ini
 /subscan.py
 /.vscode
 build.zip
+/img
+/tests/output

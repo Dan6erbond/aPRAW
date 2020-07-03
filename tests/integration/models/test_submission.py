@@ -1,6 +1,8 @@
 
 import pytest
 
+import apraw
+
 
 class TestSubmission:
     @pytest.mark.asyncio
@@ -24,16 +26,14 @@ class TestSubmission:
     @pytest.mark.asyncio
     async def test_submission_morechildren(self, reddit):
         submission = await reddit.submission("h7mna9")
-        children = ["fulsybg"]
+        children = []
 
-        comment_found = False
+        async for comment in submission.comments():
+            children.append(comment.id)
 
         for comment in await submission.morechildren(children):
-            if comment.id == "fulsybg":
-                comment_found = True
-                break
+            assert isinstance(comment, apraw.models.Comment)
 
-        assert comment_found
 
     @pytest.mark.asyncio
     async def test_submission_subreddit(self, reddit):
