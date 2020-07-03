@@ -61,7 +61,7 @@ class Streamable:
         self.instance = instance
         return self
 
-    def __call__(self, *args, **kwargs):
+    async def __call__(self, *args, **kwargs):
         """
         Make streamable callable to return result of decorated function.
         """
