@@ -123,7 +123,7 @@ class Reddit:
         """
         return await self.request_handler.post_request(*args, **kwargs)
 
-    async def get_listing(self, endpoint: str, subreddit: Subreddit = None, kind_filter: List[str] = None, **kwargs):
+    async def get_listing(self, endpoint: str, subreddit: Subreddit = None, kind_filter: List[str] = None, **kwargs) -> Listing:
         r"""
         Retrieve a listing from an endpoint.
 
@@ -144,7 +144,7 @@ class Reddit:
             The listing containing all the endpoint's children.
         """
         resp = await self.get_request(endpoint, **kwargs)
-        return Listing(self, resp["data"], subreddit, kind_filter)
+        return Listing(self, resp["data"], kind_filter=kind_filter, subreddit=subreddit)
 
     async def subreddit(self, display_name: str) -> Subreddit:
         """

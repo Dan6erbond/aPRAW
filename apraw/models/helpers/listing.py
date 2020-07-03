@@ -85,11 +85,16 @@ class Listing(aPRAWBase, Iterator):
         item: aPRAWBase
             The next item in the listing.
         """
-        if self._index >= len(self):
-            raise StopIteration()
+        while True:
+            if self._index >= len(self):
+                raise StopIteration()
+            self._index += 1
+            item = self[self._index - 1]
 
-        self._index += 1
-        return self[self._index - 1]
+            if not self._kind_filter or self._kind_filter and item.kind in self._kind_filter:
+                break
+
+        return item
 
     def __getitem__(self, index: int) -> aPRAWBase:
         """
