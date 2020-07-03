@@ -1,8 +1,14 @@
 import asyncio
 from functools import update_wrapper
-from typing import AsyncIterator, Callable, Any, Union, AsyncGenerator
+from typing import AsyncIterator, Callable, Any, Union, AsyncGenerator, Generator, Iterator, Awaitable
 
 from .apraw_base import aPRAWBase
+
+# I know, I know, this code is cursed
+SYNC_OR_ASYNC_ITERABLE = Union[
+    Callable[[Any, int, Any], Union[Awaitable[Union[AsyncIterator[aPRAWBase], Iterator[aPRAWBase]]], Union[
+        AsyncIterator[aPRAWBase], Iterator[aPRAWBase]]]], AsyncGenerator[aPRAWBase, None], Generator[
+        aPRAWBase, None, None]]
 
 
 class Streamable:
@@ -18,24 +24,17 @@ class Streamable:
     """
 
     @classmethod
-    def streamable(cls,
-                   func: Union[
-                       Callable[[Any, int, Any], AsyncIterator[aPRAWBase]], AsyncGenerator[aPRAWBase, None]] = None,
-                   max_wait: int = 16,
-                   attribute_name: str = "fullname"):
+    def streamable(cls, func: SYNC_OR_ASYNC_ITERABLE = None, max_wait: int = 16, attribute_name: str = "fullname"):
         if func:
             return Streamable(func)
         else:
             def wrapper(
-                    _func: Union[Callable[[Any, int, Any], AsyncIterator[aPRAWBase]], AsyncGenerator[aPRAWBase, None]]):
+                    _func: SYNC_OR_ASYNC_ITERABLE):
                 return Streamable(_func, max_wait, attribute_name)
 
             return wrapper
 
-    def __init__(self,
-                 func: Union[Callable[[Any, int, Any], AsyncIterator[aPRAWBase]], AsyncGenerator[aPRAWBase, None]],
-                 max_wait: int = 16,
-                 attribute_name: str = "fullname"):
+    def __init__(self, func: SYNC_OR_ASYNC_ITERABLE, max_wait: int = 16, attribute_name: str = "fullname"):
         """
         Create an instance of the streamable object.
 
@@ -48,7 +47,7 @@ class Streamable:
         attribute_name: str
             The attribute name to use as a unique identifier for returned objects.
         """
-        self.func = func
+        self._func = func
         update_wrapper(self, func)
 
         self.max_wait = max_wait
@@ -65,8 +64,21 @@ class Streamable:
         """
         Make streamable callable to return result of decorated function.
         """
-        async for item in self.func(self.instance, *args, **kwargs):
-            yield item
+        if hasattr(self._func, "__call__"):
+            func_args = (self.instance, *args) if hasattr(self, "instance") else args
+            if asyncio.iscoroutinefunction(self._func):
+                iterable = await self._func(*func_args, **kwargs)
+            else:
+                iterable = self._func(*func_args, **kwargs)
+        else:
+            iterable = self._func
+
+        if hasattr(iterable, "__aiter__"):
+            async for item in iterable:
+                yield item
+        else:
+            for item in iterable:
+                yield item
 
     async def stream(self, skip_existing: bool = False, *args, **kwargs):
         """
@@ -88,14 +100,14 @@ class Streamable:
         seen_attributes = list()
 
         if skip_existing:
-            items = [i async for i in self.func(self.instance, 1, *args, **kwargs)]
+            items = [i async for i in self(self.instance, 1, *args, **kwargs)]
             for item in reversed(items):
                 seen_attributes.append(getattr(item, self.attribute_name))
                 break
 
         while True:
             found = False
-            items = [i async for i in self.func(self.instance, 100, *args, **kwargs)]
+            items = [i async for i in self(self.instance, 100, *args, **kwargs)]
             for item in reversed(items):
                 attribute = getattr(item, self.attribute_name)
 
