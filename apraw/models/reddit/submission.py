@@ -261,17 +261,11 @@ class Submission(aPRAWBase, DeletableMixin, HideableMixin,
             cs = children[:100]
             children = children[100:]
 
-            def get_comments(comment_list, comments):  # TODO: Fix shadowing
-                for i in comment_list:
-                    if isinstance(i, list):
-                        comments = get_comments(i, comments)
-                    elif isinstance(i, dict) and "kind" in i and i["kind"] == self.reddit.comment_kind:
-                        comments.append(
-                            Comment(self.reddit, i["data"], submission=self))
-                return comments
-
             data = await self.reddit.get_request(API_PATH["morechildren"], children=",".join(cs), link_id=self.name)
-            comments = get_comments(data["jquery"], comments)
+
+            for i in data["json"]["data"]["things"]:
+                if isinstance(i, dict) and "kind" in i and i["kind"] == self.reddit.comment_kind:
+                    comments.append(Comment(self.reddit, i["data"], submission=self))
 
         return comments
 
