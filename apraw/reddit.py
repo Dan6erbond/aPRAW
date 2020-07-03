@@ -369,7 +369,7 @@ class RequestHandler:
 
     @Decorators.check_ratelimit
     async def get_request(self, endpoint: str = "", **kwargs) -> Dict:
-        kwargs["raw_json"] = 1
+        kwargs = {"raw_json": 1, "api_type": "json", **kwargs}
         params = ["{}={}".format(k, kwargs[k]) for k in kwargs]
 
         url = BASE_URL.format(endpoint, "&".join(params))
@@ -384,7 +384,7 @@ class RequestHandler:
 
     @Decorators.check_ratelimit
     async def post_request(self, endpoint: str = "", url: str = "", data: Dict = {}, **kwargs) -> Dict:
-        kwargs["raw_json"] = 1
+        kwargs = {"raw_json": 1, "api_type": "json", **kwargs}
         params = ["{}={}".format(k, kwargs[k]) for k in kwargs]
 
         if endpoint != "":
