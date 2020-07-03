@@ -1,3 +1,4 @@
+import os
 import asyncio
 import configparser
 import logging
@@ -10,6 +11,14 @@ from .models import (Comment, Listing, Redditor, Submission,
                      Subreddit, User, ListingGenerator, streamable)
 from .utils import prepend_kind
 
+if os.path.exists('praw.ini'):
+    _prawfile = os.path.abspath('praw.ini')
+elif 'APPDATA' in os.environ:  # Windows
+    _prawfile = os.path.join(os.environ['APPDATA'], 'praw.ini')
+elif 'XDG_CONFIG_HOME' in os.environ:  # Modern Linux
+    _prawfile = os.path.join(os.environ['XDG_CONFIG_HOME'], 'praw.ini')
+elif 'HOME' in os.environ:  # Legacy Linux
+    _prawfile = os.path.join(os.environ['HOME'], '.config', 'praw.ini')
 
 class Reddit:
     """
@@ -44,7 +53,7 @@ class Reddit:
         """
         if praw_key != "":
             config = configparser.ConfigParser()
-            config.read("praw.ini")
+            config.read(_prawfile)
 
             self.user = User(self, config[praw_key]["username"], config[praw_key]["password"],
                              config[praw_key]["client_id"], config[praw_key]["client_secret"],
