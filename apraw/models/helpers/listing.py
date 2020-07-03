@@ -2,9 +2,10 @@ from typing import TYPE_CHECKING, Dict, Iterator, List
 
 from .apraw_base import aPRAWBase
 from ..reddit.comment import Comment
+from ..reddit.message import Message
 from ..reddit.submission import Submission
-from ..subreddit.subreddit import Subreddit
 from ..subreddit.moderation import ModAction
+from ..subreddit.subreddit import Subreddit
 from ..subreddit.wiki import WikipageRevision
 
 if TYPE_CHECKING:
@@ -109,22 +110,17 @@ class Listing(aPRAWBase, Iterator):
         if "page" in data:
             item = WikipageRevision(self.reddit, data)
         elif data["kind"] == self.reddit.link_kind:
-            item = Submission(
-                self.reddit,
-                data["data"],
-                subreddit=self._subreddit)
+            item = Submission(self.reddit, data["data"], subreddit=self._subreddit)
         elif data["kind"] == self.reddit.subreddit_kind:
             item = Subreddit(self.reddit, data["data"])
         elif data["kind"] == self.reddit.comment_kind:
-            item = Comment(
-                self.reddit,
-                data["data"],
-                subreddit=self._subreddit)
+            item = Comment(self.reddit, data["data"], subreddit=self._subreddit)
         elif data["kind"] == self.reddit.modaction_kind:
             item = ModAction(self.reddit, data["data"], self._subreddit)
+        elif data["kind"] == self.reddit.message_kind:
+            item = Message(self.reddit, data["data"])
         else:
-            item = aPRAWBase(self.reddit,
-                             data["data"] if "data" in data else data)
+            item = aPRAWBase(self.reddit, data["data"] if "data" in data else data)
 
         return item
 
