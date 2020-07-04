@@ -44,3 +44,9 @@ class TestSubreddit:
             break
 
         assert isinstance(log, apraw.models.ModAction)
+
+    @pytest.mark.asyncio
+    async def test_subreddit_random(self, reddit):
+        subreddit = await reddit.subreddit("aprawtest")
+        submission = await subreddit.random()
+        assert isinstance(submission, apraw.models.Submission)
