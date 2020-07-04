@@ -152,7 +152,7 @@ class Comment(aPRAWBase, DeletableMixin, HideableMixin,
         self._full_data = None
         self._replies = replies
 
-        self.url = "https://www.reddit.com" + data["permalink"]
+        self.url = "https://www.reddit.com" + data["permalink"] if "permalink" in data else ""
 
     async def submission(self) -> 'Submission':
         """
