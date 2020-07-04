@@ -123,7 +123,8 @@ class Reddit:
         """
         return await self.request_handler.post_request(*args, **kwargs)
 
-    async def get_listing(self, endpoint: str, subreddit: Subreddit = None, kind_filter: List[str] = None, **kwargs) -> Listing:
+    async def get_listing(self, endpoint: str, subreddit: Subreddit = None, kind_filter: List[str] = None,
+                          **kwargs) -> Listing:
         r"""
         Retrieve a listing from an endpoint.
 
@@ -336,12 +337,12 @@ class RequestHandler:
         }
 
     def update(self, data: Dict):
-        self.user.ratelimit_remaining = int(
-            float(data["x-ratelimit-remaining"]))
-        self.user.ratelimit_used = int(data["x-ratelimit-used"])
-
-        self.user.ratelimit_reset = datetime.now(
-        ) + timedelta(seconds=int(data["x-ratelimit-reset"]))
+        if "x-ratelimit-remaining" in data:
+            self.user.ratelimit_remaining = int(float(data["x-ratelimit-remaining"]))
+        if "x-ratelimit-used" in data:
+            self.user.ratelimit_used = int(data["x-ratelimit-used"])
+        if "x-ratelimit-reset" in data:
+            self.user.ratelimit_reset = datetime.now() + timedelta(seconds=int(data["x-ratelimit-reset"]))
 
     class Decorators:
 
