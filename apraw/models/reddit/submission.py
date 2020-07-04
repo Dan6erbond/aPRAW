@@ -201,7 +201,7 @@ class Submission(aPRAWBase, DeletableMixin, HideableMixin, ReplyableMixin, NSFWa
         return self._full_data
 
     async def comments(self, reload=False, **kwargs) -> AsyncIterator[Comment]:
-        """
+        r"""
         Iterate through all the comments made in the submission.
 
         This endpoint retrieves all comments found in the full data retrieved from the /r/{sub}/comments/{id} endpoint,

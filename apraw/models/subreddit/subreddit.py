@@ -161,7 +161,7 @@ class Subreddit(aPRAWBase):
 
     @Streamable.streamable
     def comments(self, *args, **kwargs):
-        """
+        r"""
         Returns an instance of :class:`~apraw.models.ListingGenerator` mapped to the comments endpoint.
 
         .. note::
@@ -188,7 +188,7 @@ class Subreddit(aPRAWBase):
 
     @Streamable.streamable
     def new(self, *args, **kwargs):
-        """
+        r"""
         Returns an instance of :class:`~apraw.models.ListingGenerator` mapped to the new submissions endpoint.
 
         .. note::
@@ -214,7 +214,7 @@ class Subreddit(aPRAWBase):
                                 *args, **kwargs)
 
     def hot(self, *args, **kwargs):
-        """
+        r"""
         Returns an instance of :class:`~apraw.models.ListingGenerator` mapped to the hot submissions endpoint.
 
         Parameters
@@ -232,7 +232,7 @@ class Subreddit(aPRAWBase):
                                 *args, **kwargs)
 
     def rising(self, *args, **kwargs):
-        """
+        r"""
         Returns an instance of :class:`~apraw.models.ListingGenerator` mapped to the rising submissions endpoint.
 
         Parameters
@@ -250,7 +250,7 @@ class Subreddit(aPRAWBase):
                                 **kwargs)
 
     def top(self, *args, **kwargs):
-        """
+        r"""
         Returns an instance of :class:`~apraw.models.ListingGenerator` mapped to the top submissions endpoint.
 
         Parameters
@@ -279,7 +279,7 @@ class Subreddit(aPRAWBase):
         return self.display_name
 
     async def moderators(self, **kwargs) -> AsyncIterator['SubredditModerator']:
-        """
+        r"""
         Yields all the subreddit's moderators.
 
         Parameters
