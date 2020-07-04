@@ -85,7 +85,7 @@ class Redditor(aPRAWBase):
 
     @Streamable.streamable
     def comments(self, *args, **kwargs):
-        """
+        r"""
         Returns an instance of :class:`~apraw.models.ListingGenerator` mapped to fetch the Redditor's comments.
 
         .. note::
@@ -111,7 +111,7 @@ class Redditor(aPRAWBase):
 
     @Streamable.streamable
     def submissions(self, *args, **kwargs):
-        """
+        r"""
         Returns an instance of :class:`~apraw.models.ListingGenerator` mapped to fetch the Redditor's submissions.
 
         .. note::
@@ -147,7 +147,7 @@ class Redditor(aPRAWBase):
         return self.name
 
     async def moderated_subreddits(self, **kwargs) -> 'Subreddit':
-        """
+        r"""
         Yields the subreddits the Redditor moderates.
 
         Parameters

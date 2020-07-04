@@ -94,7 +94,7 @@ class SubredditModeration:
 
     @Streamable.streamable
     def reports(self, *args, **kwargs):
-        """
+        r"""
         Returns an instance of :class:`~apraw.models.ListingGenerator` mapped to grab reported items.
 
         .. note::
@@ -122,7 +122,7 @@ class SubredditModeration:
 
     @Streamable.streamable
     def spam(self, *args, **kwargs):
-        """
+        r"""
         Returns an instance of :class:`~apraw.models.ListingGenerator` mapped to grab items marked as spam.
 
         .. note::
@@ -150,7 +150,7 @@ class SubredditModeration:
 
     @Streamable.streamable
     def modqueue(self, *args, **kwargs):
-        """
+        r"""
         Returns an instance of :class:`~apraw.models.ListingGenerator` mapped to grab items in the modqueue.
 
         .. note::
@@ -178,7 +178,7 @@ class SubredditModeration:
 
     @Streamable.streamable
     def unmoderated(self, *args, **kwargs):
-        """
+        r"""
         Returns an instance of :class:`~apraw.models.ListingGenerator` mapped to grab unmoderated items.
 
         .. note::
@@ -206,7 +206,7 @@ class SubredditModeration:
 
     @Streamable.streamable
     def edited(self, *args, **kwargs):
-        """
+        r"""
         Returns an instance of :class:`~apraw.models.ListingGenerator` mapped to grab edited items.
 
         .. note::
@@ -234,7 +234,7 @@ class SubredditModeration:
 
     @Streamable.streamable
     def log(self, *args, **kwargs):
-        """
+        r"""
         Returns an instance of :class:`~apraw.models.ListingGenerator` mapped to grab mod actions in the subreddit log.
 
         .. note::

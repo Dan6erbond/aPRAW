@@ -160,9 +160,23 @@ class Subreddit(aPRAWBase):
         self.modmail = SubredditModmail(self)
         self.wiki = SubredditWiki(self)
 
+    async def random(self):
+        """
+        Retrieve a random submission from the subreddit.
+
+        Returns
+        -------
+        submission: Submission
+            A random submission from the subreddit.
+        """
+        resp = await self.reddit.get_request(API_PATH["subreddit_random"].format(sub=self))
+        from ..helpers.listing import Listing
+        listing = Listing(self.reddit, data=resp[0]["data"], subreddit=self)
+        return next(listing)
+
     @Streamable.streamable
     def comments(self, *args, **kwargs):
-        """
+        r"""
         Returns an instance of :class:`~apraw.models.ListingGenerator` mapped to the comments endpoint.
 
         .. note::
@@ -189,7 +203,7 @@ class Subreddit(aPRAWBase):
 
     @Streamable.streamable
     def new(self, *args, **kwargs):
-        """
+        r"""
         Returns an instance of :class:`~apraw.models.ListingGenerator` mapped to the new submissions endpoint.
 
         .. note::
@@ -215,7 +229,7 @@ class Subreddit(aPRAWBase):
                                 *args, **kwargs)
 
     def hot(self, *args, **kwargs):
-        """
+        r"""
         Returns an instance of :class:`~apraw.models.ListingGenerator` mapped to the hot submissions endpoint.
 
         Parameters
@@ -233,7 +247,7 @@ class Subreddit(aPRAWBase):
                                 *args, **kwargs)
 
     def rising(self, *args, **kwargs):
-        """
+        r"""
         Returns an instance of :class:`~apraw.models.ListingGenerator` mapped to the rising submissions endpoint.
 
         Parameters
@@ -251,7 +265,7 @@ class Subreddit(aPRAWBase):
                                 **kwargs)
 
     def top(self, *args, **kwargs):
-        """
+        r"""
         Returns an instance of :class:`~apraw.models.ListingGenerator` mapped to the top submissions endpoint.
 
         Parameters
@@ -280,7 +294,7 @@ class Subreddit(aPRAWBase):
         return self.display_name
 
     async def moderators(self, **kwargs) -> AsyncIterator['SubredditModerator']:
-        """
+        r"""
         Yields all the subreddit's moderators.
 
         Parameters

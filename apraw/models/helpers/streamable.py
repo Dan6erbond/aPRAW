@@ -81,7 +81,7 @@ class Streamable:
                 yield item
 
     async def stream(self, skip_existing: bool = False, *args, **kwargs):
-        """
+        r"""
         Call the stream method on the decorated function.
 
         Parameters

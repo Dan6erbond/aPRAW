@@ -6,6 +6,7 @@ from ..helpers.item_moderation import PostModeration
 from ..mixins.author import AuthorMixin
 from ..mixins.deletable import DeletableMixin
 from ..mixins.hideable import HideableMixin
+from ..mixins.replyable import ReplyableMixin
 from ..mixins.savable import SavableMixin
 from ..mixins.subreddit import SubredditMixin
 from ..mixins.votable import VotableMixin
@@ -17,8 +18,7 @@ if TYPE_CHECKING:
     from .submission import Submission
 
 
-class Comment(aPRAWBase, DeletableMixin, HideableMixin,
-              SavableMixin, VotableMixin, AuthorMixin,
+class Comment(aPRAWBase, DeletableMixin, HideableMixin, ReplyableMixin, SavableMixin, VotableMixin, AuthorMixin,
               SubredditMixin):
     """
     The model representing comments.
@@ -152,7 +152,7 @@ class Comment(aPRAWBase, DeletableMixin, HideableMixin,
         self._full_data = None
         self._replies = replies
 
-        self.url = "https://www.reddit.com" + data["permalink"]
+        self.url = "https://www.reddit.com" + data["permalink"] if "permalink" in data else ""
 
     async def submission(self) -> 'Submission':
         """

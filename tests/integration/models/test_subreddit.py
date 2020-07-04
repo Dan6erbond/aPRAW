@@ -55,3 +55,9 @@ class TestSubreddit:
         assert submission.title == "Test submission"
 
         await submission.delete()
+    
+    @pytest.mark.asyncio
+    async def test_subreddit_random(self, reddit):
+        subreddit = await reddit.subreddit("aprawtest")
+        submission = await subreddit.random()
+        assert isinstance(submission, apraw.models.Submission)

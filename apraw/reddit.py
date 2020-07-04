@@ -1,3 +1,4 @@
+import os
 import asyncio
 import configparser
 import logging
@@ -10,6 +11,14 @@ from .models import (Comment, Listing, Redditor, Submission,
                      Subreddit, User, ListingGenerator, Streamable)
 from .utils import prepend_kind
 
+if os.path.exists('praw.ini'):
+    _prawfile = os.path.abspath('praw.ini')
+elif 'APPDATA' in os.environ:  # Windows
+    _prawfile = os.path.join(os.environ['APPDATA'], 'praw.ini')
+elif 'XDG_CONFIG_HOME' in os.environ:  # Modern Linux
+    _prawfile = os.path.join(os.environ['XDG_CONFIG_HOME'], 'praw.ini')
+elif 'HOME' in os.environ:  # Legacy Linux
+    _prawfile = os.path.join(os.environ['HOME'], '.config', 'praw.ini')
 
 class Reddit:
     """
@@ -44,7 +53,7 @@ class Reddit:
         """
         if praw_key != "":
             config = configparser.ConfigParser()
-            config.read("praw.ini")
+            config.read(_prawfile)
 
             self.user = User(self, config[praw_key]["username"], config[praw_key]["password"],
                              config[praw_key]["client_id"], config[praw_key]["client_secret"],
@@ -68,7 +77,7 @@ class Reddit:
 
     @Streamable.streamable
     def subreddits(self, *args, **kwargs):
-        """
+        r"""
         A :class:`~apraw.models.ListingGenerator` that returns newly created subreddits, which can be streamed using :code:`reddit.subreddits.stream()`.
 
         Parameters
@@ -123,7 +132,8 @@ class Reddit:
         """
         return await self.request_handler.post_request(*args, **kwargs)
 
-    async def get_listing(self, endpoint: str, subreddit: Subreddit = None, kind_filter: List[str] = None, **kwargs) -> Listing:
+    async def get_listing(self, endpoint: str, subreddit: Subreddit = None, kind_filter: List[str] = None,
+                          **kwargs) -> Listing:
         r"""
         Retrieve a listing from an endpoint.
 
@@ -336,12 +346,12 @@ class RequestHandler:
         }
 
     def update(self, data: Dict):
-        self.user.ratelimit_remaining = int(
-            float(data["x-ratelimit-remaining"]))
-        self.user.ratelimit_used = int(data["x-ratelimit-used"])
-
-        self.user.ratelimit_reset = datetime.now(
-        ) + timedelta(seconds=int(data["x-ratelimit-reset"]))
+        if "x-ratelimit-remaining" in data:
+            self.user.ratelimit_remaining = int(float(data["x-ratelimit-remaining"]))
+        if "x-ratelimit-used" in data:
+            self.user.ratelimit_used = int(data["x-ratelimit-used"])
+        if "x-ratelimit-reset" in data:
+            self.user.ratelimit_reset = datetime.now() + timedelta(seconds=int(data["x-ratelimit-reset"]))
 
     class Decorators:
 
