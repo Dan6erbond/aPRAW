@@ -48,6 +48,7 @@ API_PATH: Dict[str, str] = {
     "subreddit_moderators" : "/r/{sub}/about/moderators",
     "subreddit_modqueue"   : "/r/{sub}/about/modqueue",
     "subreddit_new"        : "/r/{sub}/new",
+    "subreddit_random"     : "/r/{sub}/random",
     "subreddit_reports"    : "/r/{sub}/about/reports",
     "subreddit_rising"     : "/r/{sub}/rising",
     "subreddit_spam"       : "/r/{sub}/about/spam",
