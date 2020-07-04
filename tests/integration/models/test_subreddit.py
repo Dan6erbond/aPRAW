@@ -47,7 +47,7 @@ class TestSubreddit:
         assert isinstance(log, apraw.models.ModAction)
 
     @pytest.mark.asyncio
-    async def test_submission_submit(self, reddit):
+    async def test_subreddit_submit(self, reddit):
         sub = await reddit.subreddit("aprawtest")
         submission = await sub.submit("Test submission", SubmissionKind.SELF, text="The body")
 
