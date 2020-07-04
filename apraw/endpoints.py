@@ -65,5 +65,6 @@ API_PATH: Dict[str, str] = {
     "wiki_page"            : "/r/{sub}/wiki/{page}",
     "wiki_page_revisions"  : "/r/{sub}/wiki/revisions/{page}",
     "wiki_revert"          : "/r/{sub}/api/wiki/revert",
-    "wiki_revisions"       : "/r/{sub}/wiki/revisions"
+    "wiki_revisions"       : "/r/{sub}/wiki/revisions",
+    "submit"               : "/api/submit",
 }
