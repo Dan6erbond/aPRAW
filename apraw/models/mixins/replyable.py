@@ -1,4 +1,10 @@
+from typing import TYPE_CHECKING, Union
+
 from ...endpoints import API_PATH
+
+if TYPE_CHECKING:
+    from ..reddit.message import Message
+    from ..reddit.comment import Comment
 
 
 class ReplyableMixin:
@@ -6,15 +12,24 @@ class ReplyableMixin:
     Mixin for replyable objects.
     """
 
-    async def reply(self, text: str):
+    async def reply(self, text: str) -> Union['Comment', 'Message']:
         """
         Reply to the item.
 
         Returns
         -------
-        resp: Dict
-            The API response JSON.
+        reply: Comment or Message
+            The newly created reply, either a :class:`~apraw.models.Comment` or :class:`~apraw.models.Message`.
         """
-        return await self.reddit.post_request(API_PATH["reply"], text=text, return_rtjson=True, thing_id=self.fullname)
+        resp = await self.reddit.post_request(API_PATH["reply"], text=text, return_rtjson=True, thing_id=self.fullname)
+
+        if self.kind == self.reddit.message_kind:
+            from ..reddit.message import Message
+            reply = Message(self.reddit, resp)
+        else:
+            from ..reddit.comment import Comment
+            reply = Comment(self.reddit, resp)
+
+        return reply
 
     comment = reply

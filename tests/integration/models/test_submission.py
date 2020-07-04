@@ -1,4 +1,3 @@
-
 import pytest
 
 import apraw
@@ -34,7 +33,6 @@ class TestSubmission:
         async for comment in submission.morechildren(children):
             assert isinstance(comment, apraw.models.Comment)
 
-
     @pytest.mark.asyncio
     async def test_submission_subreddit(self, reddit):
         submission = await reddit.submission("h7mna9")
@@ -46,3 +44,9 @@ class TestSubmission:
         submission = await reddit.submission("h7mna9")
         author = await submission.author()
         assert author.name.lower() == "dan6erbond"
+
+    @pytest.mark.asyncio
+    async def test_submission_reply(self, reddit):
+        submission = await reddit.submission("h7mna9")
+        reply = await submission.reply("Test response by bot.")
+        assert isinstance(reply, apraw.models.Comment)
