@@ -18,7 +18,7 @@ class SubredditWiki:
 
     @Streamable.streamable
     def revisions(self, *args, **kwargs):
-        """
+        r"""
         Returns an instance of :class:`~apraw.models.ListingGenerator` mapped to recent wikipage revisions.
 
         .. note::
@@ -78,7 +78,7 @@ class SubredditWikipage(aPRAWBase):
 
     @Streamable.streamable
     def revisions(self, *args, **kwargs):
-        """
+        r"""
         Returns an instance of :class:`~apraw.models.ListingGenerator` mapped to fetch specific wikipage revisions.
 
         .. note::

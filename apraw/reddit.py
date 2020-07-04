@@ -68,7 +68,7 @@ class Reddit:
 
     @Streamable.streamable
     def subreddits(self, *args, **kwargs):
-        """
+        r"""
         A :class:`~apraw.models.ListingGenerator` that returns newly created subreddits, which can be streamed using :code:`reddit.subreddits.stream()`.
 
         Parameters
