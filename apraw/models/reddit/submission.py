@@ -1,3 +1,4 @@
+from enum import Enum
 from typing import TYPE_CHECKING, AsyncIterator, Dict, List, AsyncGenerator
 
 from .comment import Comment
@@ -17,6 +18,17 @@ from ...const import API_PATH
 
 if TYPE_CHECKING:
     from ...reddit import Reddit
+
+
+class SubmissionKind(Enum):
+    """
+    An enum representing the valid submission kinds
+    """
+    LINK = "link"
+    SELF = "self"
+    IMAGE = "image"
+    VIDEO = "video"
+    VIDEOGIF = "videogif"
 
 
 class Submission(aPRAWBase, DeletableMixin, HideableMixin,

@@ -8,6 +8,7 @@ from ..helpers.streamable import Streamable
 from ...const import API_PATH
 
 if TYPE_CHECKING:
+    from ..reddit.submission import SubmissionKind, Submission
     from ...reddit import Reddit
 
 
@@ -315,3 +316,50 @@ class Subreddit(aPRAWBase):
         """
         return await self.reddit.message(API_PATH["subreddit"].format(sub=self.display_name), subject, text,
                                          str(from_sr))
+
+    async def submit(self, title: str, kind: 'SubmissionKind', **kwargs) -> 'Submission':
+        """
+        Make a new post to the subreddit.
+        If `kind` is SubmissionKind.LINK then `url` is expected to be a valid url,
+        otherwise `text` is expected (and it can be markdown text)
+
+        Parameters
+        -------
+        title: str
+            The post's title.
+        kind: SubmissionKind
+            The post's kind.
+        url: str
+            Optional, the url if kind is LINK.
+        text: str
+            Optional, the text body of the post.
+        nsfw: bool = False
+            If the post if nsfw or not.
+        resubmit: bool = False
+            If the post is a re-submit or not.
+            Needs to be True if a link with the same URL has already been submitted to the specified subreddi
+        spoiler: bool = False
+            If the post is a spoiler or not.
+        """
+        from ..reddit.submission import Submission, SubmissionKind
+
+        url = kwargs.get("url", None)
+        text = kwargs.get("text", None)
+
+        if kind == SubmissionKind.LINK and not url:
+            raise ValueError("A url was expected")
+        if kind == SubmissionKind.SELF and not text:
+            raise ValueError("A text body was expected")
+
+        resp = await self.reddit.post_request(API_PATH["submit"], **{
+            "sr": str(self),
+            "title": title,
+            "kind": kind.value,
+            "url": url,
+            "text": text,
+            "nsfw": kwargs.get("nsfw", False),
+            "resubmit": kwargs.get("resubmit", False),
+            "spoiler": kwargs.get("spoiler", False)
+        })
+
+        return await self.reddit.submission(resp["json"]["data"]["id"])

@@ -1,6 +1,7 @@
 import pytest
 
 import apraw
+from apraw.models.reddit.submission import SubmissionKind
 
 
 class TestSubreddit:
@@ -44,3 +45,13 @@ class TestSubreddit:
             break
 
         assert isinstance(log, apraw.models.ModAction)
+
+    @pytest.mark.asyncio
+    async def test_submission_submit(self, reddit):
+        sub = await reddit.subreddit("aprawtest")
+        submission = await sub.submit("Test submission", SubmissionKind.SELF, text="The body")
+
+        assert isinstance(submission, apraw.models.Submission)
+        assert submission.title == "Test submission"
+
+        await submission.delete()
