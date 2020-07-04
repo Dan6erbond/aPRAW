@@ -3,24 +3,22 @@ from typing import TYPE_CHECKING, AsyncIterator, Dict, List, AsyncGenerator
 from .comment import Comment
 from .redditor import Redditor
 from ..helpers.apraw_base import aPRAWBase
-from ..helpers.item_moderation import PostModeration
 from ..mixins.author import AuthorMixin
 from ..mixins.deletable import DeletableMixin
 from ..mixins.hideable import HideableMixin
 from ..mixins.nsfwable import NSFWableMixin
+from ..mixins.replyable import ReplyableMixin
 from ..mixins.savable import SavableMixin
 from ..mixins.spoilerable import SpoilerableMixin
 from ..mixins.subreddit import SubredditMixin
 from ..mixins.votable import VotableMixin
-from ..subreddit.subreddit import Subreddit
 from ...const import API_PATH
 
 if TYPE_CHECKING:
     from ...reddit import Reddit
 
 
-class Submission(aPRAWBase, DeletableMixin, HideableMixin,
-                 NSFWableMixin, SavableMixin, VotableMixin,
+class Submission(aPRAWBase, DeletableMixin, HideableMixin, ReplyableMixin, NSFWableMixin, SavableMixin, VotableMixin,
                  AuthorMixin, SubredditMixin, SpoilerableMixin):
     """
     The model representing submissions.
