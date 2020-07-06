@@ -83,6 +83,19 @@ class Redditor(aPRAWBase):
         else:
             self.subreddit = None
 
+    async def fetch(self):
+        """
+        Fetch this item's information from a suitable API endpoint.
+
+        Returns
+        -------
+        self: Redditor
+            The updated ``Redditor``.
+        """
+        resp = await self._reddit.get_request(API_PATH["user_about"].format(user=self._data["username"]))
+        self._update(resp["data"])
+        return self
+
     @Streamable.streamable
     def comments(self, *args, **kwargs):
         r"""

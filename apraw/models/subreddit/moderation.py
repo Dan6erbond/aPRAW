@@ -68,7 +68,7 @@ class SubredditModerator(aPRAWBase):
         redditor: Redditor
             The Redditor that is represented by this object.
         """
-        return await self.reddit.redditor(self.name)
+        return await self._reddit.redditor(self.name)
 
 
 class SubredditModeration:
@@ -116,7 +116,7 @@ class SubredditModeration:
             A :class:`~apraw.models.ListingGenerator` mapped to grab reported items.
         """
         from ..helpers.generator import ListingGenerator
-        return ListingGenerator(self.subreddit.reddit,
+        return ListingGenerator(self.subreddit._reddit,
                                 API_PATH["subreddit_reports"].format(sub=self.subreddit.display_name),
                                 subreddit=self.subreddit, *args, **kwargs)
 
@@ -144,7 +144,7 @@ class SubredditModeration:
             A :class:`~apraw.models.ListingGenerator` mapped to grab items marked as spam.
         """
         from ..helpers.generator import ListingGenerator
-        return ListingGenerator(self.subreddit.reddit,
+        return ListingGenerator(self.subreddit._reddit,
                                 API_PATH["subreddit_spam"].format(sub=self.subreddit.display_name),
                                 subreddit=self.subreddit, *args, **kwargs)
 
@@ -172,7 +172,7 @@ class SubredditModeration:
             A :class:`~apraw.models.ListingGenerator` mapped to grab items in the modqueue.
         """
         from ..helpers.generator import ListingGenerator
-        return ListingGenerator(self.subreddit.reddit,
+        return ListingGenerator(self.subreddit._reddit,
                                 API_PATH["subreddit_modqueue"].format(sub=self.subreddit.display_name),
                                 subreddit=self.subreddit, *args, **kwargs)
 
@@ -200,7 +200,7 @@ class SubredditModeration:
             A :class:`~apraw.models.ListingGenerator` mapped to grab unmoderated items.
         """
         from ..helpers.generator import ListingGenerator
-        return ListingGenerator(self.subreddit.reddit,
+        return ListingGenerator(self.subreddit._reddit,
                                 API_PATH["subreddit_unmoderated"].format(sub=self.subreddit.display_name),
                                 subreddit=self.subreddit, *args, **kwargs)
 
@@ -228,7 +228,7 @@ class SubredditModeration:
             A :class:`~apraw.models.ListingGenerator` mapped to grab edited items.
         """
         from ..helpers.generator import ListingGenerator
-        return ListingGenerator(self.subreddit.reddit,
+        return ListingGenerator(self.subreddit._reddit,
                                 API_PATH["subreddit_edited"].format(sub=self.subreddit.display_name),
                                 subreddit=self.subreddit, *args, **kwargs)
 
@@ -256,7 +256,7 @@ class SubredditModeration:
             A :class:`~apraw.models.ListingGenerator` mapped to grab mod actions in the subreddit log.
         """
         from ..helpers.generator import ListingGenerator
-        return ListingGenerator(self.subreddit.reddit,
+        return ListingGenerator(self.subreddit._reddit,
                                 API_PATH["subreddit_log"].format(sub=self.subreddit.display_name),
                                 subreddit=self.subreddit, *args, **kwargs)
 
@@ -325,4 +325,4 @@ class ModAction(aPRAWBase):
         redditor: Redditor
             The Redditor who performed this action.
         """
-        return await self.subreddit.reddit.redditor(self.mod)
+        return await self.subreddit._reddit.redditor(self.mod)

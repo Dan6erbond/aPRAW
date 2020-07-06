@@ -172,12 +172,7 @@ class Reddit:
         result: None
             Returns None if subreddit not found.
         """
-        resp = await self.get_request(API_PATH["subreddit_about"].format(sub=display_name))
-        try:
-            return Subreddit(self, resp["data"])
-        except Exception as e:
-            logging.error(e)
-            return None
+        return await Subreddit(self, {"display_name": display_name}).fetch()
 
     async def info(self, id: str = "", ids: List[str] = [], url: str = ""):
         """
@@ -254,12 +249,9 @@ class Reddit:
             The requested comment.
         """
         if id != "":
-            async for comment in self.info(prepend_kind(id, self.comment_kind)):
-                return comment
-        elif url != "":
-            async for comment in self.info(url=url):
-                return comment
-        return None
+            return await Comment(self, {"id": id}).fetch()
+        else:
+            return await Comment(self, {"url": url}).fetch()
 
     async def redditor(self, username: str) -> Redditor:
         """
@@ -275,12 +267,7 @@ class Reddit:
         redditor: Redditor or None
             The requested Redditor, returns None if not found.
         """
-        resp = await self.get_request(API_PATH["user_about"].format(user=username))
-        try:
-            return Redditor(self, resp["data"])
-        except Exception as e:
-            # print("No Redditor data loaded for {}.".format(username))
-            return None
+        return await Redditor(self, {"username": username}).fetch()
 
     async def message(self, to: Union[str, Redditor], subject: str, text: str,
                       from_sr: Union[str, Subreddit] = "") -> Dict:

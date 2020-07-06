@@ -15,4 +15,4 @@ class DeletableMixin:
         resp: Dict
             The API response JSON.
         """
-        return await self.reddit.post_request(API_PATH["post_delete"], id=self.fullname)
+        return await self._reddit.post_request(API_PATH["post_delete"], id=self.fullname)

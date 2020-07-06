@@ -55,9 +55,9 @@ class TestSubmissionModeration:
         await submission.mod.spoiler()
         submission = await reddit.submission("h7mna9")
 
-        assert submission.data["spoiler"]
+        assert submission._data["spoiler"]
 
         await submission.mod.unspoiler()
         submission = await reddit.submission("h7mna9")
 
-        assert not submission.data["spoiler"]
+        assert not submission._data["spoiler"]

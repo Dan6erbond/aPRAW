@@ -1,7 +1,6 @@
 from enum import Enum
-from typing import TYPE_CHECKING, AsyncIterator, Dict, List, AsyncGenerator
+from typing import TYPE_CHECKING, Dict, List, Any, Union
 
-from .comment import Comment
 from .redditor import Redditor
 from ..helpers.apraw_base import aPRAWBase
 from ..helpers.item_moderation import PostModeration
@@ -16,6 +15,7 @@ from ..mixins.subreddit import SubredditMixin
 from ..mixins.votable import VotableMixin
 from ..subreddit.subreddit import Subreddit
 from ...const import API_PATH
+from ...utils import prepend_kind
 
 if TYPE_CHECKING:
     from ...reddit import Reddit
@@ -31,7 +31,7 @@ class SubmissionKind(Enum):
     VIDEO = "video"
     VIDEOGIF = "videogif"
 
-    
+
 class Submission(aPRAWBase, DeletableMixin, HideableMixin, ReplyableMixin, NSFWableMixin, SavableMixin, VotableMixin,
                  AuthorMixin, SubredditMixin, SpoilerableMixin):
     """
@@ -197,86 +197,43 @@ class Submission(aPRAWBase, DeletableMixin, HideableMixin, ReplyableMixin, NSFWa
 
         self.original_content = data["is_original_content"]
 
-    async def full_data(self) -> Dict:
+    async def fetch(self):
         """
-        Retrieve the submission's full data from the /r/{sub}/comments/{id} endpoint.
+        Fetch this item's information from a suitable API endpoint.
 
         Returns
         -------
-        full_data: Dict
-            The full data retrieved from the /r/{sub}/comments/{id} endpoint.
+        self: Submission
+            The updated model.
         """
-        if self._full_data is None:
-            sub = await self.subreddit()
-            self._full_data = await self.reddit.get_request(
-                API_PATH["submission"].format(sub=sub.display_name, id=self.id))
-        return self._full_data
+        if "subreddit" in self._data and "id" in self._data:
+            resp = await self._reddit.get_request(
+                API_PATH["submission"].format(sub=self._data["subreddit"], id=self._data["id"]))
+            self._update(resp)
+        elif "id" in self._data:
+            resp = await self._reddit.get_request(API_PATH["info"],
+                                                  id=prepend_kind(self._data["id"], self._reddit.link_kind))
+            self._update(resp["data"]["children"][0]["data"])
+        return self
 
-    async def comments(self, reload=False, **kwargs) -> AsyncIterator[Comment]:
-        r"""
-        Iterate through all the comments made in the submission.
-
-        This endpoint retrieves all comments found in the full data retrieved from the /r/{sub}/comments/{id} endpoint,
-        as well as /api/morechildren. :func:`~apraw.models.Submission.morechildren` usually won't need to be called by
-        end users of aPRAW.
+    def _update(self, _data: Union[List, Dict[str, Any]]):
+        """
+        Update the base with new information.
 
         Parameters
         ----------
-        reload: bool
-            Whether to force reload the data.
-
-            .. warning::
-                ``reload`` and ``refresh`` arguments will be replaced by refreshables in future releases of aPRAW, as
-                they are alpha features.
-
-        kwargs: \*\*Dict
-            Query parameters to append to the request URL.
-
-        Yields
-        ------
-        comment: Comment
-            A comment made in the submission.
+        _data: Dict
+            The data obtained from the API.
         """
-        if len(self._comments) <= 0 or reload:
-            fd = await self.full_data()
-            self._comments = list()
+        if isinstance(_data, dict):
+            super()._update(_data)
+        elif isinstance(_data, list):
+            super()._update(_data[0]["data"]["children"][0])
 
-            for c in fd[1]["data"]["children"]:
-                if c["kind"] == self.reddit.comment_kind:
-                    self._comments.append(
-                        Comment(
-                            self.reddit,
-                            c["data"],
-                            submission=self))
-                if c["kind"] == "more":
-                    mc = [c async for c in self.morechildren(c["data"]["children"])]
-                    self._comments.extend(mc)
-        for c in self._comments:
-            yield c
-
-    async def morechildren(self, children) -> AsyncGenerator[Comment, None]:
-        """
-        Retrieves further comments made in the submission.
-
-        Parameters
-        ----------
-        children: List[str]
-            A list of comment IDs to retrieve.
-
-        Returns
-        -------
-        comments: List[Comment]
-            A list of the comments retrieved from the endpoint using their IDs.
-        """
-        while len(children) > 0:
-            cs = children[:100]
-            children = children[100:]
-
-            data = await self.reddit.get_request(API_PATH["morechildren"], children=",".join(cs), link_id=self.name)
-
-            for i in data["json"]["data"]["things"]:
-                if isinstance(i, dict) and "kind" in i and i["kind"] == self.reddit.comment_kind:
-                    yield Comment(self.reddit, i["data"], submission=self)
+            from .listing import Listing
+            self.comments = [reply for reply in Listing(self._reddit, _data[1]["data"])]
+        else:
+            raise ValueError("data is not of type 'dict' or 'list'.")
 
 
 class SubmissionModeration(PostModeration, NSFWableMixin, SpoilerableMixin):
