@@ -16,15 +16,13 @@ class aPRAWBase:
 
     Members
     -------
-    reddit: Reddit
-        The :class:`~apraw.Reddit` instance with which requests are made.
-    data: Dict
-        The data obtained from the /about endpoint.
     kind: str
         The item's kind / type.
     """
 
-    def __init__(self, reddit: 'Reddit', data: Dict[str, Any], kind: str = ""):
+    ID_ATTRIBUTE = "id"
+
+    def __init__(self, reddit: 'Reddit', data: Dict[str, Any] = None, kind: str = ""):
         """
         Initialize the base information.
 
@@ -35,9 +33,11 @@ class aPRAWBase:
         data: Dict
             The data obtained from the /about endpoint.
         """
-        self.reddit = reddit
+        self._reddit = reddit
         self.kind = kind
-        self._update(data)
+
+        if data:
+            self._update(data)
 
     def _update(self, data: Dict[str, Any]):
         """
@@ -48,7 +48,7 @@ class aPRAWBase:
         data: Dict
             The data obtained from the /about endpoint.
         """
-        self.data = data
+        self._data = data
 
         d = snake_case_keys(data)
         for key in d:
@@ -58,8 +58,17 @@ class aPRAWBase:
         if "created_utc" in data:
             self.created_utc = datetime.utcfromtimestamp(data["created_utc"])
 
+    async def fetch(self):
+        """
+        Fetch this item's information from a suitable API endpoint.
+
+        Returns
+        -------
+        self: aPRAWBase
+            The updated model.
+        """
+        raise NotImplementedError
+
     @property
     def fullname(self):
-        return prepend_kind(self.name if hasattr(
-            self, "name") else self.id, self.kind) if self.kind else self.name if hasattr(
-            self, "name") else self.id
+        return prepend_kind(self._data[self.ID_ATTRIBUTE], self.kind) if self.kind else self._data[self.ID_ATTRIBUTE]

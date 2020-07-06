@@ -113,21 +113,25 @@ class Listing(aPRAWBase, Iterator):
         data = getattr(self, self.CHILD_ATTRIBUTE)[index]
 
         if "page" in data:
-            item = WikipageRevision(self.reddit, data)
-        elif data["kind"] == self.reddit.link_kind:
-            item = Submission(self.reddit, data["data"], subreddit=self._subreddit)
-        elif data["kind"] == self.reddit.subreddit_kind:
-            item = Subreddit(self.reddit, data["data"])
-        elif data["kind"] == self.reddit.comment_kind:
-            item = Comment(self.reddit, data["data"], subreddit=self._subreddit)
-        elif data["kind"] == self.reddit.modaction_kind:
-            item = ModAction(self.reddit, data["data"], self._subreddit)
-        elif data["kind"] == self.reddit.message_kind:
-            item = Message(self.reddit, data["data"])
+            return WikipageRevision(self._reddit, data)
+        elif data["kind"] == self._reddit.link_kind:
+            return Submission(self._reddit, data["data"], subreddit=self._subreddit)
+        elif data["kind"] == self._reddit.subreddit_kind:
+            return Subreddit(self._reddit, data["data"])
+        elif data["kind"] == self._reddit.comment_kind:
+            if data["data"]["replies"] and data["data"]["replies"]["kind"] == self._reddit.listing_kind:
+                replies = [reply for reply in Listing(self._reddit, data["data"]["replies"]["data"])]
+            else:
+                replies = []
+            return Comment(self._reddit, data["data"], subreddit=self._subreddit, replies=replies)
+        elif data["kind"] == self._reddit.modaction_kind:
+            return ModAction(self._reddit, data["data"], self._subreddit)
+        elif data["kind"] == self._reddit.message_kind:
+            return Message(self._reddit, data["data"])
+        elif data["kind"] == self._reddit.listing_kind:
+            return Listing(self._reddit, data["data"])
         else:
-            item = aPRAWBase(self.reddit, data["data"] if "data" in data else data)
-
-        return item
+            return aPRAWBase(self._reddit, data["data"] if "data" in data else data)
 
     @property
     def last(self) -> aPRAWBase:

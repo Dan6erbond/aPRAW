@@ -208,7 +208,7 @@ class Submission(aPRAWBase, DeletableMixin, HideableMixin, ReplyableMixin, NSFWa
         """
         if self._full_data is None:
             sub = await self.subreddit()
-            self._full_data = await self.reddit.get_request(
+            self._full_data = await self._reddit.get_request(
                 API_PATH["submission"].format(sub=sub.display_name, id=self.id))
         return self._full_data
 
@@ -242,10 +242,10 @@ class Submission(aPRAWBase, DeletableMixin, HideableMixin, ReplyableMixin, NSFWa
             self._comments = list()
 
             for c in fd[1]["data"]["children"]:
-                if c["kind"] == self.reddit.comment_kind:
+                if c["kind"] == self._reddit.comment_kind:
                     self._comments.append(
                         Comment(
-                            self.reddit,
+                            self._reddit,
                             c["data"],
                             submission=self))
                 if c["kind"] == "more":
@@ -272,11 +272,11 @@ class Submission(aPRAWBase, DeletableMixin, HideableMixin, ReplyableMixin, NSFWa
             cs = children[:100]
             children = children[100:]
 
-            data = await self.reddit.get_request(API_PATH["morechildren"], children=",".join(cs), link_id=self.name)
+            data = await self._reddit.get_request(API_PATH["morechildren"], children=",".join(cs), link_id=self.name)
 
             for i in data["json"]["data"]["things"]:
-                if isinstance(i, dict) and "kind" in i and i["kind"] == self.reddit.comment_kind:
-                    yield Comment(self.reddit, i["data"], submission=self)
+                if isinstance(i, dict) and "kind" in i and i["kind"] == self._reddit.comment_kind:
+                    yield Comment(self._reddit, i["data"], submission=self)
 
 
 class SubmissionModeration(PostModeration, NSFWableMixin, SpoilerableMixin):

@@ -249,4 +249,4 @@ class Karma(aPRAWBase):
         subreddit: Subreddit
             The subreddit on which the karma was obtained.
         """
-        return await self.reddit.subreddit(self.sr)
+        return await self._reddit.subreddit(self.sr)

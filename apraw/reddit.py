@@ -172,12 +172,7 @@ class Reddit:
         result: None
             Returns None if subreddit not found.
         """
-        resp = await self.get_request(API_PATH["subreddit_about"].format(sub=display_name))
-        try:
-            return Subreddit(self, resp["data"])
-        except Exception as e:
-            logging.error(e)
-            return None
+        return await Subreddit(self, {"display_name": display_name}).fetch()
 
     async def info(self, id: str = "", ids: List[str] = [], url: str = ""):
         """

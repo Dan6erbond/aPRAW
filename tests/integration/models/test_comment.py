@@ -26,9 +26,9 @@ class TestComment:
     async def test_comment_replies(self, reddit):
         comment = await reddit.comment("fulsybg")
 
-        async def scan_comments(c):
-            async for reply in c.replies():
+        def scan_comments(c):
+            for reply in c.replies:
                 assert isinstance(reply, apraw.models.Comment)
-                await scan_comments(reply)
+                scan_comments(reply)
 
-        await scan_comments(comment)
+        scan_comments(comment)
