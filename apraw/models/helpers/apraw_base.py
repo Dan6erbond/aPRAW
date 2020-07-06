@@ -69,6 +69,17 @@ class aPRAWBase:
         """
         raise NotImplementedError
 
+    def __repr__(self):
+        """
+        Get a representational string for this model following the pattern ``<{class} {id_attribute}='{id}'>``.
+
+        Returns
+        -------
+        repr: string
+            A printable representational string for this model.
+        """
+        return f"<{self.__class__.__name__} {self.ID_ATTRIBUTE}='{self._data[self.ID_ATTRIBUTE]}'>"
+
     @property
     def fullname(self):
         return prepend_kind(self._data[self.ID_ATTRIBUTE], self.kind) if self.kind else self._data[self.ID_ATTRIBUTE]
