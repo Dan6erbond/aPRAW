@@ -12,6 +12,7 @@ from ..mixins.subreddit import SubredditMixin
 from ..mixins.votable import VotableMixin
 from ..subreddit.subreddit import Subreddit
 from ...const import API_PATH
+from ...utils import prepend_kind
 
 if TYPE_CHECKING:
     from ...reddit import Reddit
@@ -143,7 +144,6 @@ class Comment(aPRAWBase, DeletableMixin, HideableMixin, ReplyableMixin, SavableM
         SubredditMixin.__init__(self, subreddit)
 
         self.mod = CommentModeration(reddit, self)
-
         self._submission = submission
         self.replies = replies if replies else []
 
@@ -159,8 +159,9 @@ class Comment(aPRAWBase, DeletableMixin, HideableMixin, ReplyableMixin, SavableM
         if hasattr(self, "url"):
             resp = await self._reddit.get_request(self.url)
             self._update(resp)
-        else:
-            resp = await self._reddit.get_request(API_PATH["info"], id=id)
+        elif "id" in self._data:
+            resp = await self._reddit.get_request(API_PATH["info"],
+                                                  id=prepend_kind(self._data["id"], self._reddit.comment_kind))
             self._update(resp["data"]["children"][0]["data"])
         return self
 
@@ -171,7 +172,7 @@ class Comment(aPRAWBase, DeletableMixin, HideableMixin, ReplyableMixin, SavableM
         Parameters
         ----------
         _data: Dict
-            The data obtained from the /about endpoint.
+            The data obtained from the API.
         """
         if isinstance(_data, dict):
             data = _data
