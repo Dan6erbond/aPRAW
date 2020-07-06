@@ -1,7 +1,6 @@
 from enum import Enum
-from typing import TYPE_CHECKING, AsyncIterator, Dict, List, AsyncGenerator, Any, Union
+from typing import TYPE_CHECKING, Dict, List, Any, Union
 
-from .comment import Comment
 from .redditor import Redditor
 from ..helpers.apraw_base import aPRAWBase
 from ..helpers.item_moderation import PostModeration
@@ -231,7 +230,7 @@ class Submission(aPRAWBase, DeletableMixin, HideableMixin, ReplyableMixin, NSFWa
         elif isinstance(_data, list):
             super()._update(_data[0]["data"]["children"][0])
 
-            from ..helpers.listing import Listing
+            from .listing import Listing
             self.comments = [reply for reply in Listing(self._reddit, _data[1]["data"])]
         else:
             raise ValueError("data is not of type 'dict' or 'list'.")

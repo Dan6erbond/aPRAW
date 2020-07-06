@@ -181,7 +181,7 @@ class Comment(aPRAWBase, DeletableMixin, HideableMixin, ReplyableMixin, SavableM
             data = _data[0]["data"]
             super()._update(data)
 
-            from ..helpers.listing import Listing
+            from .listing import Listing
             self.replies = [reply for reply in Listing(self._reddit, _data[1]["data"])]
         else:
             raise ValueError("data is not of type 'dict' or 'list'.")

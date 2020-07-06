@@ -1,9 +1,9 @@
 from typing import TYPE_CHECKING, Dict, Iterator, List
 
-from .apraw_base import aPRAWBase
-from ..reddit.comment import Comment
-from ..reddit.message import Message
-from ..reddit.submission import Submission
+from .comment import Comment
+from .message import Message
+from .submission import Submission
+from ..helpers.apraw_base import aPRAWBase
 from ..subreddit.moderation import ModAction
 from ..subreddit.subreddit import Subreddit
 from ..subreddit.wiki import WikipageRevision

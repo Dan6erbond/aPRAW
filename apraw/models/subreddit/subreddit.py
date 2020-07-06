@@ -189,7 +189,7 @@ class Subreddit(aPRAWBase):
             A random submission from the subreddit.
         """
         resp = await self._reddit.get_request(API_PATH["subreddit_random"].format(sub=self))
-        from ..helpers.listing import Listing
+        from ..reddit.listing import Listing
         listing = Listing(self._reddit, data=resp[0]["data"], subreddit=self)
         return next(listing)
 
