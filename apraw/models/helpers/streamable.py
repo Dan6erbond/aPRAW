@@ -3,6 +3,7 @@ from functools import update_wrapper
 from typing import AsyncIterator, Callable, Any, Union, AsyncGenerator, Generator, Iterator, Awaitable
 
 from .apraw_base import aPRAWBase
+from ...utils import ExponentialCounter
 
 # I know, I know, this code is cursed
 SYNC_OR_ASYNC_ITERABLE = Union[
@@ -96,35 +97,30 @@ class Streamable:
         item: aPRAWBase
             The item retrieved by the function in chronological order.
         """
-        wait = 0
+        counter = ExponentialCounter(self.max_wait)
         seen_attributes = list()
-
-        if skip_existing:
-            items = [i async for i in self(1, *args, **kwargs)]
-            for item in reversed(items):
-                seen_attributes.append(getattr(item, self.attribute_name))
-                break
 
         while True:
             found = False
             items = [i async for i in self(100, *args, **kwargs)]
             for item in reversed(items):
                 attribute = getattr(item, self.attribute_name)
-
                 if attribute in seen_attributes:
-                    break
+                    continue
+
                 if len(seen_attributes) >= 301:
                     seen_attributes = seen_attributes[1:]
 
                 seen_attributes.append(attribute)
                 found = True
-                yield item
+                if not skip_existing:
+                    yield item
+
+            skip_existing = False
 
             if found:
-                wait = 1
+                wait = counter.reset()
             else:
-                wait *= 2
-                if wait > self.max_wait:
-                    wait = 1
+                wait = counter.count()
 
             await asyncio.sleep(wait)

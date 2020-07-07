@@ -20,6 +20,7 @@ elif 'XDG_CONFIG_HOME' in os.environ:  # Modern Linux
 elif 'HOME' in os.environ:  # Legacy Linux
     _prawfile = os.path.join(os.environ['HOME'], '.config', 'praw.ini')
 
+
 class Reddit:
     """
     The Reddit instance with which root requests can be made.
@@ -73,6 +74,7 @@ class Reddit:
         self.wiki_revision_kind = "WikiRevision"
         self.wikipage_kind = "wikipage"
 
+        self.loop = asyncio.get_event_loop()
         self.request_handler = RequestHandler(self.user)
 
     @Streamable.streamable
@@ -249,9 +251,16 @@ class Reddit:
             The requested comment.
         """
         if id != "":
-            return await Comment(self, {"id": id}).fetch()
+            comment = Comment(self, {"id": id})
+            await comment.fetch()
+            return comment
         else:
-            return await Comment(self, {"url": url}).fetch()
+            comment = Comment(self, {"url": url})
+            await comment.fetch()
+            return comment
+
+    async def close(self):
+        await self.request_handler.close()
 
     async def redditor(self, username: str) -> Redditor:
         """
@@ -303,14 +312,14 @@ class Reddit:
 
 class RequestHandler:
 
-    def __init__(self, user):
+    def __init__(self, user: User):
         self.user = user
         self.queue = []
 
     async def get_request_headers(self) -> Dict:
         if self.user.token_expires <= datetime.now():
             url = "https://www.reddit.com/api/v1/access_token"
-            session = self.user.get_auth_session()
+            session = self.user.auth_session
 
             headers = {
                 "Content-Type": "application/x-www-form-urlencoded",
@@ -339,6 +348,9 @@ class RequestHandler:
             self.user.ratelimit_used = int(data["x-ratelimit-used"])
         if "x-ratelimit-reset" in data:
             self.user.ratelimit_reset = datetime.now() + timedelta(seconds=int(data["x-ratelimit-reset"]))
+
+    async def close(self):
+        await self.user.close()
 
     class Decorators:
 
@@ -372,7 +384,7 @@ class RequestHandler:
         url = BASE_URL.format(endpoint, "&".join(params))
 
         headers = await self.get_request_headers()
-        session = self.user.get_client_session()
+        session = self.user.client_session
         resp = await session.get(url, headers=headers)
 
         async with resp:
@@ -390,7 +402,7 @@ class RequestHandler:
             url = "{}?{}".format(url, "&".join(params))
 
         headers = await self.get_request_headers()
-        session = self.user.get_client_session()
+        session = self.user.client_session
         resp = await session.post(url, data=data, headers=headers)
 
         async with resp:
