@@ -100,26 +100,23 @@ class Streamable:
         counter = ExponentialCounter(self.max_wait)
         seen_attributes = list()
 
-        if skip_existing:
-            items = [i async for i in self(1, *args, **kwargs)]
-            for item in reversed(items):
-                seen_attributes.append(getattr(item, self.attribute_name))
-                break
-
         while True:
             found = False
             items = [i async for i in self(100, *args, **kwargs)]
             for item in reversed(items):
                 attribute = getattr(item, self.attribute_name)
-
                 if attribute in seen_attributes:
-                    break
+                    continue
+
                 if len(seen_attributes) >= 301:
                     seen_attributes = seen_attributes[1:]
 
                 seen_attributes.append(attribute)
                 found = True
-                yield item
+                if not skip_existing:
+                    yield item
+
+            skip_existing = False
 
             if found:
                 wait = counter.reset()
