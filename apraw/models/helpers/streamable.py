@@ -3,7 +3,7 @@ from functools import update_wrapper
 from typing import AsyncIterator, Callable, Any, Union, AsyncGenerator, Generator, Iterator, Awaitable
 
 from .apraw_base import aPRAWBase
-from ...utils.counter import ExponentialCounter
+from ...utils import ExponentialCounter
 
 # I know, I know, this code is cursed
 SYNC_OR_ASYNC_ITERABLE = Union[

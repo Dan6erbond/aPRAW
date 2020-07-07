@@ -1,4 +1,4 @@
-from random import random
+import random
 
 
 class ExponentialCounter:
@@ -26,8 +26,8 @@ class ExponentialCounter:
             The current value defined by the counter.
         """
         max_jitter = self._value / 16.0
-        value = self._value + random.random() * max_jitter - max_jitter / 2
         self._value = min(self._value * 2, self._max)
+        value = self._value + random.random() * max_jitter - max_jitter / 2
         if self._value >= self._max:
             self._value = 1
         return value
