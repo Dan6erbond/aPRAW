@@ -34,6 +34,8 @@ class aPRAWBase:
             The data obtained from the /about endpoint.
         """
         self._reddit = reddit
+        self._data = data
+        self._data_attrs = set()
         self.kind = kind
 
         if data:
@@ -53,6 +55,9 @@ class aPRAWBase:
         d = snake_case_keys(data)
         for key in d:
             if not hasattr(self, key):
+                self._data_attrs.add(key)
+                setattr(self, key, d[key])
+            elif key in self._data_attrs:
                 setattr(self, key, d[key])
 
         if "created_utc" in data:
