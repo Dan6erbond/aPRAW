@@ -15,7 +15,8 @@ setuptools.setup(
     url="https://github.com/Dan6erbond/aPRAW",
     packages=setuptools.find_packages(include=['apraw', 'apraw.*']),
     install_requires=[
-        'aiohttp>=3.6.2'
+        'aiohttp>=3.6.2',
+        'reactivepy>=1.9.0.dev0'
     ],
     keywords="reddit api wrapper async",
     classifiers=[
