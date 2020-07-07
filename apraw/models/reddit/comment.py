@@ -1,4 +1,8 @@
+import asyncio
+from datetime import datetime
 from typing import TYPE_CHECKING, Dict, List, Any, Union
+
+from reactive import all_reactive, ReactiveOwner
 
 from .redditor import Redditor
 from ..helpers.apraw_base import aPRAWBase
@@ -12,15 +16,16 @@ from ..mixins.subreddit import SubredditMixin
 from ..mixins.votable import VotableMixin
 from ..subreddit.subreddit import Subreddit
 from ...const import API_PATH
-from ...utils import prepend_kind
+from ...utils import prepend_kind, snake_case_keys, ExponentialCounter
 
 if TYPE_CHECKING:
     from ...reddit import Reddit
     from .submission import Submission
 
 
+@all_reactive(not_type=(aPRAWBase, datetime))
 class Comment(aPRAWBase, DeletableMixin, HideableMixin, ReplyableMixin, SavableMixin, VotableMixin, AuthorMixin,
-              SubredditMixin):
+              SubredditMixin, ReactiveOwner):
     """
     The model representing comments.
 
@@ -139,6 +144,7 @@ class Comment(aPRAWBase, DeletableMixin, HideableMixin, ReplyableMixin, SavableM
         replies: List[Comment]
             A list of replies made to this comment.
         """
+        ReactiveOwner.__init__(self)
         aPRAWBase.__init__(self, reddit, data, reddit.comment_kind)
         AuthorMixin.__init__(self, author)
         SubredditMixin.__init__(self, subreddit)
@@ -156,14 +162,31 @@ class Comment(aPRAWBase, DeletableMixin, HideableMixin, ReplyableMixin, SavableM
         self: Comment
             The ``Comment`` model with updated data.
         """
-        if hasattr(self, "url"):
-            resp = await self._reddit.get_request(self.url)
-            self._update(resp)
+        if "permalink" in self._data:
+            resp = await self._reddit.get_request(self._data["permalink"])
+            return self._update(resp[1]["data"]["children"][0]["data"])
+        elif "link_id" in self._data and "id" in self._data and "subreddit" in self._data:
+            permalink = API_PATH["comment"].format(sub=self._data["subreddit"],
+                                                   submission=self._data["link_id"].replace(
+                                                       self._reddit.link_kind + "_", ""), id=self._data["id"])
+            resp = await self._reddit.get_request(permalink)
+            return self._update(resp[1]["data"]["children"][0]["data"])
         elif "id" in self._data:
             resp = await self._reddit.get_request(API_PATH["info"],
                                                   id=prepend_kind(self._data["id"], self._reddit.comment_kind))
-            self._update(resp["data"]["children"][0]["data"])
-        return self
+            return self._update(resp["data"]["children"][0]["data"])
+        else:
+            raise ValueError(f"No data available to make request URL: {self._data}")
+
+    async def monitor(self, max_wait=16):
+        counter = ExponentialCounter(max_wait)
+        while True:
+            updates = await self.fetch()
+            if updates:
+                wait = counter.reset()
+            else:
+                wait = counter.count()
+            await asyncio.sleep(wait)
 
     def _update(self, _data: Union[List, Dict[str, Any]]):
         """
@@ -174,23 +197,34 @@ class Comment(aPRAWBase, DeletableMixin, HideableMixin, ReplyableMixin, SavableM
         _data: Dict
             The data obtained from the API.
         """
-        if isinstance(_data, dict):
-            data = _data
-            super()._update(data)
-        elif isinstance(_data, list):
-            data = _data[0]["data"]
-            super()._update(data)
 
-            from .listing import Listing
-            self.replies = [reply for reply in Listing(self._reddit, _data[1]["data"])]
+        if isinstance(_data, dict) or isinstance(_data, list):
+            if isinstance(_data, dict):
+                data = _data
+            else:
+                data = _data[0]["data"]
+                from .listing import Listing
+                self.replies = [reply for reply in Listing(self._reddit, _data[1]["data"])]
+
+            self._data = data
+
+            d = snake_case_keys(data)
+            if "created_utc" in d:
+                d["created_utc"] = datetime.utcfromtimestamp(d["created_utc"])
+            self._data_attrs.update([k for k in d if not hasattr(self, k)])
+            updates = [{"name": k, "value": v} for (k, v) in d.items() if not hasattr(self, k) or k in self._data_attrs]
+
+            if "link_id" in d and "id" in d and "subreddit" in d:
+                link_id = d["link_id"].replace(self._reddit.link_kind + "_", "")
+                url = API_PATH["comment"].format(sub=d["subreddit"], submission=link_id, id=d["id"])
+                updates.append({"name": "url", "value": url})
+            elif "permalink" in d:
+                url = "https://www.reddit.com" + d["permalink"]
+                updates.append({"name": "url", "value": url})
+
+            return self._bulk_update(*updates)
         else:
-            raise ValueError("data is not of type 'dict' or 'list'.")
-
-        if "permalink" in data:
-            self.url = "https://www.reddit.com" + data["permalink"]
-        elif "link_id" in data and "id" in data and "subreddit" in data:
-            link_id = data["link_id"].replace(self._reddit.link_kind + "_", "")
-            self.url = API_PATH["comment"].format(sub=data["subreddit"], submission=link_id, id=data["id"])
+            raise TypeError("data is not of type 'dict' or 'list'.")
 
     async def submission(self) -> 'Submission':
         """
