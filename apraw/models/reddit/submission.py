@@ -168,8 +168,7 @@ class Submission(aPRAWBase, DeletableMixin, HideableMixin, ReplyableMixin, NSFWa
 
     """
 
-    def __init__(self, reddit: 'Reddit', data: Dict, full_data: Dict = None,
-                 subreddit: Subreddit = None, author: Redditor = None):
+    def __init__(self, reddit: 'Reddit', data: Dict, subreddit: Subreddit = None, author: Redditor = None):
         """
         Create an instance of a submission object.
 
@@ -186,16 +185,13 @@ class Submission(aPRAWBase, DeletableMixin, HideableMixin, ReplyableMixin, NSFWa
         author: Redditor
             The author of this submission as a :class:`~apraw.models.Redditor`.
         """
+        self.comments = list()
+
         aPRAWBase.__init__(self, reddit, data, reddit.link_kind)
         AuthorMixin.__init__(self, author)
         SubredditMixin.__init__(self, subreddit)
 
         self.mod = SubmissionModeration(reddit, self)
-
-        self._full_data = full_data
-        self._comments = list()
-
-        self.original_content = data["is_original_content"]
 
     async def fetch(self):
         """
@@ -225,13 +221,16 @@ class Submission(aPRAWBase, DeletableMixin, HideableMixin, ReplyableMixin, NSFWa
         _data: Dict
             The data obtained from the API.
         """
-        if isinstance(_data, dict):
-            super()._update(_data)
-        elif isinstance(_data, list):
-            super()._update(_data[0]["data"]["children"][0])
+        if isinstance(_data, dict) or isinstance(_data, list):
+            if isinstance(_data, dict):
+                data = _data
+            else:
+                from ..helpers.comment_forrest import CommentForrest
+                self.comments = CommentForrest(self._reddit, _data[1]["data"], self.fullname)
+                data = _data[0]["data"]["children"][0]
 
-            from .listing import Listing
-            self.comments = [reply for reply in Listing(self._reddit, _data[1]["data"])]
+            data["original_content"] = data.get("is_original_content", False)
+            super()._update(data)
         else:
             raise ValueError("data is not of type 'dict' or 'list'.")
 
