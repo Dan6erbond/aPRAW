@@ -9,7 +9,7 @@ if TYPE_CHECKING:
     from ...reddit import Reddit
 
 
-class CommentForrest(Listing):
+class CommentForest(Listing):
 
     def __init__(self, reddit: 'Reddit', data: Dict, link_id: str, subreddit: Subreddit = None):
         super().__init__(reddit, data, subreddit, link_id=link_id)

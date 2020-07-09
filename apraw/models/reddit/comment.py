@@ -21,7 +21,7 @@ from ...utils import prepend_kind, snake_case_keys, ExponentialCounter
 if TYPE_CHECKING:
     from ...reddit import Reddit
     from .submission import Submission
-    from ..helpers.comment_forrest import CommentForrest
+    from ..helpers.comment_forest import CommentForest
 
 
 @all_reactive(not_type=(aPRAWBase, datetime, PostModeration))
@@ -126,7 +126,7 @@ class Comment(aPRAWBase, DeletableMixin, HideableMixin, ReplyableMixin, SavableM
     """
 
     def __init__(self, reddit: 'Reddit', data: Dict, submission: 'Submission' = None,
-                 author: Redditor = None, subreddit: Subreddit = None, replies: Union['CommentForrest', List] = None):
+                 author: Redditor = None, subreddit: Subreddit = None, replies: Union['CommentForest', List] = None):
         """
         Create an instance of a comment.
 
@@ -202,8 +202,8 @@ class Comment(aPRAWBase, DeletableMixin, HideableMixin, ReplyableMixin, SavableM
         if isinstance(_data, dict) or isinstance(_data, list):
             data = _data if isinstance(_data, dict) else _data[0]["data"]
             if isinstance(_data, list):
-                from ..helpers.comment_forrest import CommentForrest
-                self.replies = CommentForrest(self._reddit, _data[1]["data"], data["link_id"])
+                from ..helpers.comment_forest import CommentForest
+                self.replies = CommentForest(self._reddit, _data[1]["data"], data["link_id"])
 
             self._data = data
 
