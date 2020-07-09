@@ -395,4 +395,7 @@ class Subreddit(aPRAWBase):
             "spoiler": kwargs.get("spoiler", False)
         })
 
-        return Submission(self._reddit, {"id": resp["json"]["data"]["id"]})
+        submission = Submission(self._reddit, {"id": resp["json"]["data"]["id"]})
+        await submission.fetch()
+
+        return submission

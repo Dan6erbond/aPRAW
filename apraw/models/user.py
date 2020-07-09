@@ -98,8 +98,7 @@ class User:
         self.ratelimit_used = 0
         self.ratelimit_reset = datetime.now()
 
-    @property
-    def auth_session(self) -> aiohttp.ClientSession:
+    async def auth_session(self) -> aiohttp.ClientSession:
         """
         Retrieve an ``aiohttp.ClientSesssion`` with which the authentication token can be obtained.
 
@@ -112,11 +111,10 @@ class User:
             auth = aiohttp.BasicAuth(
                 login=self.client_id,
                 password=self.client_secret)
-            self._auth_session = aiohttp.ClientSession(auth=auth, loop=self.reddit.loop)
+            self._auth_session = aiohttp.ClientSession(auth=auth)
         return self._auth_session
 
-    @property
-    def client_session(self) -> aiohttp.ClientSession:
+    async def client_session(self) -> aiohttp.ClientSession:
         """
         Retrieve the ``aiohttp.ClientSesssion`` with which regular requests are made.
 
@@ -126,7 +124,7 @@ class User:
             The session with which requests should be made.
         """
         if self._client_session is None:
-            self._client_session = aiohttp.ClientSession(loop=self.reddit.loop)
+            self._client_session = aiohttp.ClientSession()
         return self._client_session
 
     async def close(self):
