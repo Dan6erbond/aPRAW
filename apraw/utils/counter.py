@@ -28,8 +28,6 @@ class ExponentialCounter:
         max_jitter = self._value / 16.0
         self._value = min(self._value * 2, self._max)
         value = self._value + random.random() * max_jitter - max_jitter / 2
-        if self._value >= self._max:
-            self._value = 1
         return value
 
     def reset(self):
