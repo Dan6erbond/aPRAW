@@ -225,8 +225,8 @@ class Submission(aPRAWBase, DeletableMixin, HideableMixin, ReplyableMixin, NSFWa
             if isinstance(_data, dict):
                 data = _data
             else:
-                from ..helpers.comment_forrest import CommentForrest
-                self.comments = CommentForrest(self._reddit, _data[1]["data"], self.fullname)
+                from ..helpers.comment_forest import CommentForest
+                self.comments = CommentForest(self._reddit, _data[1]["data"], self.fullname)
                 data = _data[0]["data"]["children"][0]
 
             data["original_content"] = data.get("is_original_content", False)

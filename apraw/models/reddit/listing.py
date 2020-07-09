@@ -125,8 +125,8 @@ class Listing(aPRAWBase, Iterator):
             return Subreddit(self._reddit, item["data"])
         elif item["kind"] == self._reddit.comment_kind:
             if item["data"]["replies"] and item["data"]["replies"]["kind"] == self._reddit.listing_kind:
-                from ..helpers.comment_forrest import CommentForrest
-                replies = CommentForrest(self._reddit, item["data"]["replies"]["data"], item["data"]["link_id"])
+                from ..helpers.comment_forest import CommentForest
+                replies = CommentForest(self._reddit, item["data"]["replies"]["data"], item["data"]["link_id"])
             else:
                 replies = []
             return Comment(self._reddit, item["data"], subreddit=self._subreddit, replies=replies)
