@@ -10,7 +10,7 @@ from multidict import CIMultiDictProxy
 
 from .endpoints import API_PATH, BASE_URL
 from .models import (Comment, Listing, Redditor, Submission,
-                     Subreddit, User, ListingGenerator, Streamable)
+                     Subreddit, User, ListingGenerator, streamable)
 from .utils import prepend_kind
 
 if os.path.exists('praw.ini'):
@@ -80,7 +80,7 @@ class Reddit:
         self.loop = asyncio.get_event_loop()
         self.request_handler = RequestHandler(self.user)
 
-    @Streamable.streamable
+    @streamable
     def subreddits(self, *args, **kwargs):
         r"""
         A :class:`~apraw.models.ListingGenerator` that returns newly created subreddits, which can be streamed using :code:`reddit.subreddits.stream()`.

@@ -5,7 +5,7 @@ import aiohttp
 
 from .helpers.apraw_base import aPRAWBase
 from .helpers.generator import ListingGenerator
-from .helpers.streamable import Streamable
+from .helpers.streamable import streamable
 from .reddit.redditor import Redditor
 from ..endpoints import API_PATH
 
@@ -190,15 +190,15 @@ class AuthenticatedUser(Redditor):
             self._karma = [Karma(self.reddit, d) for d in resp["data"]]
         return self._karma
 
-    @Streamable.streamable
+    @streamable
     async def inbox(self, *args, **kwargs) -> ListingGenerator:
         return ListingGenerator(self.reddit, API_PATH["message_inbox"], *args, **kwargs)
 
-    @Streamable.streamable
+    @streamable
     async def sent(self, *args, **kwargs) -> ListingGenerator:
         return ListingGenerator(self.reddit, API_PATH["message_sent"], *args, **kwargs)
 
-    @Streamable.streamable
+    @streamable
     async def unread(self, *args, **kwargs) -> ListingGenerator:
         return ListingGenerator(self.reddit, API_PATH["message_unread"], *args, **kwargs)
 

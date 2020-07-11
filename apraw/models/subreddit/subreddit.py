@@ -1,10 +1,10 @@
 from typing import TYPE_CHECKING, AsyncIterator, Dict, Union, Any
 
-from .modmail import SubredditModmail
 from .moderation import SubredditModerator, SubredditModeration
+from .modmail import SubredditModmail
 from .wiki import SubredditWiki
 from ..helpers.apraw_base import aPRAWBase
-from ..helpers.streamable import Streamable
+from ..helpers.streamable import Streamable, streamable
 from ...const import API_PATH
 
 if TYPE_CHECKING:
@@ -193,7 +193,7 @@ class Subreddit(aPRAWBase):
         listing = Listing(self._reddit, data=resp[0]["data"], subreddit=self)
         return next(listing)
 
-    @Streamable.streamable
+    @streamable
     def comments(self, *args, **kwargs):
         r"""
         Returns an instance of :class:`~apraw.models.ListingGenerator` mapped to the comments endpoint.
@@ -220,7 +220,7 @@ class Subreddit(aPRAWBase):
         return ListingGenerator(self._reddit, API_PATH["subreddit_comments"].format(sub=self.display_name),
                                 subreddit=self, *args, **kwargs)
 
-    @Streamable.streamable
+    @streamable
     def new(self, *args, **kwargs):
         r"""
         Returns an instance of :class:`~apraw.models.ListingGenerator` mapped to the new submissions endpoint.
