@@ -1,3 +1,13 @@
+![PyPI version](https://img.shields.io/pypi/v/aPRAW?style=flat-square)
+![PyPi License](https://img.shields.io/pypi/l/aPRAW?style=flat-square)
+![PyPi License](https://img.shields.io/pypi/pyversions/aPRAW?style=flat-square)
+![aPRAW Discord](https://img.shields.io/discord/721693929195569172?style=flat-square)
+![GitHub Issues](https://img.shields.io/github/issues/Dan6erbond/aPRAW?style=flat-square)
+![GitHub Stars](https://img.shields.io/github/stars/Dan6erbond/aPRAW?style=flat-square)
+![GitHub Stars](https://img.shields.io/github/contributors/Dan6erbond/aPRAW?style=flat-square)
+![GitHub Stars](https://img.shields.io/github/stars/Dan6erbond/aPRAW?style=flat-square)
+![Subreddit Subscribers](https://img.shields.io/reddit/subreddit-subscribers/aPRAW?style=flat-square)
+
 # aPRAW
 
 Asynchronous Python Reddit API Wrapper by [Dan6erbond](https://dan6erbond.github.io)
