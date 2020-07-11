@@ -96,5 +96,10 @@ The full API documentation can be found on [Read The Docs](http://apraw.readthed
 - [ ] Useful helper functions.
 
 ## License
-PRAW's source is provided under GPLv3.
+
+aPRAW's source is provided under GPLv3.
 > Copyright ©, RaviAnand Mohabir
+
+## Note by the Developers
+
+aPRAW's development process and code is in no way affiliated with that of PRAW. The design allows for a simple adoption when moving from PRAW to aPRAW, but the developers have set out to create a wrapper from the ground-up, without the use of a pre-existing codebase.
