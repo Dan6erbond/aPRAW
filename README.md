@@ -3,7 +3,7 @@
 [![PyPI version](https://img.shields.io/pypi/v/aPRAW?style=flat-square)](https://pypi.org/project/apraw)
 ![PyPi License](https://img.shields.io/pypi/l/aPRAW?style=flat-square)
 ![PyPi Python Versions](https://img.shields.io/pypi/pyversions/aPRAW?style=flat-square)
-[![aPRAW Discord](https://img.shields.io/discord/721693929195569172?style=flat-square)](https://discord.gg/66avTS7)
+[![aPRAW Discord](https://img.shields.io/discord/721693929195569172?color=7289da&label=Discord&logo=discord&style=flat-square)](https://discord.gg/66avTS7)
 ![GitHub Issues](https://img.shields.io/github/issues/Dan6erbond/aPRAW?style=flat-square)
 ![GitHub Stars](https://img.shields.io/github/stars/Dan6erbond/aPRAW?style=flat-square)
 ![GitHub Contributors](https://img.shields.io/github/contributors/Dan6erbond/aPRAW?style=flat-square)
