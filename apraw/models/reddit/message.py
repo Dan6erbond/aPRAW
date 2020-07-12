@@ -13,3 +13,5 @@ class Message(aPRAWBase, SubredditMixin, AuthorMixin, ReplyableMixin):
 
     def __init__(self, reddit: 'Reddit', data: Dict[str, Any]):
         super().__init__(reddit, data, reddit.message_kind)
+        AuthorMixin.__init__(self)
+        SubredditMixin.__init__(self)
