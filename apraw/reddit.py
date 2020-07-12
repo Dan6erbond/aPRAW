@@ -282,7 +282,7 @@ class Reddit:
         return await Redditor(self, {"username": username}).fetch()
 
     async def message(self, to: Union[str, Redditor], subject: str, text: str,
-                      from_sr: Union[str, Subreddit] = "") -> Dict:
+                      from_sr: Union[str, Subreddit] = "") -> bool:
         """
         Message a Redditor or Subreddit.
 
@@ -310,7 +310,7 @@ class Reddit:
         if from_sr != "":
             data["from_sr"] = str(from_sr)
         resp = await self.post_request(API_PATH["compose"], data=data)
-        return resp["success"]
+        return not resp["json"]["errors"]
 
 
 class RequestHandler:
