@@ -6,7 +6,7 @@ class SpoilerableMixin:
     Mixin for spoilerable objects.
     """
 
-    async def spoiler(self):
+    async def mark_spoiler(self):
         """
         Mark the item as a spoiler.
 
