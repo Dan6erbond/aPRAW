@@ -5,14 +5,16 @@ class TestRedditor:
     @pytest.mark.asyncio
     async def test_redditor_moderated_subreddits(self, reddit):
         redditor = await reddit.redditor("aprawbot")
-        subreddit_found = False
+        subreddits = [str(sub).lower() async for sub in redditor.moderated_subreddits()]
+        assert "aprawtest" in subreddits
 
-        async for subreddit in redditor.moderated_subreddits():
-            if subreddit.display_name.lower() == "aprawtest":
-                subreddit_found = True
-                break
-
-        assert subreddit_found
+        redditor = await reddit.redditor("noahbm")
+        subreddits = [sub async for sub in redditor.moderated_subreddits()]
+        assert subreddits
+        
+        redditor = await reddit.redditor("dan6erbond")
+        subreddits = [sub async for sub in redditor.moderated_subreddits()]
+        assert subreddits
 
     @pytest.mark.asyncio
     async def test_redditor_comments(self, reddit):
