@@ -17,7 +17,7 @@ class SpoilerableMixin:
         """
         return await self.reddit.post_request(API_PATH["post_spoiler"], id=self.fullname)
 
-    async def unspoiler(self):
+    async def unmark_spoiler(self):
         """
         Unmark the item as a spoiler.
 
