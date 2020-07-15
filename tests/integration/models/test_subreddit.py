@@ -1,6 +1,7 @@
 import pytest
 
 import apraw
+from apraw.models.reddit.submission import SubmissionKind
 
 
 class TestSubreddit:
@@ -31,8 +32,8 @@ class TestSubreddit:
             break
 
         assert isinstance(
-            report, apraw.models.submission.Submission) or isinstance(
-            report, apraw.models.comment.Comment)
+            report, apraw.models.Submission) or isinstance(
+            report, apraw.models.Comment)
 
     @pytest.mark.asyncio
     async def test_subreddit_moderation_log(self, reddit):
@@ -43,4 +44,20 @@ class TestSubreddit:
             log = l
             break
 
-        assert isinstance(log, apraw.models.subreddit.ModAction)
+        assert isinstance(log, apraw.models.ModAction)
+
+    @pytest.mark.asyncio
+    async def test_subreddit_submit(self, reddit):
+        sub = await reddit.subreddit("aprawtest")
+        submission = await sub.submit("Test submission", SubmissionKind.SELF, text="The body")
+
+        assert isinstance(submission, apraw.models.Submission)
+        assert submission.title == "Test submission"
+
+        await submission.delete()
+    
+    @pytest.mark.asyncio
+    async def test_subreddit_random(self, reddit):
+        subreddit = await reddit.subreddit("aprawtest")
+        submission = await subreddit.random()
+        assert isinstance(submission, apraw.models.Submission)

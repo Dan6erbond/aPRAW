@@ -1,34 +1,37 @@
-from typing import TYPE_CHECKING, AsyncIterator, Dict, List
+import asyncio
+from datetime import datetime
+from typing import TYPE_CHECKING, Dict, List, Any, Union
 
-from .helpers.apraw_base import aPRAWBase
-from .helpers.item_moderation import PostModeration
-from .mixins.author import AuthorMixin
-from .mixins.deletable import DeletableMixin
-from .mixins.hideable import HideableMixin
-from .mixins.savable import SavableMixin
-from .mixins.subreddit import SubredditMixin
-from .mixins.votable import VotableMixin
+from reactive import all_reactive, ReactiveOwner
+
 from .redditor import Redditor
-from .subreddit import Subreddit
-from ..endpoints import API_PATH
+from ..helpers.apraw_base import aPRAWBase
+from ..helpers.item_moderation import PostModeration
+from ..mixins.author import AuthorMixin
+from ..mixins.deletable import DeletableMixin
+from ..mixins.hideable import HideableMixin
+from ..mixins.replyable import ReplyableMixin
+from ..mixins.savable import SavableMixin
+from ..mixins.subreddit import SubredditMixin
+from ..mixins.votable import VotableMixin
+from ..subreddit.subreddit import Subreddit
+from ...const import API_PATH
+from ...utils import prepend_kind, snake_case_keys, ExponentialCounter
 
 if TYPE_CHECKING:
-    from ..reddit import Reddit
+    from ...reddit import Reddit
     from .submission import Submission
+    from ..helpers.comment_forest import CommentForest
 
 
-class Comment(aPRAWBase, DeletableMixin, HideableMixin,
-              SavableMixin, VotableMixin, AuthorMixin,
-              SubredditMixin):
+@all_reactive(not_type=(aPRAWBase, datetime, PostModeration))
+class Comment(aPRAWBase, DeletableMixin, HideableMixin, ReplyableMixin, SavableMixin, VotableMixin, AuthorMixin,
+              SubredditMixin, ReactiveOwner):
     """
     The model representing comments.
 
     Members
     -------
-    reddit: Reddit
-        The :class:`~apraw.Reddit` instance with which requests are made.
-    data: Dict
-        The data obtained from the /about endpoint.
     mod: CommentModeration
         The :class:`~apraw.models.CommentModeration` instance to aid in moderating the comment.
     kind: str
@@ -123,7 +126,7 @@ class Comment(aPRAWBase, DeletableMixin, HideableMixin,
     """
 
     def __init__(self, reddit: 'Reddit', data: Dict, submission: 'Submission' = None,
-                 author: Redditor = None, subreddit: Subreddit = None, replies: List['Comment'] = None):
+                 author: Redditor = None, subreddit: Subreddit = None, replies: Union['CommentForest', List] = None):
         """
         Create an instance of a comment.
 
@@ -142,17 +145,85 @@ class Comment(aPRAWBase, DeletableMixin, HideableMixin,
         replies: List[Comment]
             A list of replies made to this comment.
         """
+        self.replies = replies if replies else []
+
+        ReactiveOwner.__init__(self)
         aPRAWBase.__init__(self, reddit, data, reddit.comment_kind)
         AuthorMixin.__init__(self, author)
         SubredditMixin.__init__(self, subreddit)
 
+        self._submission = submission
         self.mod = CommentModeration(reddit, self)
 
-        self._submission = submission
-        self._full_data = None
-        self._replies = replies
+    async def fetch(self):
+        """
+        Fetch this item's information from a suitable API endpoint.
 
-        self.url = "https://www.reddit.com" + data["permalink"]
+        Returns
+        -------
+        self: Comment
+            The ``Comment`` model with updated data.
+        """
+        if ("link_id" in self._data and "id" in self._data and "subreddit" in self._data) or "permalink" in self._data:
+            permalink = self._data["permalink"] if "permalink" in self._data else API_PATH["comment"].format(
+                sub=self._data["subreddit"], submission=self._data["link_id"].replace(self._reddit.link_kind + "_", ""),
+                id=self._data["id"])
+            resp = await self._reddit.get_request(permalink)
+            from .submission import Submission
+            self._submission = Submission(self._reddit, resp[0]["data"]["children"][0]["data"])
+            return self._update(resp[1]["data"]["children"][0]["data"])
+        elif "id" in self._data:
+            resp = await self._reddit.get_request(API_PATH["info"],
+                                                  id=prepend_kind(self._data["id"], self._reddit.comment_kind))
+            return self._update(resp["data"]["children"][0]["data"])
+        else:
+            raise ValueError(f"No data available to make request URL: {self._data}")
+
+    async def monitor(self, max_wait=16):
+        counter = ExponentialCounter(max_wait)
+        while True:
+            updates = await self.fetch()
+            if updates:
+                wait = counter.reset()
+            else:
+                wait = counter.count()
+            await asyncio.sleep(wait)
+
+    def _update(self, _data: Union[List, Dict[str, Any]]):
+        """
+        Update the base with new information.
+
+        Parameters
+        ----------
+        _data: Dict
+            The data obtained from the API.
+        """
+
+        if isinstance(_data, dict) or isinstance(_data, list):
+            data = _data if isinstance(_data, dict) else _data[0]["data"]
+            if isinstance(_data, list):
+                from ..helpers.comment_forest import CommentForest
+                self.replies = CommentForest(self._reddit, _data[1]["data"], data["link_id"])
+
+            self._data = data
+
+            d = snake_case_keys(data)
+            if "created_utc" in d:
+                d["created_utc"] = datetime.utcfromtimestamp(d["created_utc"])
+            self._data_attrs.update([k for k in d if not hasattr(self, k)])
+            updates = [{"name": k, "value": v} for (k, v) in d.items() if not hasattr(self, k) or k in self._data_attrs]
+
+            if "link_id" in d and "id" in d and "subreddit" in d:
+                link_id = d["link_id"].replace(self._reddit.link_kind + "_", "")
+                url = API_PATH["comment"].format(sub=d["subreddit"], submission=link_id, id=d["id"])
+                updates.append({"name": "url", "value": url})
+            elif "permalink" in d:
+                url = "https://www.reddit.com" + d["permalink"]
+                updates.append({"name": "url", "value": url})
+
+            return self._bulk_update(*updates)
+        else:
+            raise TypeError("data is not of type 'dict' or 'list'.")
 
     async def submission(self) -> 'Submission':
         """
@@ -164,90 +235,11 @@ class Comment(aPRAWBase, DeletableMixin, HideableMixin,
             The submission this comment was made in.
         """
         if self._submission is None:
-            link = await self.reddit.get_request(API_PATH["info"], id=self.data["link_id"])
+            link = await self._reddit.get_request(API_PATH["info"], id=self._data["link_id"])
             from .submission import Submission
             self._submission = Submission(
-                self.reddit, link["data"]["children"][0]["data"])
+                self._reddit, link["data"]["children"][0]["data"])
         return self._submission
-
-    async def full_data(self, refresh: bool = False) -> Dict:
-        """
-        Retrieve the submission's full data from the /r/{sub}/comments/{submission}/_/{id} endpoint.
-
-        Returns
-        -------
-        full_data: Dict
-            The full data retrieved from the API.
-        """
-        if self._full_data is None or refresh:
-            self._full_data = await self.reddit.get_request(
-                API_PATH["comment"].format(sub=self.data["subreddit"],
-                                           submission=self.data["link_id"].replace(
-                                               self.reddit.link_kind + "_", ""),
-                                           id=self.data["id"]))
-        return self._full_data
-
-    async def refresh(self):
-        """
-        Reload the comment's data and replies.
-
-        .. warning::
-            Refresh methods will be replaced by refreshables in future releases of aPRAW, and these methods will not be
-            available in post-alpha releases.
-
-        """
-        await self.full_data(True)
-        await self.replies(True)  # TODO: Fix
-
-    async def replies(self, refresh: bool = False) -> AsyncIterator['Comment']:
-        """
-        Retrieve this comment's replies.
-
-        .. note::
-            Replies are returned as :class:`~apraw.models.Comment` and already have their ``_replies`` recursively filled
-            with data retrieved from the request made originally. Fetching replies at a further depth will not result in
-            further calls unless specifically specified with the ``refresh`` argument.
-
-        Parameters
-        ----------
-        refresh: bool
-            Whether to force a refresh of previously fetched comments.
-
-            .. warning::
-                ``reload`` and ``refresh`` arguments will be replaced by refreshables in future releases of aPRAW, as
-                they are alpha features.
-
-        Yields
-        ------
-        reply: Comment
-            A reply to this comment.
-        """
-        if self._replies is None or refresh:
-            fd = await self.full_data()
-
-            def find(listing):
-                data = listing["data"]
-
-                for comment in data["children"]:
-                    if comment["data"]["id"] == self.id:
-                        return comment
-                    else:
-                        return find(comment["replies"])
-
-            comment = find(fd[1])
-
-            def get_replies(comment, replies=[]):
-                if "kind" in comment["replies"] and comment["replies"]["kind"] == self.reddit.listing_kind:
-                    for reply in comment["replies"]["data"]["children"]:
-                        data = reply["data"]
-                        replies.append(
-                            Comment(self.reddit, data, replies=get_replies(data, [])))
-                return replies
-
-            self._replies = get_replies(comment["data"])
-
-        for reply in self._replies:
-            yield reply
 
 
 class CommentModeration(PostModeration):

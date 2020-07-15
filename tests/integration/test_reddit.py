@@ -16,8 +16,8 @@ class TestReddit:
 
     @pytest.mark.asyncio
     async def test_reddit_comment(self, reddit: apraw.Reddit):
-        comment = await reddit.comment("fulsybg")
-        assert comment.body == "This is a test comment."
+        comment = await reddit.comment("fuoew5r")
+        assert comment.body == "Test comment by bot."
 
     @pytest.mark.asyncio
     async def test_reddit_redditor(self, reddit: apraw.Reddit):
@@ -32,7 +32,7 @@ class TestReddit:
             subreddit = sub
             break
 
-        assert isinstance(subreddit, apraw.models.subreddit.Subreddit)
+        assert isinstance(subreddit, apraw.models.Subreddit)
 
     @pytest.mark.asyncio
     async def test_reddit_user_karma(self, reddit: apraw.Reddit):

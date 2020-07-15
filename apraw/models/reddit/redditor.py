@@ -1,12 +1,12 @@
 from typing import TYPE_CHECKING, Dict
 
-from .helpers.apraw_base import aPRAWBase
-from .helpers.streamable import streamable
-from ..endpoints import API_PATH
+from ..helpers.apraw_base import aPRAWBase
+from ..helpers.streamable import streamable
+from ...const import API_PATH
 
 if TYPE_CHECKING:
-    from .subreddit import Subreddit
-    from ..reddit import Reddit
+    from ..subreddit.subreddit import Subreddit
+    from ...reddit import Reddit
 
 
 class Redditor(aPRAWBase):
@@ -78,14 +78,27 @@ class Redditor(aPRAWBase):
             sub["id"] = sub["name"].replace("t5_", "")
             if "created_utc" not in sub:
                 sub["created_utc"] = data["created_utc"]
-            from .subreddit import Subreddit
+            from apraw.models.subreddit.subreddit import Subreddit
             self.subreddit = Subreddit(self.reddit, sub)
         else:
             self.subreddit = None
 
+    async def fetch(self):
+        """
+        Fetch this item's information from a suitable API endpoint.
+
+        Returns
+        -------
+        self: Redditor
+            The updated ``Redditor``.
+        """
+        resp = await self._reddit.get_request(API_PATH["user_about"].format(user=self._data["username"]))
+        self._update(resp["data"])
+        return self
+
     @streamable
     def comments(self, *args, **kwargs):
-        """
+        r"""
         Returns an instance of :class:`~apraw.models.ListingGenerator` mapped to fetch the Redditor's comments.
 
         .. note::
@@ -106,12 +119,12 @@ class Redditor(aPRAWBase):
         generator: ListingGenerator
             A :class:`~apraw.models.ListingGenerator` mapped to fetch the Redditor's comments.
         """
-        from .helpers.generator import ListingGenerator
+        from ..helpers.generator import ListingGenerator
         return ListingGenerator(self.reddit, API_PATH["user_comments"].format(user=self), *args, **kwargs)
 
     @streamable
     def submissions(self, *args, **kwargs):
-        """
+        r"""
         Returns an instance of :class:`~apraw.models.ListingGenerator` mapped to fetch the Redditor's submissions.
 
         .. note::
@@ -132,7 +145,7 @@ class Redditor(aPRAWBase):
         generator: ListingGenerator
             A :class:`~apraw.models.ListingGenerator` mapped to fetch the Redditor's submissions.
         """
-        from .helpers.generator import ListingGenerator
+        from ..helpers.generator import ListingGenerator
         return ListingGenerator(self.reddit, API_PATH["user_submissions"].format(user=self), *args, **kwargs)
 
     def __str__(self):
@@ -147,7 +160,7 @@ class Redditor(aPRAWBase):
         return self.name
 
     async def moderated_subreddits(self, **kwargs) -> 'Subreddit':
-        """
+        r"""
         Yields the subreddits the Redditor moderates.
 
         Parameters

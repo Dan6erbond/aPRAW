@@ -3,9 +3,11 @@ from typing import TYPE_CHECKING, Dict, List
 
 import aiohttp
 
-from ..endpoints import API_PATH
 from .helpers.apraw_base import aPRAWBase
-from .redditor import Redditor
+from .helpers.generator import ListingGenerator
+from .helpers.streamable import streamable
+from .reddit.redditor import Redditor
+from ..endpoints import API_PATH
 
 if TYPE_CHECKING:
     from ..reddit import Reddit
@@ -96,7 +98,7 @@ class User:
         self.ratelimit_used = 0
         self.ratelimit_reset = datetime.now()
 
-    def get_auth_session(self) -> aiohttp.ClientSession:
+    async def auth_session(self) -> aiohttp.ClientSession:
         """
         Retrieve an ``aiohttp.ClientSesssion`` with which the authentication token can be obtained.
 
@@ -112,7 +114,7 @@ class User:
             self._auth_session = aiohttp.ClientSession(auth=auth)
         return self._auth_session
 
-    def get_client_session(self) -> aiohttp.ClientSession:
+    async def client_session(self) -> aiohttp.ClientSession:
         """
         Retrieve the ``aiohttp.ClientSesssion`` with which regular requests are made.
 
@@ -124,6 +126,10 @@ class User:
         if self._client_session is None:
             self._client_session = aiohttp.ClientSession()
         return self._client_session
+
+    async def close(self):
+        await self.auth_session.close()
+        await self.client_session.close()
 
     async def me(self) -> 'AuthenticatedUser':
         """
@@ -184,6 +190,18 @@ class AuthenticatedUser(Redditor):
             self._karma = [Karma(self.reddit, d) for d in resp["data"]]
         return self._karma
 
+    @streamable
+    async def inbox(self, *args, **kwargs) -> ListingGenerator:
+        return ListingGenerator(self.reddit, API_PATH["message_inbox"], *args, **kwargs)
+
+    @streamable
+    async def sent(self, *args, **kwargs) -> ListingGenerator:
+        return ListingGenerator(self.reddit, API_PATH["message_sent"], *args, **kwargs)
+
+    @streamable
+    async def unread(self, *args, **kwargs) -> ListingGenerator:
+        return ListingGenerator(self.reddit, API_PATH["message_unread"], *args, **kwargs)
+
 
 class Karma(aPRAWBase):
     """
@@ -235,4 +253,4 @@ class Karma(aPRAWBase):
         subreddit: Subreddit
             The subreddit on which the karma was obtained.
         """
-        return await self.reddit.subreddit(self.sr)
+        return await self._reddit.subreddit(self.sr)

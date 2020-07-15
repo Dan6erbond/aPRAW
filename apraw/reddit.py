@@ -1,3 +1,4 @@
+import os
 import asyncio
 import configparser
 import logging
@@ -5,10 +6,21 @@ from datetime import datetime, timedelta
 from functools import wraps
 from typing import Any, Awaitable, Callable, Dict, List, Union
 
+from multidict import CIMultiDictProxy
+
 from .endpoints import API_PATH, BASE_URL
 from .models import (Comment, Listing, Redditor, Submission,
                      Subreddit, User, ListingGenerator, streamable)
 from .utils import prepend_kind
+
+if os.path.exists('praw.ini'):
+    _prawfile = os.path.abspath('praw.ini')
+elif 'APPDATA' in os.environ:  # Windows
+    _prawfile = os.path.join(os.environ['APPDATA'], 'praw.ini')
+elif 'XDG_CONFIG_HOME' in os.environ:  # Modern Linux
+    _prawfile = os.path.join(os.environ['XDG_CONFIG_HOME'], 'praw.ini')
+elif 'HOME' in os.environ:  # Legacy Linux
+    _prawfile = os.path.join(os.environ['HOME'], '.config', 'praw.ini')
 
 
 class Reddit:
@@ -44,7 +56,7 @@ class Reddit:
         """
         if praw_key != "":
             config = configparser.ConfigParser()
-            config.read("praw.ini")
+            config.read(_prawfile)
 
             self.user = User(self, config[praw_key]["username"], config[praw_key]["password"],
                              config[praw_key]["client_id"], config[praw_key]["client_secret"],
@@ -63,12 +75,14 @@ class Reddit:
         self.listing_kind = "Listing"
         self.wiki_revision_kind = "WikiRevision"
         self.wikipage_kind = "wikipage"
+        self.more_kind = "more"
 
+        self.loop = asyncio.get_event_loop()
         self.request_handler = RequestHandler(self.user)
 
     @streamable
     def subreddits(self, *args, **kwargs):
-        """
+        r"""
         A :class:`~apraw.models.ListingGenerator` that returns newly created subreddits, which can be streamed using :code:`reddit.subreddits.stream()`.
 
         Parameters
@@ -123,7 +137,8 @@ class Reddit:
         """
         return await self.request_handler.post_request(*args, **kwargs)
 
-    async def get_listing(self, endpoint: str, subreddit: Subreddit = None, kind_filter: List[str] = None, **kwargs):
+    async def get_listing(self, endpoint: str, subreddit: Subreddit = None, kind_filter: List[str] = None,
+                          **kwargs) -> Listing:
         r"""
         Retrieve a listing from an endpoint.
 
@@ -144,7 +159,7 @@ class Reddit:
             The listing containing all the endpoint's children.
         """
         resp = await self.get_request(endpoint, **kwargs)
-        return Listing(self, resp["data"], subreddit, kind_filter)
+        return Listing(self, resp["data"], kind_filter=kind_filter, subreddit=subreddit)
 
     async def subreddit(self, display_name: str) -> Subreddit:
         """
@@ -162,12 +177,7 @@ class Reddit:
         result: None
             Returns None if subreddit not found.
         """
-        resp = await self.get_request(API_PATH["subreddit_about"].format(sub=display_name))
-        try:
-            return Subreddit(self, resp["data"])
-        except Exception as e:
-            logging.error(e)
-            return None
+        return await Subreddit(self, {"display_name": display_name}).fetch()
 
     async def info(self, id: str = "", ids: List[str] = [], url: str = ""):
         """
@@ -244,12 +254,16 @@ class Reddit:
             The requested comment.
         """
         if id != "":
-            async for comment in self.info(prepend_kind(id, self.comment_kind)):
-                return comment
-        elif url != "":
-            async for comment in self.info(url=url):
-                return comment
-        return None
+            comment = Comment(self, {"id": id})
+            await comment.fetch()
+            return comment
+        else:
+            comment = Comment(self, {"url": url})
+            await comment.fetch()
+            return comment
+
+    async def close(self):
+        await self.request_handler.close()
 
     async def redditor(self, username: str) -> Redditor:
         """
@@ -265,15 +279,10 @@ class Reddit:
         redditor: Redditor or None
             The requested Redditor, returns None if not found.
         """
-        resp = await self.get_request(API_PATH["user_about"].format(user=username))
-        try:
-            return Redditor(self, resp["data"])
-        except Exception as e:
-            # print("No Redditor data loaded for {}.".format(username))
-            return None
+        return await Redditor(self, {"username": username}).fetch()
 
     async def message(self, to: Union[str, Redditor], subject: str, text: str,
-                      from_sr: Union[str, Subreddit] = "") -> Dict:
+                      from_sr: Union[str, Subreddit] = "") -> bool:
         """
         Message a Redditor or Subreddit.
 
@@ -301,19 +310,19 @@ class Reddit:
         if from_sr != "":
             data["from_sr"] = str(from_sr)
         resp = await self.post_request(API_PATH["compose"], data=data)
-        return resp["success"]
+        return not resp["json"]["errors"]
 
 
 class RequestHandler:
 
-    def __init__(self, user):
+    def __init__(self, user: User):
         self.user = user
         self.queue = []
 
     async def get_request_headers(self) -> Dict:
         if self.user.token_expires <= datetime.now():
             url = "https://www.reddit.com/api/v1/access_token"
-            session = self.user.get_auth_session()
+            session = await self.user.auth_session()
 
             headers = {
                 "Content-Type": "application/x-www-form-urlencoded",
@@ -335,13 +344,16 @@ class RequestHandler:
             "User-Agent": self.user.user_agent
         }
 
-    def update(self, data: Dict):
-        self.user.ratelimit_remaining = int(
-            float(data["x-ratelimit-remaining"]))
-        self.user.ratelimit_used = int(data["x-ratelimit-used"])
+    def update(self, data: CIMultiDictProxy[str]):
+        if "x-ratelimit-remaining" in data:
+            self.user.ratelimit_remaining = int(float(data["x-ratelimit-remaining"]))
+        if "x-ratelimit-used" in data:
+            self.user.ratelimit_used = int(data["x-ratelimit-used"])
+        if "x-ratelimit-reset" in data:
+            self.user.ratelimit_reset = datetime.now() + timedelta(seconds=int(data["x-ratelimit-reset"]))
 
-        self.user.ratelimit_reset = datetime.now(
-        ) + timedelta(seconds=int(data["x-ratelimit-reset"]))
+    async def close(self):
+        await self.user.close()
 
     class Decorators:
 
@@ -369,13 +381,13 @@ class RequestHandler:
 
     @Decorators.check_ratelimit
     async def get_request(self, endpoint: str = "", **kwargs) -> Dict:
-        kwargs["raw_json"] = 1
+        kwargs = {"raw_json": 1, "api_type": "json", **kwargs}
         params = ["{}={}".format(k, kwargs[k]) for k in kwargs]
 
         url = BASE_URL.format(endpoint, "&".join(params))
 
         headers = await self.get_request_headers()
-        session = self.user.get_client_session()
+        session = await self.user.client_session()
         resp = await session.get(url, headers=headers)
 
         async with resp:
@@ -384,7 +396,7 @@ class RequestHandler:
 
     @Decorators.check_ratelimit
     async def post_request(self, endpoint: str = "", url: str = "", data: Dict = {}, **kwargs) -> Dict:
-        kwargs["raw_json"] = 1
+        kwargs = {"raw_json": 1, "api_type": "json", **kwargs}
         params = ["{}={}".format(k, kwargs[k]) for k in kwargs]
 
         if endpoint != "":
@@ -393,7 +405,7 @@ class RequestHandler:
             url = "{}?{}".format(url, "&".join(params))
 
         headers = await self.get_request_headers()
-        session = self.user.get_client_session()
+        session = await self.user.client_session()
         resp = await session.post(url, data=data, headers=headers)
 
         async with resp:

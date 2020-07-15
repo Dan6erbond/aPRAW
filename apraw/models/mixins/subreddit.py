@@ -1,5 +1,4 @@
-from ...endpoints import API_PATH
-from ..subreddit import Subreddit
+from ..subreddit.subreddit import Subreddit
 
 
 class SubredditMixin:
@@ -20,5 +19,5 @@ class SubredditMixin:
             The subreddit this item was made in.
         """
         if self._subreddit is None:
-            self._subreddit = await self.reddit.subreddit(self.data["subreddit"])
+            self._subreddit = await self._reddit.subreddit(self._data["subreddit"])
         return self._subreddit

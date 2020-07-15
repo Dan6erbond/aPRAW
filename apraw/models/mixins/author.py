@@ -1,4 +1,4 @@
-from ..redditor import Redditor
+from ..reddit.redditor import Redditor
 
 
 class AuthorMixin:
@@ -19,5 +19,5 @@ class AuthorMixin:
             The item's author.
         """
         if self._author is None:
-            self._author = await self.reddit.redditor(self.data["author"])
+            self._author = await self._reddit.redditor(self._data["author"])
         return self._author

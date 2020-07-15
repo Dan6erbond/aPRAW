@@ -1,6 +1,15 @@
 # aPRAW
 
-Asynchronous Python Reddit API Wrapper by [Dan6erbond](https://dan6erbond.github.io)
+[![PyPI version](https://img.shields.io/pypi/v/aPRAW?style=flat-square)](https://pypi.org/project/apraw)
+![PyPi License](https://img.shields.io/pypi/l/aPRAW?style=flat-square)
+![PyPi Python Versions](https://img.shields.io/pypi/pyversions/aPRAW?style=flat-square)
+[![aPRAW Discord](https://img.shields.io/discord/721693929195569172?style=flat-square)](https://discord.gg/66avTS7)
+![GitHub Issues](https://img.shields.io/github/issues/Dan6erbond/aPRAW?style=flat-square)
+![GitHub Stars](https://img.shields.io/github/stars/Dan6erbond/aPRAW?style=flat-square)
+![GitHub Contributors](https://img.shields.io/github/contributors/Dan6erbond/aPRAW?style=flat-square)
+[![Subreddit Subscribers](https://img.shields.io/reddit/subreddit-subscribers/aPRAW?style=flat-square)](https://reddit.com/r/aPRAW)
+
+Asynchronous Python Reddit API Wrapper by [Dan6erbond](https://dan6erbond.github.io).
 
 **aPRAW** is an asynchronous API wrapper written for the Reddit API that builds on the idea of [PRAW](https://github.com/praw-dev/praw) in many ways. It follows a very similar design, but adds features such as unlimited listings and, most importantly, support for asynchronous requests. This allows the library to be used in scenarios where the requests can take longer (such as with those unlimited listings and streams) and not block other tasks.
 
@@ -87,5 +96,10 @@ The full API documentation can be found on [Read The Docs](http://apraw.readthed
 - [ ] Useful helper functions.
 
 ## License
-PRAW's source is provided under GPLv3.
+
+aPRAW's source is provided under GPLv3.
 > Copyright ©, RaviAnand Mohabir
+
+## Note by the Developers
+
+aPRAW's development process and code is in no way affiliated with that of PRAW. The design allows for a simple adoption when moving from PRAW to aPRAW, but the developers have set out to create a wrapper from the ground-up, without the use of a pre-existing codebase.

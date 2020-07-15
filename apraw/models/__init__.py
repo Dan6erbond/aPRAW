@@ -1,13 +1,15 @@
-from .comment import Comment, CommentModeration
 from .helpers.apraw_base import aPRAWBase
 from .helpers.generator import ListingGenerator
 from .helpers.item_moderation import ItemModeration, PostModeration
-from .helpers.listing import Listing
-from .helpers.streamable import streamable
-from .modmail import ModmailConversation, ModmailMessage, SubredditModmail
-from .redditor import Redditor
-from .submission import Submission, SubmissionModeration
-from .subreddit import (ModAction, Subreddit, SubredditModeration,
-                        SubredditModerator, SubredditModmail)
-from .subreddit_wiki import WikipageRevision, SubredditWiki, SubredditWikipage
+from .helpers.streamable import Streamable, streamable
+from .reddit.comment import Comment
+from .reddit.listing import Listing
+from .reddit.message import Message
+from .reddit.more_comments import MoreComments
+from .reddit.redditor import Redditor
+from .reddit.submission import Submission
+from .subreddit.moderation import ModAction
+from .subreddit.modmail import ModmailConversation, ModmailMessage, SubredditModmail
+from .subreddit.subreddit import Subreddit
+from .subreddit.wiki import WikipageRevision
 from .user import AuthenticatedUser, Karma, User
