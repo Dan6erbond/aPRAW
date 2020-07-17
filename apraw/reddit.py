@@ -165,8 +165,6 @@ class Reddit:
             The endpoint to be appended after the base URL (https://oauth.reddit.com/).
         url: str
             The direct URL to perform the request on.
-        data:
-            The data to add to the POST body.
         kwargs:
             Query parameters to be appended after the URL.
 

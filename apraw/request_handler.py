@@ -104,7 +104,7 @@ class RequestHandler:
             return await resp.json()
 
     @Decorators.check_ratelimit
-    async def put(self, endpoint: str = "", **kwargs) -> Any:
+    async def put(self, endpoint: str = "", data: Dict = None, **kwargs) -> Any:
         kwargs = {"raw_json": 1, "api_type": "json", **kwargs}
         params = ["{}={}".format(k, kwargs[k]) for k in kwargs]
 
@@ -112,7 +112,7 @@ class RequestHandler:
 
         headers = await self.get_request_headers()
         session = await self.user.client_session()
-        resp = await session.delete(url, headers=headers)
+        resp = await session.delete(url, data=data, headers=headers)
 
         async with resp:
             self.update(resp.headers)
@@ -120,8 +120,6 @@ class RequestHandler:
 
     @Decorators.check_ratelimit
     async def post(self, endpoint: str = "", url: str = "", data: Dict = None, **kwargs) -> Any:
-        if not data:
-            data = {}
         kwargs = {"raw_json": 1, "api_type": "json", **kwargs}
         params = ["{}={}".format(k, kwargs[k]) for k in kwargs]
 
