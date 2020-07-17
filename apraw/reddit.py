@@ -1,7 +1,7 @@
 import asyncio
 import configparser
 import os
-from typing import Dict, List, Union
+from typing import Dict, List, Union, Any
 
 from .endpoints import API_PATH
 from .models import (Comment, Listing, Redditor, Submission,
@@ -93,7 +93,7 @@ class Reddit:
         """
         return ListingGenerator(self, API_PATH["subreddits_new"], *args, **kwargs)
 
-    async def get(self, *args, **kwargs):
+    async def get(self, *args, **kwargs) -> Any:
         """
         Perform an HTTP GET request on the Reddit API.
 
@@ -106,12 +106,12 @@ class Reddit:
 
         Returns
         -------
-        resp: Dict or None
+        resp: Any
             The response JSON data.
         """
         return await self.request_handler.get(*args, **kwargs)
 
-    async def post(self, *args, **kwargs):
+    async def post(self, *args, **kwargs) -> Any:
         """
         Perform an HTTP POST request on the Reddit API.
 
@@ -128,7 +128,51 @@ class Reddit:
 
         Returns
         -------
-        resp: Dict or None
+        resp: Any
+            The response JSON data.
+        """
+        return await self.request_handler.post(*args, **kwargs)
+
+    async def put(self, *args, **kwargs) -> Any:
+        """
+        Perform an HTTP PUT request on the Reddit API.
+
+        Parameters
+        ----------
+        endpoint: str
+            The endpoint to be appended after the base URL (https://oauth.reddit.com/).
+        url: str
+            The direct URL to perform the request on.
+        data:
+            The data to add to the POST body.
+        kwargs:
+            Query parameters to be appended after the URL.
+
+        Returns
+        -------
+        resp: Any
+            The response JSON data.
+        """
+        return await self.request_handler.put(*args, **kwargs)
+
+    async def delete(self, *args, **kwargs) -> Any:
+        """
+        Perform an HTTP DELETE request on the Reddit API.
+
+        Parameters
+        ----------
+        endpoint: str
+            The endpoint to be appended after the base URL (https://oauth.reddit.com/).
+        url: str
+            The direct URL to perform the request on.
+        data:
+            The data to add to the POST body.
+        kwargs:
+            Query parameters to be appended after the URL.
+
+        Returns
+        -------
+        resp: Any
             The response JSON data.
         """
         return await self.request_handler.post(*args, **kwargs)
