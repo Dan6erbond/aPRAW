@@ -12,8 +12,8 @@ class SubredditRemovalReason(aPRAWBase):
 
     def __init__(self, reddit: 'Reddit', subreddit: 'Subreddit', data: Dict):
         self._subreddit = subreddit
-        self.url = url = API_PATH["subreddit_removal_reason"].format(sub=self._subreddit.display_name, id=self.id)
         super().__init__(reddit, data)
+        self.url = API_PATH["subreddit_removal_reason"].format(sub=self._subreddit.display_name, id=self.id)
 
     async def fetch(self):
         url = API_PATH["subreddit_removal_reasons"].format(sub=self._subreddit.display_name)
@@ -24,7 +24,7 @@ class SubredditRemovalReason(aPRAWBase):
         res = await self._reddit.delete(self.url)
         return res
 
-    async def update(self, message: Optional[str] = None, title: Optional[str] = None):
+    async def update(self, title: Optional[str] = None, message: Optional[str] = None):
         data = {
             k: v if v else getattr(self, k)
             for k, v in {"message": message, "title": title}.items()
@@ -38,6 +38,7 @@ class SubredditRemovalReasons:
         self._reddit = reddit
         self._subreddit = subreddit
         self._removal_reasons = list()
+        self._index = 0
 
     async def _fetch(self):
         url = API_PATH["subreddit_removal_reasons"].format(sub=self._subreddit.display_name)
@@ -53,18 +54,25 @@ class SubredditRemovalReasons:
 
         next(reason for reason in self._removal_reasons if reason.id == item)
 
-    async def __aiter__(self):
+    def __aiter__(self):
+        return self
+
+    async def __anext__(self):
         if not self._removal_reasons:
             await self._fetch()
 
-        return next(self._removal_reasons)
+        if self._index >= len(self._removal_reasons):
+            raise StopAsyncIteration
 
-    async def add(self, message: str, title: str) -> SubredditRemovalReason:
+        self._index += 1
+        return self._removal_reasons[self._index - 1]
+
+    async def add(self, title: str, message: str) -> SubredditRemovalReason:
         data = {"message": message, "title": title}
-        url = API_PATH["subreddit_removal_reasons"].format(subreddit=self._subreddit.display_name)
+        url = API_PATH["subreddit_removal_reasons"].format(sub=self._subreddit.display_name)
 
-        reason_id = await self._reddit.post(url, data=data)
+        data = await self._reddit.post(url, data=data)
 
-        reason = SubredditRemovalReason(self._reddit, self._subreddit, {"id": reason_id})
+        reason = SubredditRemovalReason(self._reddit, self._subreddit, data)
         await reason.fetch()
         return reason

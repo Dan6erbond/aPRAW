@@ -2,6 +2,7 @@ from typing import TYPE_CHECKING, AsyncIterator, Dict, Union, Any
 
 from .moderation import SubredditModerator, SubredditModeration
 from .modmail import SubredditModmail
+from .removal_reasons import SubredditRemovalReasons
 from .wiki import SubredditWiki
 from ..helpers.apraw_base import aPRAWBase
 from ..helpers.streamable import streamable
@@ -153,6 +154,7 @@ class Subreddit(aPRAWBase):
         self.mod = SubredditModeration(self)
         self.modmail = SubredditModmail(self)
         self.wiki = SubredditWiki(self)
+        self.removal_reasons = SubredditRemovalReasons(self._reddit, self)
 
     async def fetch(self):
         """
