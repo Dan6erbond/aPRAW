@@ -93,7 +93,7 @@ class Reddit:
         """
         return ListingGenerator(self, API_PATH["subreddits_new"], *args, **kwargs)
 
-    async def get_request(self, *args, **kwargs):
+    async def get(self, *args, **kwargs):
         """
         Perform an HTTP GET request on the Reddit API.
 
@@ -111,7 +111,7 @@ class Reddit:
         """
         return await self.request_handler.get(*args, **kwargs)
 
-    async def post_request(self, *args, **kwargs):
+    async def post(self, *args, **kwargs):
         """
         Perform an HTTP POST request on the Reddit API.
 
@@ -154,7 +154,7 @@ class Reddit:
         listing: Listing
             The listing containing all the endpoint's children.
         """
-        resp = await self.get_request(endpoint, **kwargs)
+        resp = await self.get(endpoint, **kwargs)
         return Listing(self, resp["data"], kind_filter=kind_filter, subreddit=subreddit)
 
     async def subreddit(self, display_name: str) -> Subreddit:
@@ -305,5 +305,5 @@ class Reddit:
         }
         if from_sr != "":
             data["from_sr"] = str(from_sr)
-        resp = await self.post_request(API_PATH["compose"], data=data)
+        resp = await self.post(API_PATH["compose"], data=data)
         return not resp["json"]["errors"]

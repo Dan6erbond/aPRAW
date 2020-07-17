@@ -141,7 +141,7 @@ class User:
             The logged-in user.
         """
         if not self._auth_user:
-            data = await self.reddit.get_request(API_PATH["me"])
+            data = await self.reddit.get(API_PATH["me"])
             self._auth_user = AuthenticatedUser(self.reddit, data)
         return self._auth_user
 
@@ -186,7 +186,7 @@ class AuthenticatedUser(Redditor):
             The parsed ``KarmaList`` for the logged-in user.
         """
         if not self._karma:
-            resp = await self.reddit.get_request(API_PATH["me_karma"])
+            resp = await self.reddit.get(API_PATH["me_karma"])
             self._karma = [Karma(self.reddit, d) for d in resp["data"]]
         return self._karma
 

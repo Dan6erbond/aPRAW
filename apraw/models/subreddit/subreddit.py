@@ -163,7 +163,7 @@ class Subreddit(aPRAWBase):
         self: Subreddit
             The ``Subreddit`` model with updated data.
         """
-        resp = await self._reddit.get_request(API_PATH["subreddit_about"].format(sub=self.display_name))
+        resp = await self._reddit.get(API_PATH["subreddit_about"].format(sub=self.display_name))
         self._update(resp["data"])
         return self
 
@@ -188,7 +188,7 @@ class Subreddit(aPRAWBase):
         submission: Submission
             A random submission from the subreddit.
         """
-        resp = await self._reddit.get_request(API_PATH["subreddit_random"].format(sub=self))
+        resp = await self._reddit.get(API_PATH["subreddit_random"].format(sub=self))
         from ..reddit.listing import Listing
         listing = Listing(self._reddit, data=resp[0]["data"], subreddit=self)
         return next(listing)
@@ -326,7 +326,7 @@ class Subreddit(aPRAWBase):
         moderator: SubredditModerator
             An instance of the moderators as :class:`~apraw.models.SubredditModerator`.
         """
-        req = await self._reddit.get_request(API_PATH["subreddit_moderators"].format(sub=self.display_name), **kwargs)
+        req = await self._reddit.get(API_PATH["subreddit_moderators"].format(sub=self.display_name), **kwargs)
         for u in req["data"]["children"]:
             yield SubredditModerator(self._reddit, u)
 
@@ -384,7 +384,7 @@ class Subreddit(aPRAWBase):
         if kind == SubmissionKind.SELF and not text:
             raise ValueError("A text body was expected")
 
-        resp = await self._reddit.post_request(API_PATH["submit"], **{
+        resp = await self._reddit.post(API_PATH["submit"], **{
             "sr": str(self),
             "title": title,
             "kind": kind.value,

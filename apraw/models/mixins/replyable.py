@@ -21,7 +21,7 @@ class ReplyableMixin:
         reply: Comment or Message
             The newly created reply, either a :class:`~apraw.models.Comment` or :class:`~apraw.models.Message`.
         """
-        resp = await self._reddit.post_request(API_PATH["reply"], text=text, return_rtjson=True, thing_id=self.fullname)
+        resp = await self._reddit.post(API_PATH["reply"], text=text, return_rtjson=True, thing_id=self.fullname)
 
         if self.kind == self._reddit.message_kind:
             from ..reddit.message import Message

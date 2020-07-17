@@ -21,7 +21,7 @@ class SubredditRemovalReasons:
         self._removal_reasons = list()
 
     async def _fetch(self):
-        res = await self._subreddit._reddit.get_request(
+        res = await self._subreddit._reddit.get(
             API_PATH["subreddit_removal_reasons"].format(sub=self._subreddit.display_name))
 
         for reason_id in res["order"]:

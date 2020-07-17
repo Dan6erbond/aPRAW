@@ -15,7 +15,7 @@ class SpoilerableMixin:
         resp: Dict
             The API response JSON.
         """
-        return await self.reddit.post_request(API_PATH["post_spoiler"], id=self.fullname)
+        return await self.reddit.post(API_PATH["post_spoiler"], id=self.fullname)
 
     async def unmark_spoiler(self):
         """
@@ -26,4 +26,4 @@ class SpoilerableMixin:
         resp: Dict
             The API response JSON.
         """
-        return await self.reddit.post_request(API_PATH["post_unspoiler"], id=self.fullname)
+        return await self.reddit.post(API_PATH["post_unspoiler"], id=self.fullname)

@@ -25,7 +25,7 @@ class MoreComments(aPRAWBase):
 
         ids = self._ids[:100]
         self._ids = self._ids[100:]
-        resp = await self._reddit.get_request(API_PATH["morechildren"], **{
+        resp = await self._reddit.get(API_PATH["morechildren"], **{
             "children": ",".join(ids),
             "link_id": self.link_id,
             "id": self.id,
