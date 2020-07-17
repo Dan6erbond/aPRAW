@@ -21,9 +21,10 @@ from ...utils import prepend_kind, snake_case_keys, ExponentialCounter
 if TYPE_CHECKING:
     from ...reddit import Reddit
     from .submission import Submission
+    from ..helpers.comment_forest import CommentForest
 
 
-@all_reactive(not_type=(aPRAWBase, datetime))
+@all_reactive(not_type=(aPRAWBase, datetime, PostModeration))
 class Comment(aPRAWBase, DeletableMixin, HideableMixin, ReplyableMixin, SavableMixin, VotableMixin, AuthorMixin,
               SubredditMixin, ReactiveOwner):
     """
@@ -125,7 +126,7 @@ class Comment(aPRAWBase, DeletableMixin, HideableMixin, ReplyableMixin, SavableM
     """
 
     def __init__(self, reddit: 'Reddit', data: Dict, submission: 'Submission' = None,
-                 author: Redditor = None, subreddit: Subreddit = None, replies: List['Comment'] = None):
+                 author: Redditor = None, subreddit: Subreddit = None, replies: Union['CommentForest', List] = None):
         """
         Create an instance of a comment.
 
@@ -144,14 +145,15 @@ class Comment(aPRAWBase, DeletableMixin, HideableMixin, ReplyableMixin, SavableM
         replies: List[Comment]
             A list of replies made to this comment.
         """
+        self.replies = replies if replies else []
+
         ReactiveOwner.__init__(self)
         aPRAWBase.__init__(self, reddit, data, reddit.comment_kind)
         AuthorMixin.__init__(self, author)
         SubredditMixin.__init__(self, subreddit)
 
-        self.mod = CommentModeration(reddit, self)
         self._submission = submission
-        self.replies = replies if replies else []
+        self.mod = CommentModeration(reddit, self)
 
     async def fetch(self):
         """
@@ -162,14 +164,13 @@ class Comment(aPRAWBase, DeletableMixin, HideableMixin, ReplyableMixin, SavableM
         self: Comment
             The ``Comment`` model with updated data.
         """
-        if "permalink" in self._data:
-            resp = await self._reddit.get_request(self._data["permalink"])
-            return self._update(resp[1]["data"]["children"][0]["data"])
-        elif "link_id" in self._data and "id" in self._data and "subreddit" in self._data:
-            permalink = API_PATH["comment"].format(sub=self._data["subreddit"],
-                                                   submission=self._data["link_id"].replace(
-                                                       self._reddit.link_kind + "_", ""), id=self._data["id"])
+        if ("link_id" in self._data and "id" in self._data and "subreddit" in self._data) or "permalink" in self._data:
+            permalink = self._data["permalink"] if "permalink" in self._data else API_PATH["comment"].format(
+                sub=self._data["subreddit"], submission=self._data["link_id"].replace(self._reddit.link_kind + "_", ""),
+                id=self._data["id"])
             resp = await self._reddit.get_request(permalink)
+            from .submission import Submission
+            self._submission = Submission(self._reddit, resp[0]["data"]["children"][0]["data"])
             return self._update(resp[1]["data"]["children"][0]["data"])
         elif "id" in self._data:
             resp = await self._reddit.get_request(API_PATH["info"],
@@ -199,12 +200,10 @@ class Comment(aPRAWBase, DeletableMixin, HideableMixin, ReplyableMixin, SavableM
         """
 
         if isinstance(_data, dict) or isinstance(_data, list):
-            if isinstance(_data, dict):
-                data = _data
-            else:
-                data = _data[0]["data"]
-                from .listing import Listing
-                self.replies = [reply for reply in Listing(self._reddit, _data[1]["data"])]
+            data = _data if isinstance(_data, dict) else _data[0]["data"]
+            if isinstance(_data, list):
+                from ..helpers.comment_forest import CommentForest
+                self.replies = CommentForest(self._reddit, _data[1]["data"], data["link_id"])
 
             self._data = data
 

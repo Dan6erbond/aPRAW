@@ -6,9 +6,11 @@ from datetime import datetime, timedelta
 from functools import wraps
 from typing import Any, Awaitable, Callable, Dict, List, Union
 
+from multidict import CIMultiDictProxy
+
 from .endpoints import API_PATH, BASE_URL
 from .models import (Comment, Listing, Redditor, Submission,
-                     Subreddit, User, ListingGenerator, Streamable)
+                     Subreddit, User, ListingGenerator, streamable)
 from .utils import prepend_kind
 
 if os.path.exists('praw.ini'):
@@ -73,11 +75,12 @@ class Reddit:
         self.listing_kind = "Listing"
         self.wiki_revision_kind = "WikiRevision"
         self.wikipage_kind = "wikipage"
+        self.more_kind = "more"
 
         self.loop = asyncio.get_event_loop()
         self.request_handler = RequestHandler(self.user)
 
-    @Streamable.streamable
+    @streamable
     def subreddits(self, *args, **kwargs):
         r"""
         A :class:`~apraw.models.ListingGenerator` that returns newly created subreddits, which can be streamed using :code:`reddit.subreddits.stream()`.
@@ -279,7 +282,7 @@ class Reddit:
         return await Redditor(self, {"username": username}).fetch()
 
     async def message(self, to: Union[str, Redditor], subject: str, text: str,
-                      from_sr: Union[str, Subreddit] = "") -> Dict:
+                      from_sr: Union[str, Subreddit] = "") -> bool:
         """
         Message a Redditor or Subreddit.
 
@@ -307,7 +310,7 @@ class Reddit:
         if from_sr != "":
             data["from_sr"] = str(from_sr)
         resp = await self.post_request(API_PATH["compose"], data=data)
-        return resp["success"]
+        return not resp["json"]["errors"]
 
 
 class RequestHandler:
@@ -319,7 +322,7 @@ class RequestHandler:
     async def get_request_headers(self) -> Dict:
         if self.user.token_expires <= datetime.now():
             url = "https://www.reddit.com/api/v1/access_token"
-            session = self.user.auth_session
+            session = await self.user.auth_session()
 
             headers = {
                 "Content-Type": "application/x-www-form-urlencoded",
@@ -341,7 +344,7 @@ class RequestHandler:
             "User-Agent": self.user.user_agent
         }
 
-    def update(self, data: Dict):
+    def update(self, data: CIMultiDictProxy[str]):
         if "x-ratelimit-remaining" in data:
             self.user.ratelimit_remaining = int(float(data["x-ratelimit-remaining"]))
         if "x-ratelimit-used" in data:
@@ -384,7 +387,7 @@ class RequestHandler:
         url = BASE_URL.format(endpoint, "&".join(params))
 
         headers = await self.get_request_headers()
-        session = self.user.client_session
+        session = await self.user.client_session()
         resp = await session.get(url, headers=headers)
 
         async with resp:
@@ -402,7 +405,7 @@ class RequestHandler:
             url = "{}?{}".format(url, "&".join(params))
 
         headers = await self.get_request_headers()
-        session = self.user.client_session
+        session = await self.user.client_session()
         resp = await session.post(url, data=data, headers=headers)
 
         async with resp:

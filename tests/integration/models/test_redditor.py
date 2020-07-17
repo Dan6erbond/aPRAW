@@ -37,3 +37,9 @@ class TestRedditor:
                 break
 
         assert submission_found
+
+    @pytest.mark.asyncio
+    async def test_redditor_message(self, reddit):
+        redditor = await reddit.redditor("aprawbot")
+        success = await redditor.message("Subject", "Body.")
+        assert success

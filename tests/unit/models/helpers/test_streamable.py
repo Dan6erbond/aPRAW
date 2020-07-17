@@ -1,6 +1,6 @@
 import pytest
 
-from apraw.models import Streamable
+from apraw.models import Streamable, streamable
 
 
 class TestStreamable:
@@ -8,7 +8,7 @@ class TestStreamable:
     async def test_streamable_parameters(self):
         items = list(range(20))
 
-        @Streamable.streamable(max_wait=12)
+        @streamable(max_wait=12)
         async def async_generator():
             for i in items:
                 yield i

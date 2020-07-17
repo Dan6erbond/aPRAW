@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import Dict, TYPE_CHECKING
 
 from ..helpers.apraw_base import aPRAWBase
-from ..helpers.streamable import Streamable
+from ..helpers.streamable import streamable
 from ..reddit.redditor import Redditor
 from ...const import API_PATH
 
@@ -92,7 +92,7 @@ class SubredditModeration:
         """
         self.subreddit = subreddit
 
-    @Streamable.streamable
+    @streamable
     def reports(self, *args, **kwargs):
         r"""
         Returns an instance of :class:`~apraw.models.ListingGenerator` mapped to grab reported items.
@@ -120,7 +120,7 @@ class SubredditModeration:
                                 API_PATH["subreddit_reports"].format(sub=self.subreddit.display_name),
                                 subreddit=self.subreddit, *args, **kwargs)
 
-    @Streamable.streamable
+    @streamable
     def spam(self, *args, **kwargs):
         r"""
         Returns an instance of :class:`~apraw.models.ListingGenerator` mapped to grab items marked as spam.
@@ -148,7 +148,7 @@ class SubredditModeration:
                                 API_PATH["subreddit_spam"].format(sub=self.subreddit.display_name),
                                 subreddit=self.subreddit, *args, **kwargs)
 
-    @Streamable.streamable
+    @streamable
     def modqueue(self, *args, **kwargs):
         r"""
         Returns an instance of :class:`~apraw.models.ListingGenerator` mapped to grab items in the modqueue.
@@ -176,7 +176,7 @@ class SubredditModeration:
                                 API_PATH["subreddit_modqueue"].format(sub=self.subreddit.display_name),
                                 subreddit=self.subreddit, *args, **kwargs)
 
-    @Streamable.streamable
+    @streamable
     def unmoderated(self, *args, **kwargs):
         r"""
         Returns an instance of :class:`~apraw.models.ListingGenerator` mapped to grab unmoderated items.
@@ -204,7 +204,7 @@ class SubredditModeration:
                                 API_PATH["subreddit_unmoderated"].format(sub=self.subreddit.display_name),
                                 subreddit=self.subreddit, *args, **kwargs)
 
-    @Streamable.streamable
+    @streamable
     def edited(self, *args, **kwargs):
         r"""
         Returns an instance of :class:`~apraw.models.ListingGenerator` mapped to grab edited items.
@@ -232,7 +232,7 @@ class SubredditModeration:
                                 API_PATH["subreddit_edited"].format(sub=self.subreddit.display_name),
                                 subreddit=self.subreddit, *args, **kwargs)
 
-    @Streamable.streamable
+    @streamable
     def log(self, *args, **kwargs):
         r"""
         Returns an instance of :class:`~apraw.models.ListingGenerator` mapped to grab mod actions in the subreddit log.
