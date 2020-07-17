@@ -1,4 +1,4 @@
 aiohttp>=3.6.2
 pytest>=5.4.3
 pytest-asyncio>=0.14.0
-reactivepy>=1.9.0.dev0
+reactivepy>=2.0.0.dev0
