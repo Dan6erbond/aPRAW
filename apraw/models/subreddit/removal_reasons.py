@@ -12,20 +12,24 @@ class SubredditRemovalReason(aPRAWBase):
 
     def __init__(self, reddit: 'Reddit', subreddit: 'Subreddit', data: Dict):
         self._subreddit = subreddit
+        self.url = url = API_PATH["subreddit_removal_reason"].format(sub=self._subreddit.display_name, id=self.id)
         super().__init__(reddit, data)
 
+    async def fetch(self):
+        url = API_PATH["subreddit_removal_reasons"].format(sub=self._subreddit.display_name)
+        res = await self._reddit.get(url)
+        super()._update(res[self.id])
+
     async def delete(self):
-        url = API_PATH["subreddit_removal_reason"].format(sub=self._subreddit.display_name, id=self.id)
-        res = await self._reddit.delete(url)
+        res = await self._reddit.delete(self.url)
         return res
 
     async def update(self, message: Optional[str] = None, title: Optional[str] = None):
-        url = API_PATH["subreddit_removal_reason"].format(sub=self._subreddit.display_name, id=self.id)
         data = {
             k: v if v else getattr(self, k)
             for k, v in {"message": message, "title": title}.items()
         }
-        await self._reddit.put(url, data=data)
+        await self._reddit.put(self.url, data=data)
 
 
 class SubredditRemovalReasons:
