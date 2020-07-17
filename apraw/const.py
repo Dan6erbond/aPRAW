@@ -1,5 +1,5 @@
 """aPRAW constants."""
-from .endpoints import API_PATH  # noqa: F401
+from .endpoints import API_PATH, BASE_URL  # noqa: F401
 
 __version__ = "0.5.3"
 __tag__ = "alpha"
