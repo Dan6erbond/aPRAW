@@ -55,7 +55,7 @@ class TestSubreddit:
         assert submission.title == "Test submission"
 
         await submission.delete()
-    
+
     @pytest.mark.asyncio
     async def test_subreddit_random(self, reddit):
         subreddit = await reddit.subreddit("aprawtest")
@@ -79,3 +79,26 @@ class TestSubreddit:
 
         async for submission in subreddit.new(limit=5):
             assert isinstance(submission, apraw.models.Submission)
+
+    @pytest.mark.asyncio
+    async def test_subreddit_removal_reasons(self, reddit):
+        subreddit = await reddit.subreddit("aprawtest")
+
+        async for removal_reason in subreddit.removal_reasons:
+            assert isinstance(removal_reason, apraw.models.SubredditRemovalReason)
+
+    @pytest.mark.asyncio
+    async def test_subreddit_removal_reasons_delete_add(self, reddit):
+        subreddit = await reddit.subreddit("aprawtest")
+
+        async for removal_reason in subreddit.removal_reasons:
+            title = removal_reason.title
+            message = removal_reason.message
+
+            await removal_reason.delete()
+            reason = await subreddit.removal_reasons.add(title, message)
+
+            assert reason.title == title
+            assert reason.message == message
+
+            break
