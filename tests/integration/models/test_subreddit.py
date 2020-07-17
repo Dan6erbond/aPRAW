@@ -23,6 +23,17 @@ class TestSubreddit:
         assert moderator_found
 
     @pytest.mark.asyncio
+    async def test_subreddit_hot(self, reddit):
+        subreddit = await reddit.subreddit("aprawtest")
+
+        count = 0
+        async for submission in subreddit.hot(limit=50):
+            assert isinstance(submission, apraw.models.Submission)
+            count += 1
+
+        assert count <= 50
+
+    @pytest.mark.asyncio
     async def test_subreddit_moderation_listing(self, reddit):
         subreddit = await reddit.subreddit("aprawtest")
         report = None
@@ -31,9 +42,7 @@ class TestSubreddit:
             report = rep
             break
 
-        assert isinstance(
-            report, apraw.models.Submission) or isinstance(
-            report, apraw.models.Comment)
+        assert isinstance(report, (apraw.models.Submission, apraw.models.Comment))
 
     @pytest.mark.asyncio
     async def test_subreddit_moderation_log(self, reddit):
