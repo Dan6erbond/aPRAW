@@ -171,11 +171,11 @@ class Comment(aPRAWBase, DeletableMixin, HideableMixin, ReplyableMixin, SavableM
             resp = await self._reddit.get(permalink)
             from .submission import Submission
             self._submission = Submission(self._reddit, resp[0]["data"]["children"][0]["data"])
-            return await self._update(resp[1]["data"]["children"][0]["data"])
+            return await self._async_update(resp[1]["data"]["children"][0]["data"])
         elif "id" in self._data:
             resp = await self._reddit.get(API_PATH["info"],
                                                   id=prepend_kind(self._data["id"], self._reddit.comment_kind))
-            return await self._update(resp["data"]["children"][0]["data"])
+            return await self._async_update(resp["data"]["children"][0]["data"])
         else:
             raise ValueError(f"No data available to make request URL: {self._data}")
 
@@ -189,7 +189,7 @@ class Comment(aPRAWBase, DeletableMixin, HideableMixin, ReplyableMixin, SavableM
                 wait = counter.count()
             await asyncio.sleep(wait)
 
-    async def _update(self, _data: Union[List, Dict[str, Any]]):
+    async def _async_update(self, _data: Union[List, Dict[str, Any]]):
         """
         Update the base with new information.
 
