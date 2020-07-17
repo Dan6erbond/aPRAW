@@ -4,7 +4,7 @@ from .moderation import SubredditModerator, SubredditModeration
 from .modmail import SubredditModmail
 from .wiki import SubredditWiki
 from ..helpers.apraw_base import aPRAWBase
-from ..helpers.streamable import Streamable, streamable
+from ..helpers.streamable import streamable
 from ...const import API_PATH
 
 if TYPE_CHECKING:
@@ -163,9 +163,26 @@ class Subreddit(aPRAWBase):
         self: Subreddit
             The ``Subreddit`` model with updated data.
         """
+        if self.display_name.lower() in ["mod", "all"]:
+            return self
+
         resp = await self._reddit.get(API_PATH["subreddit_about"].format(sub=self.display_name))
         self._update(resp["data"])
         return self
+
+    def __repr__(self):
+        """
+        Get a representational string for this subreddit following the pattern ``<{class} {id_attribute}='{id}'>``.
+
+        Returns
+        -------
+        repr: string
+            A printable representational string for this model.
+        """
+        if self.display_name.lower() in ["mod", "all"]:
+            return f"<Subreddit /r/{self.display_name}>"
+
+        return super().__repr__()
 
     def _update(self, data: Dict[str, Any]):
         """

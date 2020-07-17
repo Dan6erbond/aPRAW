@@ -61,3 +61,21 @@ class TestSubreddit:
         subreddit = await reddit.subreddit("aprawtest")
         submission = await subreddit.random()
         assert isinstance(submission, apraw.models.Submission)
+
+    @pytest.mark.asyncio
+    async def test_subreddit_all(self, reddit):
+        subreddit = await reddit.subreddit("all")
+
+        count = 0
+        async for submission in subreddit.new(limit=5):
+            count += 1
+            assert isinstance(submission, apraw.models.Submission)
+
+        assert count == 5
+
+    @pytest.mark.asyncio
+    async def test_subreddit_mod(self, reddit):
+        subreddit = await reddit.subreddit("mod")
+
+        async for submission in subreddit.new(limit=5):
+            assert isinstance(submission, apraw.models.Submission)

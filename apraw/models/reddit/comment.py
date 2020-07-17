@@ -171,11 +171,11 @@ class Comment(aPRAWBase, DeletableMixin, HideableMixin, ReplyableMixin, SavableM
             resp = await self._reddit.get(permalink)
             from .submission import Submission
             self._submission = Submission(self._reddit, resp[0]["data"]["children"][0]["data"])
-            return self._update(resp[1]["data"]["children"][0]["data"])
+            return await self._update(resp[1]["data"]["children"][0]["data"])
         elif "id" in self._data:
             resp = await self._reddit.get(API_PATH["info"],
-                                          id=prepend_kind(self._data["id"], self._reddit.comment_kind))
-            return self._update(resp["data"]["children"][0]["data"])
+                                                  id=prepend_kind(self._data["id"], self._reddit.comment_kind))
+            return await self._update(resp["data"]["children"][0]["data"])
         else:
             raise ValueError(f"No data available to make request URL: {self._data}")
 
@@ -189,7 +189,7 @@ class Comment(aPRAWBase, DeletableMixin, HideableMixin, ReplyableMixin, SavableM
                 wait = counter.count()
             await asyncio.sleep(wait)
 
-    def _update(self, _data: Union[List, Dict[str, Any]]):
+    async def _update(self, _data: Union[List, Dict[str, Any]]):
         """
         Update the base with new information.
 
@@ -211,17 +211,17 @@ class Comment(aPRAWBase, DeletableMixin, HideableMixin, ReplyableMixin, SavableM
             if "created_utc" in d:
                 d["created_utc"] = datetime.utcfromtimestamp(d["created_utc"])
             self._data_attrs.update([k for k in d if not hasattr(self, k)])
-            updates = [{"name": k, "value": v} for (k, v) in d.items() if not hasattr(self, k) or k in self._data_attrs]
+            updates = {k: v for k, v in d.items() if not hasattr(self, k) or k in self._data_attrs}
 
             if "link_id" in d and "id" in d and "subreddit" in d:
                 link_id = d["link_id"].replace(self._reddit.link_kind + "_", "")
                 url = API_PATH["comment"].format(sub=d["subreddit"], submission=link_id, id=d["id"])
-                updates.append({"name": "url", "value": url})
+                updates["url"] = url
             elif "permalink" in d:
                 url = "https://www.reddit.com" + d["permalink"]
-                updates.append({"name": "url", "value": url})
+                updates["url"] = url
 
-            return self._bulk_update(*updates)
+            return await self._async_bulk_update(**updates)
         else:
             raise TypeError("data is not of type 'dict' or 'list'.")
 
