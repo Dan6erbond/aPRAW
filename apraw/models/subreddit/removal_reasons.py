@@ -18,7 +18,7 @@ class SubredditRemovalReason(aPRAWBase):
     async def fetch(self):
         url = API_PATH["subreddit_removal_reasons"].format(sub=self._subreddit.display_name)
         res = await self._reddit.get(url)
-        super()._update(res[self.id])
+        super()._update(res["data"][self.id])
 
     async def delete(self):
         res = await self._reddit.delete(self.url)
@@ -44,7 +44,8 @@ class SubredditRemovalReasons:
         res = await self._reddit.get(url)
 
         for reason_id in res["order"]:
-            self._removal_reasons.append(SubredditRemovalReason(self._reddit, res["data"][reason_id]))
+            reason = SubredditRemovalReason(self._reddit, self._subreddit, res["data"][reason_id])
+            self._removal_reasons.append(reason)
 
     async def get(self, item: str):
         if not self._removal_reasons:
@@ -57,3 +58,13 @@ class SubredditRemovalReasons:
             await self._fetch()
 
         return next(self._removal_reasons)
+
+    async def add(self, message: str, title: str) -> SubredditRemovalReason:
+        data = {"message": message, "title": title}
+        url = API_PATH["subreddit_removal_reasons"].format(subreddit=self._subreddit.display_name)
+
+        reason_id = await self._reddit.post(url, data=data)
+
+        reason = SubredditRemovalReason(self._reddit, self._subreddit, {"id": reason_id})
+        await reason.fetch()
+        return reason
