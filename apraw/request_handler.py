@@ -74,7 +74,7 @@ class RequestHandler:
             return execute_request
 
     @Decorators.check_ratelimit
-    async def get(self, endpoint: str = "", **kwargs) -> Dict:
+    async def get(self, endpoint: str = "", **kwargs) -> Any:
         kwargs = {"raw_json": 1, "api_type": "json", **kwargs}
         params = ["{}={}".format(k, kwargs[k]) for k in kwargs]
 
@@ -89,7 +89,7 @@ class RequestHandler:
             return await resp.json()
 
     @Decorators.check_ratelimit
-    async def delete(self, endpoint: str = "", **kwargs) -> Dict:
+    async def delete(self, endpoint: str = "", **kwargs) -> Any:
         kwargs = {"raw_json": 1, "api_type": "json", **kwargs}
         params = ["{}={}".format(k, kwargs[k]) for k in kwargs]
 
@@ -104,7 +104,7 @@ class RequestHandler:
             return await resp.json()
 
     @Decorators.check_ratelimit
-    async def put(self, endpoint: str = "", **kwargs) -> Dict:
+    async def put(self, endpoint: str = "", **kwargs) -> Any:
         kwargs = {"raw_json": 1, "api_type": "json", **kwargs}
         params = ["{}={}".format(k, kwargs[k]) for k in kwargs]
 
@@ -119,7 +119,7 @@ class RequestHandler:
             return await resp.json()
 
     @Decorators.check_ratelimit
-    async def post(self, endpoint: str = "", url: str = "", data: Dict = None, **kwargs) -> Dict:
+    async def post(self, endpoint: str = "", url: str = "", data: Dict = None, **kwargs) -> Any:
         if not data:
             data = {}
         kwargs = {"raw_json": 1, "api_type": "json", **kwargs}
