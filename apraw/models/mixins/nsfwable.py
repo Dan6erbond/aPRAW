@@ -15,7 +15,7 @@ class NSFWableMixin:
         resp: Dict
             The API response JSON.
         """
-        return await self.reddit.post_request(API_PATH["post_marknsfw"], id=self.fullname)
+        return await self.reddit.post(API_PATH["post_marknsfw"], id=self.fullname)
 
     async def unmark_nsfw(self):
         """
@@ -26,4 +26,4 @@ class NSFWableMixin:
         resp: Dict
             The API response JSON.
         """
-        return await self.reddit.post_request(API_PATH["post_unmarknsfw"], id=self.fullname)
+        return await self.reddit.post(API_PATH["post_unmarknsfw"], id=self.fullname)

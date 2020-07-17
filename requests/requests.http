@@ -77,3 +77,19 @@ GET {{baseUrl}}/r/memes/random
 User-Agent: {{user_agent}}
 Content-Type: application/json
 Authorization: {{getToken.response.body.token_type}} {{getToken.response.body.access_token}}
+
+###
+
+# @name getSubredditRemovalReasons
+GET {{baseUrl}}/api/v1/{{subreddit}}/removal_reasons
+User-Agent: {{user_agent}}
+Content-Type: application/json
+Authorization: {{getToken.response.body.token_type}} {{getToken.response.body.access_token}}
+
+###
+
+# @name getSubredditRemovalReason
+DELETE {{baseUrl}}/api/v1/{{subreddit}}/removal_reasons/15bdq4obounrr
+User-Agent: {{user_agent}}
+Content-Type: application/json
+Authorization: {{getToken.response.body.token_type}} {{getToken.response.body.access_token}}
