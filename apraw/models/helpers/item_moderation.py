@@ -55,7 +55,7 @@ class ItemModeration:
         resp: Dict
             The API response JSON.
         """
-        return await self.reddit.post_request(API_PATH["mod_approve"], id=self.fullname)
+        return await self.reddit.post(API_PATH["mod_approve"], id=self.fullname)
 
     async def remove(self):
         """
@@ -66,7 +66,7 @@ class ItemModeration:
         resp: Dict
             The API response JSON.
         """
-        return await self.reddit.post_request(API_PATH["mod_remove"], id=self.fullname)
+        return await self.reddit.post(API_PATH["mod_remove"], id=self.fullname)
 
     async def distinguish(self,
                           how: DISTINGUISHMENT_OPTIONS = "yes",
@@ -86,8 +86,8 @@ class ItemModeration:
         resp: Dict
             The API response JSON.
         """
-        return await self.reddit.post_request(API_PATH["mod_distinguish"],
-                                              id=self.fullname, how=how, sticky=sticky)
+        return await self.reddit.post(API_PATH["mod_distinguish"],
+                                      id=self.fullname, how=how, sticky=sticky)
 
     async def undistinguish(self):
         """
@@ -98,8 +98,8 @@ class ItemModeration:
         resp: Dict
             The API response JSON.
         """
-        return await self.reddit.post_request(API_PATH["mod_distinguish"],
-                                              id=self.fullname, how="no", sticky=False)
+        return await self.reddit.post(API_PATH["mod_distinguish"],
+                                      id=self.fullname, how="no", sticky=False)
 
     async def ignore_reports(self):
         """
@@ -110,7 +110,7 @@ class ItemModeration:
         resp: Dict
             The API response JSON.
         """
-        return await self.reddit.post_request(API_PATH["mod_ignore_reports"], id=self.fullname)
+        return await self.reddit.post(API_PATH["mod_ignore_reports"], id=self.fullname)
 
     async def unignore_reports(self):
         """
@@ -121,7 +121,7 @@ class ItemModeration:
         resp: Dict
             The API response JSON.
         """
-        return await self.reddit.post_request(API_PATH["mod_unignore_reports"], id=self.fullname)
+        return await self.reddit.post(API_PATH["mod_unignore_reports"], id=self.fullname)
 
 
 class PostModeration(ItemModeration):
@@ -158,7 +158,7 @@ class PostModeration(ItemModeration):
         resp: Dict
             The API response JSON.
         """
-        return await self.reddit.post_request(API_PATH["mod_lock"], id=self.fullname)
+        return await self.reddit.post(API_PATH["mod_lock"], id=self.fullname)
 
     async def unlock(self):
         """
@@ -169,4 +169,4 @@ class PostModeration(ItemModeration):
         resp: Dict
             The API response JSON.
         """
-        return await self.reddit.post_request(API_PATH["mod_unlock"], id=self.fullname)
+        return await self.reddit.post(API_PATH["mod_unlock"], id=self.fullname)

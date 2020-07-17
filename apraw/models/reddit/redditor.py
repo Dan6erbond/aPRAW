@@ -92,7 +92,7 @@ class Redditor(aPRAWBase):
         self: Redditor
             The updated ``Redditor``.
         """
-        resp = await self._reddit.get_request(API_PATH["user_about"].format(user=self._data["username"]))
+        resp = await self._reddit.get(API_PATH["user_about"].format(user=self._data["username"]))
         self._update(resp["data"])
         return self
 
@@ -173,7 +173,7 @@ class Redditor(aPRAWBase):
         subreddit: Subreddit
             A subreddit the user moderates.
         """
-        req = await self.reddit.get_request(API_PATH["moderated"].format(user=self), **kwargs)
+        req = await self.reddit.get(API_PATH["moderated"].format(user=self), **kwargs)
         for s in req["data"]:
             yield await self.reddit.subreddit(s["sr"])
 

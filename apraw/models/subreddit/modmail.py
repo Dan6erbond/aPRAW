@@ -4,7 +4,7 @@ from ..helpers.apraw_base import aPRAWBase
 from ...const import API_PATH
 
 if TYPE_CHECKING:
-    from ..subreddit.subreddit import Subreddit
+    from .subreddit import Subreddit
     from ..reddit.redditor import Redditor
     from ...reddit import Reddit
 
@@ -39,8 +39,8 @@ class SubredditModmail:
         conversation: ModmailConversation
             A modmail conversation held in the subreddit.
         """
-        req = await self.subreddit._reddit.get_request(API_PATH["modmail_conversations"],
-                                                       entity=self.subreddit.display_name)
+        req = await self.subreddit._reddit.get(API_PATH["modmail_conversations"],
+                                               entity=self.subreddit.display_name)
         for id in req["conversations"]:
             yield ModmailConversation(self.subreddit._reddit, req["conversations"][id])
 
@@ -140,7 +140,7 @@ class ModmailConversation(aPRAWBase):
             The full data retrieved from the endpoint.
         """
         if self._data is None:
-            self._data = await self._reddit.get_request(API_PATH["modmail_conversation"].format(id=self.id))
+            self._data = await self._reddit.get(API_PATH["modmail_conversation"].format(id=self.id))
         return self._data
 
 

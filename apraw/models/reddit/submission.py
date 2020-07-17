@@ -203,12 +203,12 @@ class Submission(aPRAWBase, DeletableMixin, HideableMixin, ReplyableMixin, NSFWa
             The updated model.
         """
         if "subreddit" in self._data and "id" in self._data:
-            resp = await self._reddit.get_request(
+            resp = await self._reddit.get(
                 API_PATH["submission"].format(sub=self._data["subreddit"], id=self._data["id"]))
             self._update(resp)
         elif "id" in self._data:
-            resp = await self._reddit.get_request(API_PATH["info"],
-                                                  id=prepend_kind(self._data["id"], self._reddit.link_kind))
+            resp = await self._reddit.get(API_PATH["info"],
+                                          id=prepend_kind(self._data["id"], self._reddit.link_kind))
             self._update(resp["data"]["children"][0]["data"])
         return self
 
@@ -276,7 +276,7 @@ class SubmissionModeration(PostModeration, NSFWableMixin, SpoilerableMixin):
         resp: Dict
             The API response JSON.
         """
-        return await self.reddit.post_request(API_PATH["mod_sticky"], **{
+        return await self.reddit.post(API_PATH["mod_sticky"], **{
             "id": self.fullname,
             "num": position,
             "state": True,
@@ -297,7 +297,7 @@ class SubmissionModeration(PostModeration, NSFWableMixin, SpoilerableMixin):
         resp: Dict
             The API response JSON.
         """
-        return await self.reddit.post_request(API_PATH["mod_sticky"], **{
+        return await self.reddit.post(API_PATH["mod_sticky"], **{
             "id": self.fullname,
             "state": False,
             "to_profile": to_profile

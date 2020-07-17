@@ -23,6 +23,17 @@ class TestSubreddit:
         assert moderator_found
 
     @pytest.mark.asyncio
+    async def test_subreddit_hot(self, reddit):
+        subreddit = await reddit.subreddit("aprawtest")
+
+        count = 0
+        async for submission in subreddit.hot(limit=50):
+            assert isinstance(submission, apraw.models.Submission)
+            count += 1
+
+        assert count <= 50
+
+    @pytest.mark.asyncio
     async def test_subreddit_moderation_listing(self, reddit):
         subreddit = await reddit.subreddit("aprawtest")
         report = None
@@ -31,9 +42,7 @@ class TestSubreddit:
             report = rep
             break
 
-        assert isinstance(
-            report, apraw.models.Submission) or isinstance(
-            report, apraw.models.Comment)
+        assert isinstance(report, (apraw.models.Submission, apraw.models.Comment))
 
     @pytest.mark.asyncio
     async def test_subreddit_moderation_log(self, reddit):
@@ -55,7 +64,7 @@ class TestSubreddit:
         assert submission.title == "Test submission"
 
         await submission.delete()
-    
+
     @pytest.mark.asyncio
     async def test_subreddit_random(self, reddit):
         subreddit = await reddit.subreddit("aprawtest")
@@ -79,3 +88,26 @@ class TestSubreddit:
 
         async for submission in subreddit.new(limit=5):
             assert isinstance(submission, apraw.models.Submission)
+
+    @pytest.mark.asyncio
+    async def test_subreddit_removal_reasons(self, reddit):
+        subreddit = await reddit.subreddit("aprawtest")
+
+        async for removal_reason in subreddit.removal_reasons:
+            assert isinstance(removal_reason, apraw.models.SubredditRemovalReason)
+
+    @pytest.mark.asyncio
+    async def test_subreddit_removal_reasons_delete_add(self, reddit):
+        subreddit = await reddit.subreddit("aprawtest")
+
+        async for removal_reason in subreddit.removal_reasons:
+            title = removal_reason.title
+            message = removal_reason.message
+
+            await removal_reason.delete()
+            reason = await subreddit.removal_reasons.add(title, message)
+
+            assert reason.title == title
+            assert reason.message == message
+
+            break
