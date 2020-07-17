@@ -1,7 +1,6 @@
-import os
 import asyncio
 import configparser
-import logging
+import os
 from datetime import datetime, timedelta
 from functools import wraps
 from typing import Any, Awaitable, Callable, Dict, List, Union
@@ -113,7 +112,7 @@ class Reddit:
         resp: Dict or None
             The response JSON data.
         """
-        return await self.request_handler.get_request(*args, **kwargs)
+        return await self.request_handler.get(*args, **kwargs)
 
     async def post_request(self, *args, **kwargs):
         """
@@ -135,7 +134,7 @@ class Reddit:
         resp: Dict or None
             The response JSON data.
         """
-        return await self.request_handler.post_request(*args, **kwargs)
+        return await self.request_handler.post(*args, **kwargs)
 
     async def get_listing(self, endpoint: str, subreddit: Subreddit = None, kind_filter: List[str] = None,
                           **kwargs) -> Listing:
@@ -380,7 +379,7 @@ class RequestHandler:
             return execute_request
 
     @Decorators.check_ratelimit
-    async def get_request(self, endpoint: str = "", **kwargs) -> Dict:
+    async def get(self, endpoint: str = "", **kwargs) -> Dict:
         kwargs = {"raw_json": 1, "api_type": "json", **kwargs}
         params = ["{}={}".format(k, kwargs[k]) for k in kwargs]
 
@@ -395,13 +394,45 @@ class RequestHandler:
             return await resp.json()
 
     @Decorators.check_ratelimit
-    async def post_request(self, endpoint: str = "", url: str = "", data: Dict = {}, **kwargs) -> Dict:
+    async def delete(self, endpoint: str = "", **kwargs) -> Dict:
         kwargs = {"raw_json": 1, "api_type": "json", **kwargs}
         params = ["{}={}".format(k, kwargs[k]) for k in kwargs]
 
-        if endpoint != "":
+        url = BASE_URL.format(endpoint, "&".join(params))
+
+        headers = await self.get_request_headers()
+        session = await self.user.client_session()
+        resp = await session.delete(url, headers=headers)
+
+        async with resp:
+            self.update(resp.headers)
+            return await resp.json()
+
+    @Decorators.check_ratelimit
+    async def put(self, endpoint: str = "", **kwargs) -> Dict:
+        kwargs = {"raw_json": 1, "api_type": "json", **kwargs}
+        params = ["{}={}".format(k, kwargs[k]) for k in kwargs]
+
+        url = BASE_URL.format(endpoint, "&".join(params))
+
+        headers = await self.get_request_headers()
+        session = await self.user.client_session()
+        resp = await session.delete(url, headers=headers)
+
+        async with resp:
+            self.update(resp.headers)
+            return await resp.json()
+
+    @Decorators.check_ratelimit
+    async def post(self, endpoint: str = "", url: str = "", data: Dict = None, **kwargs) -> Dict:
+        if not data:
+            data = {}
+        kwargs = {"raw_json": 1, "api_type": "json", **kwargs}
+        params = ["{}={}".format(k, kwargs[k]) for k in kwargs]
+
+        if endpoint:
             url = BASE_URL.format(endpoint, "&".join(params))
-        elif url != "":
+        elif url:
             url = "{}?{}".format(url, "&".join(params))
 
         headers = await self.get_request_headers()
