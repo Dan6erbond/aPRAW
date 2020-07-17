@@ -211,17 +211,17 @@ class Comment(aPRAWBase, DeletableMixin, HideableMixin, ReplyableMixin, SavableM
             if "created_utc" in d:
                 d["created_utc"] = datetime.utcfromtimestamp(d["created_utc"])
             self._data_attrs.update([k for k in d if not hasattr(self, k)])
-            updates = [{"name": k, "value": v} for (k, v) in d.items() if not hasattr(self, k) or k in self._data_attrs]
+            updates = {k: v for k, v in d.items() if not hasattr(self, k) or k in self._data_attrs}
 
             if "link_id" in d and "id" in d and "subreddit" in d:
                 link_id = d["link_id"].replace(self._reddit.link_kind + "_", "")
                 url = API_PATH["comment"].format(sub=d["subreddit"], submission=link_id, id=d["id"])
-                updates.append({"name": "url", "value": url})
+                updates["url"] = url
             elif "permalink" in d:
                 url = "https://www.reddit.com" + d["permalink"]
-                updates.append({"name": "url", "value": url})
+                updates["url"] = url
 
-            return self._bulk_update(*updates)
+            return self._bulk_update(**updates)
         else:
             raise TypeError("data is not of type 'dict' or 'list'.")
 
