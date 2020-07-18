@@ -2,3 +2,5 @@ aiohttp>=3.6.2
 pytest>=5.4.3
 pytest-asyncio>=0.14.0
 reactivepy>=1.9.0.dev0
+sphinx-rtd-theme>=0.5.0
+Sphinx>=3.1.2
