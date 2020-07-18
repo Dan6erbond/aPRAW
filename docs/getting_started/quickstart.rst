@@ -23,9 +23,9 @@ Those credentials can now be used to create a Reddit instance:
     # instantiate a `Reddit` instance
     # you can also supply a key to an entry within a praw.ini
     # file, making your login compatible with praw as well
-    reddit = apraw.Reddit(client_id="CLIENT_ID", client_secret="CLIENT_SECRET",
-                        password="PASSWORD", user_agent="USERAGENT",
-                        username="USERNAME")
+    reddit = apraw.Reddit(username="USERNAME", password="PASSWORD",
+                          client_id="CLIENT_ID", client_secret="CLIENT_SECRET",
+                          user_agent="USERAGENT")
 
 Those previously making use of a ``praw.ini`` file can continue to do so, by specifying the key that was used for the client in place of the credentials.
 aPRAW will then automatically search for the file and save those credentials.
