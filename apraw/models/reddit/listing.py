@@ -1,9 +1,10 @@
 from typing import TYPE_CHECKING, Dict, Iterator, List
 
-from .apraw_base import aPRAWBase
-from ..reddit.comment import Comment
-from ..reddit.message import Message
-from ..reddit.submission import Submission
+from .comment import Comment
+from .message import Message
+from .more_comments import MoreComments
+from .submission import Submission
+from ..helpers.apraw_base import aPRAWBase
 from ..subreddit.moderation import ModAction
 from ..subreddit.subreddit import Subreddit
 from ..subreddit.wiki import WikipageRevision
@@ -33,7 +34,7 @@ class Listing(aPRAWBase, Iterator):
     CHILD_ATTRIBUTE = "children"
 
     def __init__(self, reddit: 'Reddit', data: Dict, kind_filter: List[str] = None,
-                 subreddit: Subreddit = None):
+                 subreddit: Subreddit = None, link_id: str = ""):
         """
         Create a ``Listing`` instance.
 
@@ -52,6 +53,7 @@ class Listing(aPRAWBase, Iterator):
 
         self._index = 0
         self._subreddit = subreddit
+        self._link_id = link_id
         self._kind_filter = kind_filter if kind_filter else []
 
     def __len__(self) -> int:
@@ -91,7 +93,7 @@ class Listing(aPRAWBase, Iterator):
             self._index += 1
             item = self[self._index - 1]
 
-            if not self._kind_filter or self._kind_filter and item.kind in self._kind_filter:
+            if not self._kind_filter or (self._kind_filter and item.kind in self._kind_filter):
                 break
 
         return item
@@ -110,24 +112,34 @@ class Listing(aPRAWBase, Iterator):
         item: aPRAWBase
             The searched item.
         """
-        data = getattr(self, self.CHILD_ATTRIBUTE)[index]
+        item = getattr(self, self.CHILD_ATTRIBUTE)[index]
 
-        if "page" in data:
-            item = WikipageRevision(self.reddit, data)
-        elif data["kind"] == self.reddit.link_kind:
-            item = Submission(self.reddit, data["data"], subreddit=self._subreddit)
-        elif data["kind"] == self.reddit.subreddit_kind:
-            item = Subreddit(self.reddit, data["data"])
-        elif data["kind"] == self.reddit.comment_kind:
-            item = Comment(self.reddit, data["data"], subreddit=self._subreddit)
-        elif data["kind"] == self.reddit.modaction_kind:
-            item = ModAction(self.reddit, data["data"], self._subreddit)
-        elif data["kind"] == self.reddit.message_kind:
-            item = Message(self.reddit, data["data"])
+        if isinstance(item, aPRAWBase):
+            return item
+
+        if "page" in item:
+            return WikipageRevision(self._reddit, item)
+        elif item["kind"] == self._reddit.link_kind:
+            return Submission(self._reddit, item["data"], subreddit=self._subreddit)
+        elif item["kind"] == self._reddit.subreddit_kind:
+            return Subreddit(self._reddit, item["data"])
+        elif item["kind"] == self._reddit.comment_kind:
+            if item["data"]["replies"] and item["data"]["replies"]["kind"] == self._reddit.listing_kind:
+                from ..helpers.comment_forest import CommentForest
+                replies = CommentForest(self._reddit, item["data"]["replies"]["data"], item["data"]["link_id"])
+            else:
+                replies = []
+            return Comment(self._reddit, item["data"], subreddit=self._subreddit, replies=replies)
+        elif item["kind"] == self._reddit.modaction_kind:
+            return ModAction(self._reddit, item["data"], self._subreddit)
+        elif item["kind"] == self._reddit.message_kind:
+            return Message(self._reddit, item["data"])
+        elif item["kind"] == self._reddit.listing_kind:
+            return Listing(self._reddit, item["data"])
+        elif item["kind"] == self._reddit.more_kind:
+            return MoreComments(self._reddit, item["data"], self._link_id)
         else:
-            item = aPRAWBase(self.reddit, data["data"] if "data" in data else data)
-
-        return item
+            return aPRAWBase(self._reddit, item["data"] if "data" in item else item)
 
     @property
     def last(self) -> aPRAWBase:
@@ -140,3 +152,7 @@ class Listing(aPRAWBase, Iterator):
             The last item in the listing.
         """
         return self[len(self) - 1] if len(self) > 0 else None
+
+
+class MoreChildren(Listing):
+    CHILD_ATTRIBUTE = "things"

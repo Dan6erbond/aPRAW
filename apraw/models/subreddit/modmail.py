@@ -4,7 +4,7 @@ from ..helpers.apraw_base import aPRAWBase
 from ...const import API_PATH
 
 if TYPE_CHECKING:
-    from ..subreddit.subreddit import Subreddit
+    from .subreddit import Subreddit
     from ..reddit.redditor import Redditor
     from ...reddit import Reddit
 
@@ -39,10 +39,10 @@ class SubredditModmail:
         conversation: ModmailConversation
             A modmail conversation held in the subreddit.
         """
-        req = await self.subreddit.reddit.get_request(API_PATH["modmail_conversations"],
-                                                      entity=self.subreddit.display_name)
+        req = await self.subreddit._reddit.get(API_PATH["modmail_conversations"],
+                                               entity=self.subreddit.display_name)
         for id in req["conversations"]:
-            yield ModmailConversation(self.subreddit.reddit, req["conversations"][id])
+            yield ModmailConversation(self.subreddit._reddit, req["conversations"][id])
 
 
 class ModmailConversation(aPRAWBase):
@@ -114,7 +114,7 @@ class ModmailConversation(aPRAWBase):
             The subreddit this conversation was held in.
         """
         if self._owner is None:
-            self._owner = await self.reddit.subreddit(self.data["owner"]["displayName"])
+            self._owner = await self._reddit.subreddit(self._data["owner"]["displayName"])
         return self._owner
 
     async def messages(self) -> 'ModmailMessage':
@@ -140,7 +140,7 @@ class ModmailConversation(aPRAWBase):
             The full data retrieved from the endpoint.
         """
         if self._data is None:
-            self._data = await self.reddit.get_request(API_PATH["modmail_conversation"].format(id=self.id))
+            self._data = await self._reddit.get(API_PATH["modmail_conversation"].format(id=self.id))
         return self._data
 
 
@@ -204,7 +204,7 @@ class ModmailMessage:
         """
         if self._author is None:
             if not self.data["author"]["isDeleted"]:
-                self._author = self.conversation.reddit.redditor(  # TODO: Add 'await'
+                self._author = self.conversation._reddit.redditor(  # TODO: Add 'await'
                     self.data["author"]["name"])
             else:
                 return None

@@ -6,7 +6,7 @@ class SpoilerableMixin:
     Mixin for spoilerable objects.
     """
 
-    async def spoiler(self):
+    async def mark_spoiler(self):
         """
         Mark the item as a spoiler.
 
@@ -15,9 +15,9 @@ class SpoilerableMixin:
         resp: Dict
             The API response JSON.
         """
-        return await self.reddit.post_request(API_PATH["post_spoiler"], id=self.fullname)
+        return await self.reddit.post(API_PATH["post_spoiler"], id=self.fullname)
 
-    async def unspoiler(self):
+    async def unmark_spoiler(self):
         """
         Unmark the item as a spoiler.
 
@@ -26,4 +26,4 @@ class SpoilerableMixin:
         resp: Dict
             The API response JSON.
         """
-        return await self.reddit.post_request(API_PATH["post_unspoiler"], id=self.fullname)
+        return await self.reddit.post(API_PATH["post_unspoiler"], id=self.fullname)

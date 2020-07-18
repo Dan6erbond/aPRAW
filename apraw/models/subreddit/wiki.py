@@ -1,7 +1,7 @@
 from typing import TYPE_CHECKING, Dict, List, Union
 
 from ..helpers.apraw_base import aPRAWBase
-from ..helpers.streamable import Streamable
+from ..helpers.streamable import streamable
 from ..reddit.redditor import Redditor
 from ...const import API_PATH
 
@@ -16,7 +16,7 @@ class SubredditWiki:
         self.subreddit = subreddit
         self._data = None
 
-    @Streamable.streamable
+    @streamable
     def revisions(self, *args, **kwargs):
         r"""
         Returns an instance of :class:`~apraw.models.ListingGenerator` mapped to recent wikipage revisions.
@@ -40,12 +40,12 @@ class SubredditWiki:
             A :class:`~apraw.models.ListingGenerator` mapped to recent wikipage revisions.
         """
         from ..helpers.generator import ListingGenerator
-        return ListingGenerator(self.subreddit.reddit, API_PATH["wiki_revisions"].format(sub=self.subreddit), *args,
+        return ListingGenerator(self.subreddit._reddit, API_PATH["wiki_revisions"].format(sub=self.subreddit), *args,
                                 **kwargs)
 
     async def data(self, refresh=False) -> Dict:
         if self._data is None:
-            self._data = await self.subreddit.reddit.get_request(
+            self._data = await self.subreddit._reddit.get(
                 API_PATH["wiki"].format(sub=self.subreddit))
         return self._data
 
@@ -54,12 +54,12 @@ class SubredditWiki:
         return [page for page in data["data"]]
 
     async def page(self, page: str) -> 'SubredditWikipage':
-        resp = await self.subreddit.reddit.get_request(
+        resp = await self.subreddit._reddit.get(
             API_PATH["wiki_page"].format(sub=self.subreddit, page=page))
         return SubredditWikipage(page, self.subreddit, resp["data"])
 
     async def create(self, page: str, content_md: str = "", reason: str = "") -> 'SubredditWikipage':
-        resp = await self.subreddit.reddit.post_request(
+        resp = await self.subreddit._reddit.post(
             API_PATH["wiki_edit"].format(sub=self.subreddit), data={
                 "page": page,
                 "content": content_md,
@@ -71,12 +71,12 @@ class SubredditWiki:
 class SubredditWikipage(aPRAWBase):
 
     def __init__(self, name: str, subreddit: 'Subreddit', data: Dict = None):
-        super().__init__(subreddit.reddit, data, subreddit.reddit.wikipage_kind)
+        super().__init__(subreddit._reddit, data, subreddit._reddit.wikipage_kind)
 
         self.name = name
         self.subreddit = subreddit
 
-    @Streamable.streamable
+    @streamable
     def revisions(self, *args, **kwargs):
         r"""
         Returns an instance of :class:`~apraw.models.ListingGenerator` mapped to fetch specific wikipage revisions.
@@ -100,11 +100,11 @@ class SubredditWikipage(aPRAWBase):
             A :class:`~apraw.models.ListingGenerator` mapped to fetch specific wikipage revisions.
         """
         from ..helpers.generator import ListingGenerator
-        return ListingGenerator(self.subreddit.reddit, API_PATH["wiki_page_revisions"].format(
+        return ListingGenerator(self.subreddit._reddit, API_PATH["wiki_page_revisions"].format(
             sub=self.subreddit, page=self.name), *args, **kwargs)
 
     async def _alloweditor(self, username: str, act: str):
-        resp = await self.subreddit.reddit.post_request(
+        resp = await self.subreddit._reddit.post(
             API_PATH["wiki_alloweditor"].format(sub=self.subreddit, act=act), data={
                 "page": self.name,
                 "username": username
@@ -118,7 +118,7 @@ class SubredditWikipage(aPRAWBase):
         return await self._alloweditor(username, "del")
 
     async def edit(self, content_md: str = "", reason: str = "") -> bool:
-        resp = await self.subreddit.reddit.post_request(
+        resp = await self.subreddit._reddit.post(
             API_PATH["wiki_edit"].format(sub=self.subreddit), data={
                 "page": self.name,
                 "content": content_md,
@@ -127,7 +127,7 @@ class SubredditWikipage(aPRAWBase):
         return resp if resp else True
 
     async def hide(self, revision: Union[str, 'WikipageRevision']):
-        resp = await self.subreddit.reddit.post_request(
+        resp = await self.subreddit._reddit.post(
             API_PATH["wiki_hide"].format(sub=self.subreddit), data={
                 "page": self.name,
                 "revision": str(revision)
@@ -135,7 +135,7 @@ class SubredditWikipage(aPRAWBase):
         return resp if resp else True
 
     async def revert(self, revision: Union[str, 'WikipageRevision']):
-        resp = await self.subreddit.reddit.post_request(
+        resp = await self.subreddit._reddit.post(
             API_PATH["wiki_revert"].format(sub=self.subreddit), data={
                 "page": self.name,
                 "revision": str(revision)

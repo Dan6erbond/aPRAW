@@ -11,6 +11,12 @@ class TestComment:
         assert author.name == "Dan6erbond"
 
     @pytest.mark.asyncio
+    async def test_comment_fetch(self, reddit):
+        comment = await reddit.comment("fulsybg")
+        assert isinstance(await comment.fetch(), bool)
+        assert isinstance(await comment.fetch(), bool)
+
+    @pytest.mark.asyncio
     async def test_comment_submission(self, reddit):
         comment = await reddit.comment("fulsybg")
         submission = await comment.submission()
@@ -26,9 +32,9 @@ class TestComment:
     async def test_comment_replies(self, reddit):
         comment = await reddit.comment("fulsybg")
 
-        async def scan_comments(c):
-            async for reply in c.replies():
+        def scan_comments(c):
+            for reply in c.replies:
                 assert isinstance(reply, apraw.models.Comment)
-                await scan_comments(reply)
+                scan_comments(reply)
 
-        await scan_comments(comment)
+        scan_comments(comment)

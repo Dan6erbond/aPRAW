@@ -1,13 +1,15 @@
-from typing import TYPE_CHECKING, AsyncIterator, Dict, Union
+from typing import TYPE_CHECKING, AsyncIterator, Dict, Union, Any
 
-from .modmail import SubredditModmail
 from .moderation import SubredditModerator, SubredditModeration
+from .modmail import SubredditModmail
+from .removal_reasons import SubredditRemovalReasons
 from .wiki import SubredditWiki
 from ..helpers.apraw_base import aPRAWBase
-from ..helpers.streamable import Streamable
+from ..helpers.streamable import streamable
 from ...const import API_PATH
 
 if TYPE_CHECKING:
+    from ..reddit.submission import SubmissionKind, Submission
     from ...reddit import Reddit
 
 
@@ -17,10 +19,6 @@ class Subreddit(aPRAWBase):
 
     Members
     -------
-    reddit: Reddit
-        The :class:`~apraw.Reddit` instance with which requests are made.
-    data: Dict
-        The data obtained from the /about endpoint.
     kind: str
         The item's kind / type.
     mod: SubredditModeration
@@ -140,7 +138,7 @@ class Subreddit(aPRAWBase):
     ================================ ==================================================================
     """
 
-    def __init__(self, reddit: 'Reddit', data: Dict):
+    def __init__(self, reddit: 'Reddit', data: Dict = None):
         """
         Create a Subreddit instance.
 
@@ -153,13 +151,68 @@ class Subreddit(aPRAWBase):
         """
         super().__init__(reddit, data, reddit.subreddit_kind)
 
-        self.quarantine = data["quarantine"] if "quarantine" in data else False
-
         self.mod = SubredditModeration(self)
         self.modmail = SubredditModmail(self)
         self.wiki = SubredditWiki(self)
+        self.removal_reasons = SubredditRemovalReasons(self._reddit, self)
 
-    @Streamable.streamable
+    async def fetch(self):
+        """
+        Fetch this item's information from a suitable API endpoint.
+
+        Returns
+        -------
+        self: Subreddit
+            The ``Subreddit`` model with updated data.
+        """
+        if self.display_name.lower() in ["mod", "all"]:
+            return self
+
+        resp = await self._reddit.get(API_PATH["subreddit_about"].format(sub=self.display_name))
+        self._update(resp["data"])
+        return self
+
+    def __repr__(self):
+        """
+        Get a representational string for this subreddit following the pattern ``<{class} {id_attribute}='{id}'>``.
+
+        Returns
+        -------
+        repr: string
+            A printable representational string for this model.
+        """
+        if self.display_name.lower() in ["mod", "all"]:
+            return f"<Subreddit /r/{self.display_name}>"
+
+        return super().__repr__()
+
+    def _update(self, data: Dict[str, Any]):
+        """
+        Update the base with new information.
+
+        Parameters
+        ----------
+        data: Dict
+            The data obtained from the /about endpoint.
+        """
+        super()._update(data)
+        self.quarantine = data["quarantine"] if "quarantine" in data else False
+
+    async def random(self):
+        """
+        Retrieve a random submission from the subreddit.
+
+        Returns
+        -------
+        submission: Submission
+            A random submission from the subreddit.
+        """
+        resp = await self._reddit.get(API_PATH["subreddit_random"].format(sub=self))
+        from ..reddit.listing import Listing
+        listing = Listing(self._reddit, data=resp[0]["data"], subreddit=self)
+        return next(listing)
+
+    @streamable
     def comments(self, *args, **kwargs):
         r"""
         Returns an instance of :class:`~apraw.models.ListingGenerator` mapped to the comments endpoint.
@@ -183,10 +236,10 @@ class Subreddit(aPRAWBase):
             A :class:`~apraw.models.ListingGenerator` mapped to the comments endpoint.
         """
         from ..helpers.generator import ListingGenerator
-        return ListingGenerator(self.reddit, API_PATH["subreddit_comments"].format(sub=self.display_name),
+        return ListingGenerator(self._reddit, API_PATH["subreddit_comments"].format(sub=self.display_name),
                                 subreddit=self, *args, **kwargs)
 
-    @Streamable.streamable
+    @streamable
     def new(self, *args, **kwargs):
         r"""
         Returns an instance of :class:`~apraw.models.ListingGenerator` mapped to the new submissions endpoint.
@@ -210,7 +263,7 @@ class Subreddit(aPRAWBase):
             A :class:`~apraw.models.ListingGenerator` mapped to the new submissions endpoint.
         """
         from ..helpers.generator import ListingGenerator
-        return ListingGenerator(self.reddit, API_PATH["subreddit_new"].format(sub=self.display_name), subreddit=self,
+        return ListingGenerator(self._reddit, API_PATH["subreddit_new"].format(sub=self.display_name), subreddit=self,
                                 *args, **kwargs)
 
     def hot(self, *args, **kwargs):
@@ -228,7 +281,7 @@ class Subreddit(aPRAWBase):
             A :class:`~apraw.models.ListingGenerator` mapped to the hot submissions endpoint.
         """
         from ..helpers.generator import ListingGenerator
-        return ListingGenerator(self.reddit, API_PATH["subreddit_hot"].format(sub=self.display_name), subreddit=self,
+        return ListingGenerator(self._reddit, API_PATH["subreddit_hot"].format(sub=self.display_name), subreddit=self,
                                 *args, **kwargs)
 
     def rising(self, *args, **kwargs):
@@ -246,7 +299,7 @@ class Subreddit(aPRAWBase):
             A :class:`~apraw.models.ListingGenerator` mapped to the rising submissions endpoint.
         """
         from ..helpers.generator import ListingGenerator
-        return ListingGenerator(self.reddit, API_PATH["subreddit_rising"].format(sub=self.display_name), *args,
+        return ListingGenerator(self._reddit, API_PATH["subreddit_rising"].format(sub=self.display_name), *args,
                                 **kwargs)
 
     def top(self, *args, **kwargs):
@@ -264,7 +317,7 @@ class Subreddit(aPRAWBase):
             A :class:`~apraw.models.ListingGenerator` mapped to the top submissions endpoint.
         """
         from ..helpers.generator import ListingGenerator
-        return ListingGenerator(self.reddit, API_PATH["subreddit_top"].format(sub=self.display_name), subreddit=self,
+        return ListingGenerator(self._reddit, API_PATH["subreddit_top"].format(sub=self.display_name), subreddit=self,
                                 *args, **kwargs)
 
     def __str__(self):
@@ -292,9 +345,9 @@ class Subreddit(aPRAWBase):
         moderator: SubredditModerator
             An instance of the moderators as :class:`~apraw.models.SubredditModerator`.
         """
-        req = await self.reddit.get_request(API_PATH["subreddit_moderators"].format(sub=self.display_name), **kwargs)
+        req = await self._reddit.get(API_PATH["subreddit_moderators"].format(sub=self.display_name), **kwargs)
         for u in req["data"]["children"]:
-            yield SubredditModerator(self.reddit, u)
+            yield SubredditModerator(self._reddit, u)
 
     async def message(self, subject: str, text: str, from_sr: Union[str, 'Subreddit'] = "") -> Dict:
         """
@@ -313,5 +366,55 @@ class Subreddit(aPRAWBase):
         response: Dict
             The API response JSON as a dictionary.
         """
-        return await self.reddit.message(API_PATH["subreddit"].format(sub=self.display_name), subject, text,
-                                         str(from_sr))
+        return await self._reddit.message(API_PATH["subreddit"].format(sub=self.display_name), subject, text,
+                                          str(from_sr))
+
+    async def submit(self, title: str, kind: 'SubmissionKind', **kwargs) -> 'Submission':
+        """
+        Make a new post to the subreddit.
+        If `kind` is SubmissionKind.LINK then `url` is expected to be a valid url,
+        otherwise `text` is expected (and it can be markdown text)
+
+        Parameters
+        -------
+        title: str
+            The post's title.
+        kind: SubmissionKind
+            The post's kind.
+        url: str
+            Optional, the url if kind is LINK.
+        text: str
+            Optional, the text body of the post.
+        nsfw: bool = False
+            If the post if nsfw or not.
+        resubmit: bool = False
+            If the post is a re-submit or not.
+            Needs to be True if a link with the same URL has already been submitted to the specified subreddi
+        spoiler: bool = False
+            If the post is a spoiler or not.
+        """
+        from ..reddit.submission import Submission, SubmissionKind
+
+        url = kwargs.get("url", None)
+        text = kwargs.get("text", None)
+
+        if kind == SubmissionKind.LINK and not url:
+            raise ValueError("A url was expected")
+        if kind == SubmissionKind.SELF and not text:
+            raise ValueError("A text body was expected")
+
+        resp = await self._reddit.post(API_PATH["submit"], **{
+            "sr": str(self),
+            "title": title,
+            "kind": kind.value,
+            "url": url,
+            "text": text,
+            "nsfw": kwargs.get("nsfw", False),
+            "resubmit": kwargs.get("resubmit", False),
+            "spoiler": kwargs.get("spoiler", False)
+        })
+
+        submission = Submission(self._reddit, {"id": resp["json"]["data"]["id"]})
+        await submission.fetch()
+
+        return submission

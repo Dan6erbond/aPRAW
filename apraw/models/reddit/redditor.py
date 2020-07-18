@@ -1,7 +1,7 @@
 from typing import TYPE_CHECKING, Dict
 
 from ..helpers.apraw_base import aPRAWBase
-from ..helpers.streamable import Streamable
+from ..helpers.streamable import streamable
 from ...const import API_PATH
 
 if TYPE_CHECKING:
@@ -83,7 +83,20 @@ class Redditor(aPRAWBase):
         else:
             self.subreddit = None
 
-    @Streamable.streamable
+    async def fetch(self):
+        """
+        Fetch this item's information from a suitable API endpoint.
+
+        Returns
+        -------
+        self: Redditor
+            The updated ``Redditor``.
+        """
+        resp = await self._reddit.get(API_PATH["user_about"].format(user=self._data["username"]))
+        self._update(resp["data"])
+        return self
+
+    @streamable
     def comments(self, *args, **kwargs):
         r"""
         Returns an instance of :class:`~apraw.models.ListingGenerator` mapped to fetch the Redditor's comments.
@@ -109,7 +122,7 @@ class Redditor(aPRAWBase):
         from ..helpers.generator import ListingGenerator
         return ListingGenerator(self.reddit, API_PATH["user_comments"].format(user=self), *args, **kwargs)
 
-    @Streamable.streamable
+    @streamable
     def submissions(self, *args, **kwargs):
         r"""
         Returns an instance of :class:`~apraw.models.ListingGenerator` mapped to fetch the Redditor's submissions.
@@ -160,7 +173,7 @@ class Redditor(aPRAWBase):
         subreddit: Subreddit
             A subreddit the user moderates.
         """
-        req = await self.reddit.get_request(API_PATH["moderated"].format(user=self), **kwargs)
+        req = await self.reddit.get(API_PATH["moderated"].format(user=self), **kwargs)
         for s in req["data"]:
             yield await self.reddit.subreddit(s["sr"])
 

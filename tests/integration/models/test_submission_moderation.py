@@ -52,12 +52,12 @@ class TestSubmissionModeration:
     @pytest.mark.asyncio
     async def test_submission_mod_spoiler(self, reddit):
         submission = await reddit.submission("h7mna9")
-        await submission.mod.spoiler()
+        await submission.mod.mark_spoiler()
         submission = await reddit.submission("h7mna9")
 
-        assert submission.data["spoiler"]
+        assert submission._data["spoiler"]
 
-        await submission.mod.unspoiler()
+        await submission.mod.unmark_spoiler()
         submission = await reddit.submission("h7mna9")
 
-        assert not submission.data["spoiler"]
+        assert not submission._data["spoiler"]

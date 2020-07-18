@@ -1,14 +1,22 @@
 import asyncio
 import configparser
-import logging
-from datetime import datetime, timedelta
-from functools import wraps
-from typing import Any, Awaitable, Callable, Dict, List, Union
+import os
+from typing import Dict, List, Union, Any
 
-from .endpoints import API_PATH, BASE_URL
+from .endpoints import API_PATH
 from .models import (Comment, Listing, Redditor, Submission,
-                     Subreddit, User, ListingGenerator, Streamable)
+                     Subreddit, User, ListingGenerator, streamable)
+from .request_handler import RequestHandler
 from .utils import prepend_kind
+
+if os.path.exists('praw.ini'):
+    _prawfile = os.path.abspath('praw.ini')
+elif 'APPDATA' in os.environ:  # Windows
+    _prawfile = os.path.join(os.environ['APPDATA'], 'praw.ini')
+elif 'XDG_CONFIG_HOME' in os.environ:  # Modern Linux
+    _prawfile = os.path.join(os.environ['XDG_CONFIG_HOME'], 'praw.ini')
+elif 'HOME' in os.environ:  # Legacy Linux
+    _prawfile = os.path.join(os.environ['HOME'], '.config', 'praw.ini')
 
 
 class Reddit:
@@ -44,7 +52,7 @@ class Reddit:
         """
         if praw_key != "":
             config = configparser.ConfigParser()
-            config.read("praw.ini")
+            config.read(_prawfile)
 
             self.user = User(self, config[praw_key]["username"], config[praw_key]["password"],
                              config[praw_key]["client_id"], config[praw_key]["client_secret"],
@@ -63,10 +71,12 @@ class Reddit:
         self.listing_kind = "Listing"
         self.wiki_revision_kind = "WikiRevision"
         self.wikipage_kind = "wikipage"
+        self.more_kind = "more"
 
+        self.loop = asyncio.get_event_loop()
         self.request_handler = RequestHandler(self.user)
 
-    @Streamable.streamable
+    @streamable
     def subreddits(self, *args, **kwargs):
         r"""
         A :class:`~apraw.models.ListingGenerator` that returns newly created subreddits, which can be streamed using :code:`reddit.subreddits.stream()`.
@@ -83,7 +93,7 @@ class Reddit:
         """
         return ListingGenerator(self, API_PATH["subreddits_new"], *args, **kwargs)
 
-    async def get_request(self, *args, **kwargs):
+    async def get(self, *args, **kwargs) -> Any:
         """
         Perform an HTTP GET request on the Reddit API.
 
@@ -96,12 +106,12 @@ class Reddit:
 
         Returns
         -------
-        resp: Dict or None
+        resp: Any
             The response JSON data.
         """
-        return await self.request_handler.get_request(*args, **kwargs)
+        return await self.request_handler.get(*args, **kwargs)
 
-    async def post_request(self, *args, **kwargs):
+    async def post(self, *args, **kwargs) -> Any:
         """
         Perform an HTTP POST request on the Reddit API.
 
@@ -118,12 +128,55 @@ class Reddit:
 
         Returns
         -------
-        resp: Dict or None
+        resp: Any
             The response JSON data.
         """
-        return await self.request_handler.post_request(*args, **kwargs)
+        return await self.request_handler.post(*args, **kwargs)
 
-    async def get_listing(self, endpoint: str, subreddit: Subreddit = None, kind_filter: List[str] = None, **kwargs) -> Listing:
+    async def put(self, *args, **kwargs) -> Any:
+        """
+        Perform an HTTP PUT request on the Reddit API.
+
+        Parameters
+        ----------
+        endpoint: str
+            The endpoint to be appended after the base URL (https://oauth.reddit.com/).
+        url: str
+            The direct URL to perform the request on.
+        data:
+            The data to add to the POST body.
+        kwargs:
+            Query parameters to be appended after the URL.
+
+        Returns
+        -------
+        resp: Any
+            The response JSON data.
+        """
+        return await self.request_handler.put(*args, **kwargs)
+
+    async def delete(self, *args, **kwargs) -> Any:
+        """
+        Perform an HTTP DELETE request on the Reddit API.
+
+        Parameters
+        ----------
+        endpoint: str
+            The endpoint to be appended after the base URL (https://oauth.reddit.com/).
+        url: str
+            The direct URL to perform the request on.
+        kwargs:
+            Query parameters to be appended after the URL.
+
+        Returns
+        -------
+        resp: Any
+            The response JSON data.
+        """
+        return await self.request_handler.post(*args, **kwargs)
+
+    async def get_listing(self, endpoint: str, subreddit: Subreddit = None, kind_filter: List[str] = None,
+                          **kwargs) -> Listing:
         r"""
         Retrieve a listing from an endpoint.
 
@@ -143,7 +196,7 @@ class Reddit:
         listing: Listing
             The listing containing all the endpoint's children.
         """
-        resp = await self.get_request(endpoint, **kwargs)
+        resp = await self.get(endpoint, **kwargs)
         return Listing(self, resp["data"], kind_filter=kind_filter, subreddit=subreddit)
 
     async def subreddit(self, display_name: str) -> Subreddit:
@@ -162,12 +215,7 @@ class Reddit:
         result: None
             Returns None if subreddit not found.
         """
-        resp = await self.get_request(API_PATH["subreddit_about"].format(sub=display_name))
-        try:
-            return Subreddit(self, resp["data"])
-        except Exception as e:
-            logging.error(e)
-            return None
+        return await Subreddit(self, {"display_name": display_name}).fetch()
 
     async def info(self, id: str = "", ids: List[str] = [], url: str = ""):
         """
@@ -244,12 +292,16 @@ class Reddit:
             The requested comment.
         """
         if id != "":
-            async for comment in self.info(prepend_kind(id, self.comment_kind)):
-                return comment
-        elif url != "":
-            async for comment in self.info(url=url):
-                return comment
-        return None
+            comment = Comment(self, {"id": id})
+            await comment.fetch()
+            return comment
+        else:
+            comment = Comment(self, {"url": url})
+            await comment.fetch()
+            return comment
+
+    async def close(self):
+        await self.request_handler.close()
 
     async def redditor(self, username: str) -> Redditor:
         """
@@ -265,15 +317,10 @@ class Reddit:
         redditor: Redditor or None
             The requested Redditor, returns None if not found.
         """
-        resp = await self.get_request(API_PATH["user_about"].format(user=username))
-        try:
-            return Redditor(self, resp["data"])
-        except Exception as e:
-            # print("No Redditor data loaded for {}.".format(username))
-            return None
+        return await Redditor(self, {"username": username}).fetch()
 
     async def message(self, to: Union[str, Redditor], subject: str, text: str,
-                      from_sr: Union[str, Subreddit] = "") -> Dict:
+                      from_sr: Union[str, Subreddit] = "") -> bool:
         """
         Message a Redditor or Subreddit.
 
@@ -300,102 +347,5 @@ class Reddit:
         }
         if from_sr != "":
             data["from_sr"] = str(from_sr)
-        resp = await self.post_request(API_PATH["compose"], data=data)
-        return resp["success"]
-
-
-class RequestHandler:
-
-    def __init__(self, user):
-        self.user = user
-        self.queue = []
-
-    async def get_request_headers(self) -> Dict:
-        if self.user.token_expires <= datetime.now():
-            url = "https://www.reddit.com/api/v1/access_token"
-            session = self.user.get_auth_session()
-
-            headers = {
-                "Content-Type": "application/x-www-form-urlencoded",
-                "User-Agent": self.user.user_agent
-            }
-
-            resp = await session.post(url, data=self.user.password_grant, headers=headers)
-
-            async with resp:
-                if resp.status == 200:
-                    self.user.access_data = await resp.json()
-                    self.user.token_expires = datetime.now(
-                    ) + timedelta(seconds=self.user.access_data["expires_in"])
-                else:
-                    raise Exception("Invalid user data.")
-
-        return {
-            "Authorization": "{} {}".format(self.user.access_data["token_type"], self.user.access_data["access_token"]),
-            "User-Agent": self.user.user_agent
-        }
-
-    def update(self, data: Dict):
-        self.user.ratelimit_remaining = int(
-            float(data["x-ratelimit-remaining"]))
-        self.user.ratelimit_used = int(data["x-ratelimit-used"])
-
-        self.user.ratelimit_reset = datetime.now(
-        ) + timedelta(seconds=int(data["x-ratelimit-reset"]))
-
-    class Decorators:
-
-        @classmethod
-        def check_ratelimit(
-                cls, func: Callable[[Any], Awaitable[Any]]) -> Callable[[Any], Awaitable[Any]]:
-            @wraps(func)
-            async def execute_request(self, *args, **kwargs) -> Any:
-                id = datetime.now().strftime('%Y%m%d%H%M%S')
-                self.queue.append(id)
-
-                if self.user.ratelimit_remaining < 1:
-                    execution_time = self.user.ratelimit_reset + \
-                                     timedelta(seconds=len(self.queue))
-                    wait_time = (
-                            execution_time -
-                            datetime.now()).total_seconds()
-                    await asyncio.sleep(wait_time)
-
-                result = await func(self, *args, **kwargs)
-                self.queue.remove(id)
-                return result
-
-            return execute_request
-
-    @Decorators.check_ratelimit
-    async def get_request(self, endpoint: str = "", **kwargs) -> Dict:
-        kwargs = {"raw_json": 1, "api_type": "json", **kwargs}
-        params = ["{}={}".format(k, kwargs[k]) for k in kwargs]
-
-        url = BASE_URL.format(endpoint, "&".join(params))
-
-        headers = await self.get_request_headers()
-        session = self.user.get_client_session()
-        resp = await session.get(url, headers=headers)
-
-        async with resp:
-            self.update(resp.headers)
-            return await resp.json()
-
-    @Decorators.check_ratelimit
-    async def post_request(self, endpoint: str = "", url: str = "", data: Dict = {}, **kwargs) -> Dict:
-        kwargs = {"raw_json": 1, "api_type": "json", **kwargs}
-        params = ["{}={}".format(k, kwargs[k]) for k in kwargs]
-
-        if endpoint != "":
-            url = BASE_URL.format(endpoint, "&".join(params))
-        elif url != "":
-            url = "{}?{}".format(url, "&".join(params))
-
-        headers = await self.get_request_headers()
-        session = self.user.get_client_session()
-        resp = await session.post(url, data=data, headers=headers)
-
-        async with resp:
-            self.update(resp.headers)
-            return await resp.json()
+        resp = await self.post(API_PATH["compose"], data=data)
+        return not resp["json"]["errors"]
