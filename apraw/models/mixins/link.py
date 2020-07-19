@@ -11,7 +11,7 @@ class LinkMixin:
 
     async def link(self) -> Submission:
         """
-        Retrieve the item's author as a :class:`~apraw.models.Submission`.
+        Retrieve the submission this item belongs to as a :class:`~apraw.models.Submission`.
 
         Returns
         -------
@@ -19,7 +19,7 @@ class LinkMixin:
             The item's parent link / submission.
         """
         if self._link is None:
-            self._link = await self._reddit.redditor(getattr(self, "link_id"))
+            self._link = await self._reddit.submission(getattr(self, "link_id"))
         return self._link
 
     submission = link
