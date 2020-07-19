@@ -1,5 +1,6 @@
 from .enums.distinguishment_option import DistinguishmentOption
 from .helpers.apraw_base import aPRAWBase
+from .helpers.comment_forest import CommentForest
 from .helpers.generator import ListingGenerator
 from .helpers.item_moderation import ItemModeration, PostModeration
 from .helpers.streamable import Streamable, streamable
