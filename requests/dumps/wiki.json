@@ -1,1 +1,8 @@
-{"kind": "wikipagelisting", "data": ["config/description", "config/sidebar", "index"]}
+{
+  "kind": "wikipagelisting",
+  "data": [
+    "config/description",
+    "config/sidebar",
+    "index"
+  ]
+}
