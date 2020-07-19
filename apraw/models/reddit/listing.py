@@ -16,19 +16,6 @@ if TYPE_CHECKING:
 class Listing(aPRAWBase, Iterator):
     """
     A model representing Reddit listings.
-
-    Members
-    -------
-    reddit: Reddit
-        The :class:`~apraw.Reddit` instance with which requests are made.
-    data: Dict
-        The data retrieved from the endpoint.
-    kind_filter:
-        Kinds to return if given, otherwise all are returned.
-    subreddit: Subreddit
-        The subreddit to inject into items as their owner.
-    CHILD_ATTRIBUTE: str
-        The attribute in the data that contains the listing's items.
     """
 
     CHILD_ATTRIBUTE = "children"

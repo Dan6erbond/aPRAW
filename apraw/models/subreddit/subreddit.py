@@ -153,7 +153,7 @@ class Subreddit(aPRAWBase):
 
         self.mod = SubredditModeration(self)
         self.modmail = SubredditModmail(self)
-        self.wiki = SubredditWiki(self)
+        self.wiki = SubredditWiki(self._reddit, self)
         self.removal_reasons = SubredditRemovalReasons(self._reddit, self)
 
     async def fetch(self):
@@ -212,6 +212,7 @@ class Subreddit(aPRAWBase):
         listing = Listing(self._reddit, data=resp[0]["data"], subreddit=self)
         return next(listing)
 
+    #: Streamable listing endpoint.
     @streamable
     def comments(self, *args, **kwargs):
         r"""
@@ -239,6 +240,7 @@ class Subreddit(aPRAWBase):
         return ListingGenerator(self._reddit, API_PATH["subreddit_comments"].format(sub=self.display_name),
                                 subreddit=self, *args, **kwargs)
 
+    #: Streamable listing endpoint.
     @streamable
     def new(self, *args, **kwargs):
         r"""

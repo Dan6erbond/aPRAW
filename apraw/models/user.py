@@ -190,14 +190,17 @@ class AuthenticatedUser(Redditor):
             self._karma = [Karma(self.reddit, d) for d in resp["data"]]
         return self._karma
 
+    #: Streamable listing endpoint.
     @streamable
     async def inbox(self, *args, **kwargs) -> ListingGenerator:
         return ListingGenerator(self.reddit, API_PATH["message_inbox"], *args, **kwargs)
 
+    #: Streamable listing endpoint.
     @streamable
     async def sent(self, *args, **kwargs) -> ListingGenerator:
         return ListingGenerator(self.reddit, API_PATH["message_sent"], *args, **kwargs)
 
+    #: Streamable listing endpoint.
     @streamable
     async def unread(self, *args, **kwargs) -> ListingGenerator:
         return ListingGenerator(self.reddit, API_PATH["message_unread"], *args, **kwargs)

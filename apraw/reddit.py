@@ -27,6 +27,30 @@ class Reddit:
     -------
     user: User
         An instance of the logged-in Reddit user.
+    comment_kind: str
+        The prefix that represents :class:`~apraw.models.Comment` in API responses, such as ``t1``.
+    account_kind: str
+        The prefix that represents :class:`~apraw.models.Redditor` in API responses, such as ``t2``.
+    link_kind: str
+        The prefix that represents :class:`~apraw.models.Submission` in API responses, such as ``t3``.
+    message_kind: str
+        The prefix that represents :class:`~apraw.models.Message` in API responses, such as ``t4``.
+    subreddit_kind: str
+        The prefix that represents :class:`~apraw.models.Subreddit` in API responses, such as ``t5``.
+    award_kind: str
+        The prefix that represents awards in API responses, such as ``t6``.
+    modaction_kind: str
+        The prefix that represents :class:`~apraw.models.ModAction` in API responses, such as ``modaction``.
+    listing_kind: str
+        The prefix that represents :class:`~apraw.models.Listing` in API responses, such as ``listing``.
+    wiki_revision_kind: str
+        The prefix that represents :class:`~apraw.models.WikipageRevision` in API responses, such as ``WikiRevision``.
+    wikipage_kind: str
+        The prefix that represents :class:`~apraw.models.SubredditWikipage` in API responses, such as ``wikipage``.
+    more_kind: str
+        The prefix that represents :class:`~apraw.models.MoreComments` in API responses, such as ``more``.
+    request_handler: RequestHandler
+        An instance of :class:`~apraw.RequestHandler` with which this Reddit instance will perform HTTP requests.
     """
 
     def __init__(self, praw_key: str = "", username: str = "", password: str = "",
@@ -76,6 +100,7 @@ class Reddit:
         self.loop = asyncio.get_event_loop()
         self.request_handler = RequestHandler(self.user)
 
+    #: Streamable listing endpoint.
     @streamable
     def subreddits(self, *args, **kwargs):
         r"""

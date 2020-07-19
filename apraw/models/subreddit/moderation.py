@@ -92,6 +92,7 @@ class SubredditModeration:
         """
         self.subreddit = subreddit
 
+    #: Streamable listing endpoint.
     @streamable
     def reports(self, *args, **kwargs):
         r"""
@@ -120,6 +121,7 @@ class SubredditModeration:
                                 API_PATH["subreddit_reports"].format(sub=self.subreddit.display_name),
                                 subreddit=self.subreddit, *args, **kwargs)
 
+    #: Streamable listing endpoint.
     @streamable
     def spam(self, *args, **kwargs):
         r"""
@@ -148,6 +150,7 @@ class SubredditModeration:
                                 API_PATH["subreddit_spam"].format(sub=self.subreddit.display_name),
                                 subreddit=self.subreddit, *args, **kwargs)
 
+    #: Streamable listing endpoint.
     @streamable
     def modqueue(self, *args, **kwargs):
         r"""
@@ -176,6 +179,7 @@ class SubredditModeration:
                                 API_PATH["subreddit_modqueue"].format(sub=self.subreddit.display_name),
                                 subreddit=self.subreddit, *args, **kwargs)
 
+    #: Streamable listing endpoint.
     @streamable
     def unmoderated(self, *args, **kwargs):
         r"""
@@ -204,6 +208,7 @@ class SubredditModeration:
                                 API_PATH["subreddit_unmoderated"].format(sub=self.subreddit.display_name),
                                 subreddit=self.subreddit, *args, **kwargs)
 
+    #: Streamable listing endpoint.
     @streamable
     def edited(self, *args, **kwargs):
         r"""
@@ -232,6 +237,7 @@ class SubredditModeration:
                                 API_PATH["subreddit_edited"].format(sub=self.subreddit.display_name),
                                 subreddit=self.subreddit, *args, **kwargs)
 
+    #: Streamable listing endpoint.
     @streamable
     def log(self, *args, **kwargs):
         r"""

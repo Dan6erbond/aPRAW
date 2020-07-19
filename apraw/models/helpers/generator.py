@@ -62,7 +62,7 @@ class ListingGenerator(AsyncIterator):
 
     def __aiter__(self) -> AsyncIterator[aPRAWBase]:
         """
-        Permit ListingGenerator to operate as an iterator.
+        Permit ``ListingGenerator`` to operate as an iterator.
 
         Returns
         -------
@@ -73,7 +73,7 @@ class ListingGenerator(AsyncIterator):
 
     async def __anext__(self) -> Awaitable[aPRAWBase]:
         """
-        Permit ListingGenerator to operate as a generator.
+        Permit ``ListingGenerator`` to operate as a generator.
 
         Returns the next item in the listing.
 

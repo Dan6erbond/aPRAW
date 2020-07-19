@@ -87,4 +87,12 @@ class aPRAWBase:
 
     @property
     def fullname(self):
-        return prepend_kind(self._data[self.ID_ATTRIBUTE], self.kind) if self.kind else self._data[self.ID_ATTRIBUTE]
+        """
+        Get the ID prepended with its kind.
+
+        Returns
+        -------
+        fullname: str
+            The item's ID prepended with its kind such as `t1_`.
+        """
+        return getattr(self, "name") or prepend_kind(self._data[self.ID_ATTRIBUTE], self.kind)

@@ -50,7 +50,8 @@ It's split into the following sections.
 
    api/reddit/index
    api/models/index
-   api/other/index
+   api/helpers/index
+   api/enums/index
 
 Index
 -----

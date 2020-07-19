@@ -1,23 +1,11 @@
-from enum import Enum
-from typing import TYPE_CHECKING, NewType
+from typing import TYPE_CHECKING
 
-from ...const import API_PATH
 from .apraw_base import aPRAWBase
+from ..enums.distinguishment_option import DistinguishmentOption
+from ...const import API_PATH
 
 if TYPE_CHECKING:
     from ...reddit import Reddit
-
-
-class DistinguishmentOption(Enum):
-    YES = "yes"
-    NO = "no"
-    ADMIN = "admin"
-    SPECIAL = "special"
-
-
-DISTINGUISHMENT_OPTIONS = NewType(
-    "DistinguishmentOptions",
-    DistinguishmentOption)
 
 
 class ItemModeration:
@@ -68,15 +56,13 @@ class ItemModeration:
         """
         return await self.reddit.post(API_PATH["mod_remove"], id=self.fullname)
 
-    async def distinguish(self,
-                          how: DISTINGUISHMENT_OPTIONS = "yes",
-                          sticky: bool = False):
+    async def distinguish(self, how: DistinguishmentOption = "yes", sticky: bool = False):
         """
         Distinguish the Reddit item.
 
         Parameters
         ----------
-        how : "yes" or "no" or "admin" or "special"
+        how : DistinguishmentOption
             The type of distinguishment to be added to the item.
         sticky : bool, optional
             Whether the item should be stickied.
@@ -86,8 +72,7 @@ class ItemModeration:
         resp: Dict
             The API response JSON.
         """
-        return await self.reddit.post(API_PATH["mod_distinguish"],
-                                      id=self.fullname, how=how, sticky=sticky)
+        return await self.reddit.post(API_PATH["mod_distinguish"], id=self.fullname, how=how, sticky=sticky)
 
     async def undistinguish(self):
         """
@@ -98,8 +83,7 @@ class ItemModeration:
         resp: Dict
             The API response JSON.
         """
-        return await self.reddit.post(API_PATH["mod_distinguish"],
-                                      id=self.fullname, how="no", sticky=False)
+        return await self.reddit.post(API_PATH["mod_distinguish"], id=self.fullname, how="no", sticky=False)
 
     async def ignore_reports(self):
         """

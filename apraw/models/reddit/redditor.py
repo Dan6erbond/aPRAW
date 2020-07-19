@@ -96,6 +96,7 @@ class Redditor(aPRAWBase):
         self._update(resp["data"])
         return self
 
+    #: Streamable listing endpoint.
     @streamable
     def comments(self, *args, **kwargs):
         r"""
@@ -122,6 +123,7 @@ class Redditor(aPRAWBase):
         from ..helpers.generator import ListingGenerator
         return ListingGenerator(self.reddit, API_PATH["user_comments"].format(user=self), *args, **kwargs)
 
+    #: Streamable listing endpoint.
     @streamable
     def submissions(self, *args, **kwargs):
         r"""

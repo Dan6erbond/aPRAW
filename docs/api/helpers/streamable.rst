@@ -10,4 +10,7 @@ Streamable functions can be called by adding ``.stream()``, for example ``reddit
 
 .. autoclass:: streamable
     :members:
-    :special-members:
+
+.. autoclass:: Streamable
+    :members:
+    :special-members: __call__
