@@ -13,6 +13,24 @@ SYNC_OR_ASYNC_ITERABLE = Union[
 
 
 def streamable(func: SYNC_OR_ASYNC_ITERABLE = None, max_wait: int = 16, attribute_name: str = "fullname"):
+    """
+    A decorator to add the ``stream()`` extension to functions returning (async) iterables or (async) generators.
+
+    Parameters
+    ----------
+    func: SYNC_OR_ASYNC_ITERABLE
+        The function returning an (async) iterable or (async) generator to be decorated.
+    max_wait: int
+        The maximum amount of time to wait in between requests that don't return new data.
+    attribute_name: str
+        The attribute to use as a unique identifier for items returned by the decorated function.
+
+    Returns
+    -------
+    proxy: ProxyStreamable
+        A proxy descriptor that returns :class:`~apraw.models.Streamable` once it's accessed to enable per-instance use
+        for bound methods and regular functions.
+    """
     if func:
         return ProxyStreamable(func)
     else:
@@ -23,6 +41,10 @@ def streamable(func: SYNC_OR_ASYNC_ITERABLE = None, max_wait: int = 16, attribut
 
 
 class ProxyStreamable:
+    """
+    A proxy descriptor that returns :class:`~apraw.models.Streamable` once it's accessed to enable per-instance use for
+    bound methods and regular functions.
+    """
 
     def __init__(self, func: SYNC_OR_ASYNC_ITERABLE, max_wait: int = 16, attribute_name: str = "fullname"):
         self._func = func
