@@ -175,6 +175,11 @@ class SubredditRemovalReasons:
         -------
         reason: SubredditRemovalReason
             The next removal reason in the list.
+
+        Raises
+        ------
+        StopAsyncIteration
+            Raised once the list of removal reasons has been exhausted.
         """
         if not self._removal_reasons:
             await self._fetch()
