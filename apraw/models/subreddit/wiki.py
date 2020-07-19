@@ -318,11 +318,53 @@ class SubredditWikipage(aPRAWBase):
 
 
 class WikipageRevision(aPRAWBase):
+    """
+    The model that represents wikipage revisions.
+
+    Members
+    -------
+    author: Redditor
+        The Redditor that made this revision.
+
+    **Typical Attributes**
+
+    This table describes attributes that typically belong to objects of this
+    class. Attributes are dynamically provided by the :class:`~apraw.models.aPRAWBase` class
+    and may vary depending on the status of the response and expected objects.
+
+    =================== ====================================================
+    Attribute           Description
+    =================== ====================================================
+    ``timestamp``       A timestamp of when the revision was made.
+    ``page``            The name of the page the revision addresses.
+    ``revision_hidden`` Whether the revision has been hidden by the editors.
+    ``reason``          The reason string for this revision if available.
+    ``id``              The ID of this revision.
+    =================== ====================================================
+    """
 
     def __init__(self, reddit: 'Reddit', data: Dict = None):
+        """
+        Create an instance of ``WikipageRevision``.
+
+        Parameters
+        ----------
+        reddit: Reddit
+            The :class:`~apraw.Reddit` instance with which requests are made.
+        data: Dict
+            The data returned by the API endpoint.
+        """
         super().__init__(reddit, data, reddit.wiki_revision_kind)
 
         self.author = Redditor(reddit, data["author"]["data"])
 
     def __str__(self):
+        """
+        Retrieve the string representation of this object.
+
+        Returns
+        -------
+        id: str
+            The ID of this wikipage revision.
+        """
         return self.id
