@@ -44,6 +44,17 @@ class MoreComments(aPRAWBase):
         while self._ids:
             await self._next_batch()
 
+    def __aiter__(self):
+        """
+        Permit ``MoreComments`` to operate as an iterator.
+
+        Returns
+        -------
+        self: MoreComments
+            The iterator.
+        """
+        return self
+
     async def __anext__(self) -> Comment:
         if self._index >= len(self._comments) and not self._ids:
             raise StopAsyncIteration
