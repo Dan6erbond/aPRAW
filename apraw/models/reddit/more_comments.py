@@ -130,13 +130,13 @@ class MoreComments(aPRAWBase, LinkMixin):
         self._index += 1
         return self._comments[self._index + 1]
 
-    async def comments(self) -> List[Comment, 'MoreComments']:
+    async def comments(self) -> List[Union[Comment, 'MoreComments']]:
         """
         Retrieve a list of all the :class:`~apraw.models.Comment` and further ``MoreComments`` in this thread.
 
         Returns
         -------
-        comments: List[Comment, MoreComments]
+        comments: List[Union[Comment, MoreComments]]
             A list of all the :class:`~apraw.models.Comment` and further ``MoreComments`` in this thread.
         """
         if not self._comments:
