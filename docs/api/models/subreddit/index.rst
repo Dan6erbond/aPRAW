@@ -12,3 +12,4 @@ This section contains the documentation and API of the subreddit models and help
    moderation
    modmail
    wiki
+   removal_reasons
