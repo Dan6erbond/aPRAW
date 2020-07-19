@@ -10,6 +10,7 @@ from ..helpers.item_moderation import PostModeration
 from ..mixins.author import AuthorMixin
 from ..mixins.deletable import DeletableMixin
 from ..mixins.hideable import HideableMixin
+from ..mixins.link import LinkMixin
 from ..mixins.replyable import ReplyableMixin
 from ..mixins.savable import SavableMixin
 from ..mixins.subreddit import SubredditMixin
@@ -26,7 +27,7 @@ if TYPE_CHECKING:
 
 @all_reactive(not_type=(aPRAWBase, datetime, PostModeration))
 class Comment(aPRAWBase, DeletableMixin, HideableMixin, ReplyableMixin, SavableMixin, VotableMixin, AuthorMixin,
-              SubredditMixin, ReactiveOwner):
+              SubredditMixin, ReactiveOwner, LinkMixin):
     """
     The model representing comments.
 
@@ -151,8 +152,8 @@ class Comment(aPRAWBase, DeletableMixin, HideableMixin, ReplyableMixin, SavableM
         aPRAWBase.__init__(self, reddit, data, reddit.comment_kind)
         AuthorMixin.__init__(self, author)
         SubredditMixin.__init__(self, subreddit)
+        LinkMixin.__init__(self, submission)
 
-        self._submission = submission
         self.mod = CommentModeration(reddit, self)
 
     async def fetch(self):
@@ -224,22 +225,6 @@ class Comment(aPRAWBase, DeletableMixin, HideableMixin, ReplyableMixin, SavableM
             return await self._async_bulk_update(**updates)
         else:
             raise TypeError("data is not of type 'dict' or 'list'.")
-
-    async def submission(self) -> 'Submission':
-        """
-        Retrieve the submission this comment was made in as a :class:`~apraw.models.Submission`.
-
-        Returns
-        -------
-        submission: Submission
-            The submission this comment was made in.
-        """
-        if self._submission is None:
-            link = await self._reddit.get(API_PATH["info"], id=self._data["link_id"])
-            from .submission import Submission
-            self._submission = Submission(
-                self._reddit, link["data"]["children"][0]["data"])
-        return self._submission
 
 
 class CommentModeration(PostModeration):
