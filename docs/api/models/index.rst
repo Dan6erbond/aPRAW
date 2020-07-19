@@ -14,3 +14,4 @@ This section contains the documentation and API of the implemented aPRAW models.
    message
    redditor
    more_comments
+   listing
