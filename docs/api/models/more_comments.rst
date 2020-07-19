@@ -17,3 +17,4 @@ asynchronously:
 
 .. autoclass:: MoreComments
     :members:
+    :inherited-members:
