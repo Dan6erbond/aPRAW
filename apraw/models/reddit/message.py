@@ -47,6 +47,7 @@ class Message(aPRAWBase, SubredditMixin, AuthorMixin, ReplyableMixin):
     ``context``                 ``str``
     ``distinguished``           The type of distinguishment on this message object.
     =========================== ======================================================================================
+
     """
 
     def __init__(self, reddit: 'Reddit', data: Dict[str, Any]):

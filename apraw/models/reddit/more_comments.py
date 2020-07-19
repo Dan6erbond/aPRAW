@@ -30,6 +30,7 @@ class MoreComments(aPRAWBase, LinkMixin):
     ``depth``     The depth this more comments model goes into.
     ``children``  A list of comment and more comment IDs available in this thread.
     ============= ================================================================
+
     """
 
     def __init__(self, reddit: 'Reddit', data: Dict[str, Any], link_id: str):
