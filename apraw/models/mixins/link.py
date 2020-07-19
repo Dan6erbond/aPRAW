@@ -3,7 +3,7 @@ from ..reddit.submission import Submission
 
 class LinkMixin:
     """
-    Mixin for items belonging to a link / submission.
+    Mixin for items belonging to a submission.
     """
 
     def __init__(self, link: Submission = None):
@@ -15,8 +15,8 @@ class LinkMixin:
 
         Returns
         -------
-        link: Submission
-            The item's parent link / submission.
+        submission: Submission
+            The item's parent submission.
         """
         if self._link is None:
             self._link = await self._reddit.submission(getattr(self, "link_id"))
