@@ -12,6 +12,7 @@ SubredditWiki
 
 .. autoclass:: apraw.models.SubredditWiki
     :members:
+    :special-members: __call__
 
 SubredditWikipage
 -----------------
