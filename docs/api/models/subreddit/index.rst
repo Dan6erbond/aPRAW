@@ -9,6 +9,6 @@ This section contains the documentation and API of the subreddit models and help
    :maxdepth: 2
 
    subreddit
-   subreddit_moderation
-   subreddit_modmail
-   subreddit_wiki
+   moderation
+   modmail
+   wiki
