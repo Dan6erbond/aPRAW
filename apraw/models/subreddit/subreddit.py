@@ -153,7 +153,7 @@ class Subreddit(aPRAWBase):
 
         self.mod = SubredditModeration(self)
         self.modmail = SubredditModmail(self)
-        self.wiki = SubredditWiki(self)
+        self.wiki = SubredditWiki(self._reddit, self)
         self.removal_reasons = SubredditRemovalReasons(self._reddit, self)
 
     async def fetch(self):
