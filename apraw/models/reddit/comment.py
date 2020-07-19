@@ -181,6 +181,32 @@ class Comment(aPRAWBase, DeletableMixin, HideableMixin, ReplyableMixin, SavableM
             raise ValueError(f"No data available to make request URL: {self._data}")
 
     async def monitor(self, max_wait=16):
+        """
+        Continuously fetch this comment's data to react to changes in the data.
+
+        This can be used in combination with the callbacks offered by ReactivePy to be notified on changes in specific
+        fields on this comment. For more information on ReactivePy view the
+        `GitHub repo <https://github.com/Dan6erbond/ReactivePy>`_.
+
+        Callbacks can be assigned as follows:
+
+        .. code-block:: python3
+
+            async def on_change(*args):
+                for arg in args:
+                    print(f"{arg.name} changed to {arg.value}.")
+            comment.on_change(on_change)
+
+        .. note::
+
+            Callbacks will work regardless of them being asynchronous or synchronous, as aPRAW's models use
+            the ``_async_bulk_update()`` method offered by ReactivePy's interface.
+
+        Parameters
+        ----------
+        max_wait: int
+            The maximum amount of time to wait between requests if no updates were previously recognized.
+        """
         counter = ExponentialCounter(max_wait)
         while True:
             updates = await self.fetch()
