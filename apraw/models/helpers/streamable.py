@@ -26,6 +26,8 @@ class ProxyStreamable:
 
     def __init__(self, func: SYNC_OR_ASYNC_ITERABLE, max_wait: int = 16, attribute_name: str = "fullname"):
         self._func = func
+        update_wrapper(self, func)
+
         self._max_wait = max_wait
         self._attribute_name = attribute_name
 
@@ -71,11 +73,9 @@ class Streamable:
         attribute_name: str
             The attribute name to use as a unique identifier for returned objects.
         """
+        self._func = func
         self._instance = instance
         self._attribute_name = attribute_name
-        self._func = func
-        update_wrapper(self, func)
-
         self.max_wait = max_wait
 
     async def __call__(self, *args, **kwargs):

@@ -30,6 +30,7 @@ class SubredditWiki:
         self._subreddit = subreddit
         self._data = None
 
+    #: Streamable listing endpoint.
     @streamable
     def revisions(self, *args, **kwargs):
         r"""
@@ -168,6 +169,7 @@ class SubredditWikipage(aPRAWBase):
         self.name = name
         self._subreddit = subreddit
 
+    #: Streamable listing endpoint.
     @streamable
     def revisions(self, *args, **kwargs):
         r"""

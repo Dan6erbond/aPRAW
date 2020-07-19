@@ -100,6 +100,7 @@ class Reddit:
         self.loop = asyncio.get_event_loop()
         self.request_handler = RequestHandler(self.user)
 
+    #: Streamable listing endpoint.
     @streamable
     def subreddits(self, *args, **kwargs):
         r"""
