@@ -12,3 +12,4 @@ This section contains the documentation and API of the implemented aPRAW models.
    submission/index
    comment/index
    redditor
+   more_comments
