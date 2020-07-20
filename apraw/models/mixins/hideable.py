@@ -15,7 +15,7 @@ class HideableMixin:
         resp: Dict
             The API response JSON.
         """
-        return await self.reddit.post(API_PATH["post_hide"], id=self.fullname)
+        return await self._reddit.post(API_PATH["post_hide"], id=self.fullname)
 
     async def unhide(self):
         """
@@ -26,4 +26,4 @@ class HideableMixin:
         resp: Dict
             The API response JSON.
         """
-        return await self.reddit.post(API_PATH["post_unhide"], id=self.fullname)
+        return await self._reddit.post(API_PATH["post_unhide"], id=self.fullname)
