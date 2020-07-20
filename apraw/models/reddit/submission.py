@@ -238,13 +238,6 @@ class Submission(aPRAWBase, DeletableMixin, HideableMixin, ReplyableMixin, NSFWa
 class SubmissionModeration(PostModeration, NSFWableMixin, SpoilerableMixin):
     """
     A helper class to moderate submissions.
-
-    Members
-    -------
-    reddit: Reddit
-        The :class:`~apraw.Reddit` instance with which requests are made.
-    fullname: str
-        The ID prepended with the kind of the item this helper belongs to.
     """
 
     def __init__(self, reddit: 'Reddit', submission: Submission):
@@ -276,7 +269,7 @@ class SubmissionModeration(PostModeration, NSFWableMixin, SpoilerableMixin):
         resp: Dict
             The API response JSON.
         """
-        return await self.reddit.post(API_PATH["mod_sticky"], **{
+        return await self._reddit.post(API_PATH["mod_sticky"], **{
             "id": self.fullname,
             "num": position,
             "state": True,
@@ -297,7 +290,7 @@ class SubmissionModeration(PostModeration, NSFWableMixin, SpoilerableMixin):
         resp: Dict
             The API response JSON.
         """
-        return await self.reddit.post(API_PATH["mod_sticky"], **{
+        return await self._reddit.post(API_PATH["mod_sticky"], **{
             "id": self.fullname,
             "state": False,
             "to_profile": to_profile

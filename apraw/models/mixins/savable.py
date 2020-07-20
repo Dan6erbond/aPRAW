@@ -20,7 +20,7 @@ class SavableMixin:
         resp: Dict
             The API response JSON.
         """
-        return await self.reddit.post(API_PATH["post_save"], id=self.fullname, category=category)
+        return await self._reddit.post(API_PATH["post_save"], id=self.fullname, category=category)
 
     async def unsave(self):
         """
@@ -31,4 +31,4 @@ class SavableMixin:
         resp: Dict
             The API response JSON.
         """
-        return await self.reddit.post(API_PATH["post_unsave"], id=self.fullname)
+        return await self._reddit.post(API_PATH["post_unsave"], id=self.fullname)

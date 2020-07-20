@@ -15,7 +15,7 @@ class VotableMixin:
         resp: Dict
             The API response JSON.
         """
-        return await self.reddit.post(API_PATH["post_vote"], id=self.fullname, dir=1)
+        return await self._reddit.post(API_PATH["post_vote"], id=self.fullname, dir=1)
 
     async def downvote(self):
         """
@@ -26,7 +26,7 @@ class VotableMixin:
         resp: Dict
             The API response JSON.
         """
-        return await self.reddit.post(API_PATH["post_vote"], id=self.fullname, dir=-1)
+        return await self._reddit.post(API_PATH["post_vote"], id=self.fullname, dir=-1)
 
     async def clear_vote(self):
         """
@@ -37,4 +37,4 @@ class VotableMixin:
         resp: Dict
             The API response JSON.
         """
-        return await self.reddit.post(API_PATH["post_vote"], id=self.fullname, dir=0)
+        return await self._reddit.post(API_PATH["post_vote"], id=self.fullname, dir=0)

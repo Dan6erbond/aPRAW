@@ -256,13 +256,6 @@ class Comment(aPRAWBase, DeletableMixin, HideableMixin, ReplyableMixin, SavableM
 class CommentModeration(PostModeration):
     """
     A helper class to moderate comments.
-
-    Members
-    -------
-    reddit: Reddit
-        The :class:`~apraw.Reddit` instance with which requests are made.
-    fullname: str
-        The ID prepended with the kind of the item this helper belongs to.
     """
 
     def __init__(self, reddit: 'Reddit', comment: Comment):
@@ -289,4 +282,4 @@ class CommentModeration(PostModeration):
         resp: Dict
             The API response JSON.
         """
-        return await self.reddit.post(API_PATH["mod_show_comment"], id=self.fullname)
+        return await self._reddit.post(API_PATH["mod_show_comment"], id=self.fullname)
