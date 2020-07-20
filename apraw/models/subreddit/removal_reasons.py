@@ -92,6 +92,17 @@ class SubredditRemovalReason(aPRAWBase):
         }
         await self._reddit.put(self.url, data=data)
 
+    def __str__(self):
+        """
+        Retrieve a string representation of this removal reason.
+
+        Returns
+        -------
+        id: str
+            This removal reason's full ID.
+        """
+        return self.id
+
 
 class SubredditRemovalReasons:
     """
