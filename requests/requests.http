@@ -93,3 +93,11 @@ DELETE {{baseUrl}}/api/v1/{{subreddit}}/removal_reasons/15bdq4obounrr
 User-Agent: {{user_agent}}
 Content-Type: application/json
 Authorization: {{getToken.response.body.token_type}} {{getToken.response.body.access_token}}
+
+###
+
+# @name getSubredditSettings
+GET {{baseUrl}}/r/{{subreddit}}/about/edit
+User-Agent: {{user_agent}}
+Content-Type: application/json
+Authorization: {{getToken.response.body.token_type}} {{getToken.response.body.access_token}}
