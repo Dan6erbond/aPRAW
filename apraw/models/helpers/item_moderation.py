@@ -38,7 +38,7 @@ class ItemModeration:
         resp: Dict
             The API response JSON.
         """
-        return await self._reddit.post(API_PATH["mod_approve"], id=self._item.fullname)
+        return await self._reddit.post(API_PATH["mod_approve"], id=self.fullname)
 
     def _add_removal_reason(self, mod_note: Optional[str] = "", reason: Union[str, SubredditRemovalReason] = None):
         """
@@ -63,7 +63,7 @@ class ItemModeration:
             raise ValueError("mod_note cannot be blank if reason_id is not specified")
         # Only the first element of the item_id list is used.
         data = {
-            "item_ids": [self._item.fullname],
+            "item_ids": [self.fullname],
             "mod_note": mod_note,
             "reason_id": str(reason),
         }
@@ -88,7 +88,7 @@ class ItemModeration:
         resp: Dict or Tuple
             The API response JSON or a tuple of dictionaries if a removal reason / mod note was added as well.
         """
-        data = {"id": self._item.fullname, "spam": bool(spam)}
+        data = {"id": self.fullname, "spam": bool(spam)}
         res = await self._reddit.post(API_PATH["mod_remove"], data=data)
 
         if any([reason, mod_note]):
@@ -113,7 +113,7 @@ class ItemModeration:
         resp: Dict
             The API response JSON.
         """
-        return await self._reddit.post(API_PATH["mod_distinguish"], id=self._item.fullname, how=how, sticky=sticky)
+        return await self._reddit.post(API_PATH["mod_distinguish"], id=self.fullname, how=how, sticky=sticky)
 
     async def undistinguish(self):
         """
@@ -124,7 +124,7 @@ class ItemModeration:
         resp: Dict
             The API response JSON.
         """
-        return await self._reddit.post(API_PATH["mod_distinguish"], id=self._item.fullname, how="no", sticky=False)
+        return await self._reddit.post(API_PATH["mod_distinguish"], id=self.fullname, how="no", sticky=False)
 
     async def ignore_reports(self):
         """
@@ -135,7 +135,7 @@ class ItemModeration:
         resp: Dict
             The API response JSON.
         """
-        return await self._reddit.post(API_PATH["mod_ignore_reports"], id=self._item.fullname)
+        return await self._reddit.post(API_PATH["mod_ignore_reports"], id=self.fullname)
 
     async def unignore_reports(self):
         """
@@ -146,7 +146,19 @@ class ItemModeration:
         resp: Dict
             The API response JSON.
         """
-        return await self._reddit.post(API_PATH["mod_unignore_reports"], id=self._item.fullname)
+        return await self._reddit.post(API_PATH["mod_unignore_reports"], id=self.fullname)
+
+    @property
+    def fullname(self) -> str:
+        """
+        Retrieve the fullname of the item this helper performs requests for.
+
+        Returns
+        -------
+        fullname: str
+            The ID prepended with the kind of the item this helper belongs to.
+        """
+        return self.fullname
 
 
 class PostModeration(ItemModeration):
@@ -170,7 +182,7 @@ class PostModeration(ItemModeration):
         resp: Dict
             The API response JSON.
         """
-        return await self._reddit.post(API_PATH["mod_lock"], id=self._item.fullname)
+        return await self._reddit.post(API_PATH["mod_lock"], id=self.fullname)
 
     async def unlock(self):
         """
@@ -181,4 +193,4 @@ class PostModeration(ItemModeration):
         resp: Dict
             The API response JSON.
         """
-        return await self._reddit.post(API_PATH["mod_unlock"], id=self._item.fullname)
+        return await self._reddit.post(API_PATH["mod_unlock"], id=self.fullname)
