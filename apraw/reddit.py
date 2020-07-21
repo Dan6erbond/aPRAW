@@ -96,6 +96,7 @@ class Reddit:
         self.wiki_revision_kind = "WikiRevision"
         self.wikipage_kind = "wikipage"
         self.more_kind = "more"
+        self.subreddit_settings_kind = "subreddit_settings"
 
         self.loop = asyncio.get_event_loop()
         self.request_handler = RequestHandler(self.user)
