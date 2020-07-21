@@ -165,11 +165,9 @@ class Subreddit(aPRAWBase):
         self: Subreddit
             The ``Subreddit`` model with updated data.
         """
-        if self.display_name.lower() in ["mod", "all"]:
-            return self
-
         resp = await self._reddit.get(API_PATH["subreddit_about"].format(sub=self.display_name))
-        self._update(resp["data"])
+        if "data" in resp:
+            self._update(resp["data"])
         return self
 
     def __repr__(self):

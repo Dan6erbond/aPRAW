@@ -90,6 +90,13 @@ class TestSubreddit:
             assert isinstance(submission, apraw.models.Submission)
 
     @pytest.mark.asyncio
+    async def test_multireddit(self, reddit):
+        subreddit = await reddit.subreddit("askreddit+apraw+askouija")
+
+        async for submission in subreddit.new(limit=5):
+            assert isinstance(submission, apraw.models.Submission)
+
+    @pytest.mark.asyncio
     async def test_subreddit_removal_reasons(self, reddit):
         subreddit = await reddit.subreddit("aprawtest")
 
@@ -111,3 +118,10 @@ class TestSubreddit:
             assert reason.message == message
 
             break
+
+    @pytest.mark.asyncio
+    async def test_subreddit_settings(self, reddit: apraw.Reddit):
+        subreddit = await reddit.subreddit("aprawtest")
+
+        settings = await subreddit.mod.settings()
+        assert settings.title.lower() == "aprawtest"
