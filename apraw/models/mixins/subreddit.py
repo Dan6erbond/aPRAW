@@ -1,4 +1,7 @@
-from ..subreddit.subreddit import Subreddit
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from ..subreddit.subreddit import Subreddit
 
 
 class SubredditMixin:
@@ -6,10 +9,10 @@ class SubredditMixin:
     Mixin for items in a subreddit.
     """
 
-    def __init__(self, subreddit: Subreddit = None):
+    def __init__(self, subreddit: 'Subreddit' = None):
         self._subreddit = subreddit
 
-    async def subreddit(self) -> Subreddit:
+    async def subreddit(self) -> 'Subreddit':
         """
         Retrieve the subreddit this item was made in as a :class:`~apraw.models.Subreddit`.
 
