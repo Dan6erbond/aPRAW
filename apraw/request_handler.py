@@ -40,7 +40,7 @@ class RequestHandler:
             "User-Agent": self.user.user_agent
         }
 
-    def update(self, data: CIMultiDictProxy[str]):
+    def update(self, data: CIMultiDictProxy):
         if "x-ratelimit-remaining" in data:
             self.user.ratelimit_remaining = int(float(data["x-ratelimit-remaining"]))
         if "x-ratelimit-used" in data:
