@@ -56,6 +56,7 @@ API_PATH: Dict[str, str] = {
     "subreddit_removal_reasons": "/api/v1/{sub}/removal_reasons",
     "subreddit_reports"        : "/r/{sub}/about/reports",
     "subreddit_rising"         : "/r/{sub}/rising",
+    "subreddit_settings"       : "/r/{sub}/about/edit",
     "subreddit_spam"           : "/r/{sub}/about/spam",
     "subreddit_top"            : "/r/{sub}/top",
     "subreddit_unmoderated"    : "/r/{sub}/about/unmoderated",

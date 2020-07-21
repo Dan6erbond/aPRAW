@@ -1,6 +1,7 @@
 from datetime import datetime
 from typing import Dict, TYPE_CHECKING
 
+from .settings import SubredditSettings
 from ..helpers.apraw_base import aPRAWBase
 from ..helpers.streamable import streamable
 from ..reddit.redditor import Redditor
@@ -74,23 +75,22 @@ class SubredditModerator(aPRAWBase):
 class SubredditModeration:
     """
     A helper class for grabbing listings to Subreddit moderation items.
-
-    Members
-    -------
-    subreddit: Subreddit
-        The subreddit this helper instance belongs to and performs requests for.
     """
 
-    def __init__(self, subreddit: 'Subreddit'):
+    def __init__(self, reddit: 'Reddit', subreddit: 'Subreddit'):
         """
         Create an instance of ``SubredditModeration``.
 
         Parameters
         ----------
+        reddit: Reddit
+            The :class:`~apraw.Reddit` instance with which requests are made.
         subreddit: Subreddit
             The subreddit this helper instance belongs to and performs requests for.
         """
-        self.subreddit = subreddit
+        self._reddit = reddit
+        self._subreddit = subreddit
+        self._settings = None
 
     #: Streamable listing endpoint.
     @streamable
@@ -117,9 +117,9 @@ class SubredditModeration:
             A :class:`~apraw.models.ListingGenerator` mapped to grab reported items.
         """
         from ..helpers.generator import ListingGenerator
-        return ListingGenerator(self.subreddit._reddit,
-                                API_PATH["subreddit_reports"].format(sub=self.subreddit.display_name),
-                                subreddit=self.subreddit, *args, **kwargs)
+        return ListingGenerator(self._reddit,
+                                API_PATH["subreddit_reports"].format(sub=self._subreddit.display_name),
+                                subreddit=self._subreddit, *args, **kwargs)
 
     #: Streamable listing endpoint.
     @streamable
@@ -146,9 +146,9 @@ class SubredditModeration:
             A :class:`~apraw.models.ListingGenerator` mapped to grab items marked as spam.
         """
         from ..helpers.generator import ListingGenerator
-        return ListingGenerator(self.subreddit._reddit,
-                                API_PATH["subreddit_spam"].format(sub=self.subreddit.display_name),
-                                subreddit=self.subreddit, *args, **kwargs)
+        return ListingGenerator(self._reddit,
+                                API_PATH["subreddit_spam"].format(sub=self._subreddit.display_name),
+                                subreddit=self._subreddit, *args, **kwargs)
 
     #: Streamable listing endpoint.
     @streamable
@@ -175,9 +175,9 @@ class SubredditModeration:
             A :class:`~apraw.models.ListingGenerator` mapped to grab items in the modqueue.
         """
         from ..helpers.generator import ListingGenerator
-        return ListingGenerator(self.subreddit._reddit,
-                                API_PATH["subreddit_modqueue"].format(sub=self.subreddit.display_name),
-                                subreddit=self.subreddit, *args, **kwargs)
+        return ListingGenerator(self._reddit,
+                                API_PATH["subreddit_modqueue"].format(sub=self._subreddit.display_name),
+                                subreddit=self._subreddit, *args, **kwargs)
 
     #: Streamable listing endpoint.
     @streamable
@@ -204,9 +204,9 @@ class SubredditModeration:
             A :class:`~apraw.models.ListingGenerator` mapped to grab unmoderated items.
         """
         from ..helpers.generator import ListingGenerator
-        return ListingGenerator(self.subreddit._reddit,
-                                API_PATH["subreddit_unmoderated"].format(sub=self.subreddit.display_name),
-                                subreddit=self.subreddit, *args, **kwargs)
+        return ListingGenerator(self._reddit,
+                                API_PATH["subreddit_unmoderated"].format(sub=self._subreddit.display_name),
+                                subreddit=self._subreddit, *args, **kwargs)
 
     #: Streamable listing endpoint.
     @streamable
@@ -233,9 +233,9 @@ class SubredditModeration:
             A :class:`~apraw.models.ListingGenerator` mapped to grab edited items.
         """
         from ..helpers.generator import ListingGenerator
-        return ListingGenerator(self.subreddit._reddit,
-                                API_PATH["subreddit_edited"].format(sub=self.subreddit.display_name),
-                                subreddit=self.subreddit, *args, **kwargs)
+        return ListingGenerator(self._reddit,
+                                API_PATH["subreddit_edited"].format(sub=self._subreddit.display_name),
+                                subreddit=self._subreddit, *args, **kwargs)
 
     #: Streamable listing endpoint.
     @streamable
@@ -262,9 +262,25 @@ class SubredditModeration:
             A :class:`~apraw.models.ListingGenerator` mapped to grab mod actions in the subreddit log.
         """
         from ..helpers.generator import ListingGenerator
-        return ListingGenerator(self.subreddit._reddit,
-                                API_PATH["subreddit_log"].format(sub=self.subreddit.display_name),
-                                subreddit=self.subreddit, *args, **kwargs)
+        return ListingGenerator(self._reddit,
+                                API_PATH["subreddit_log"].format(sub=self._subreddit.display_name),
+                                subreddit=self._subreddit, *args, **kwargs)
+
+    async def settings(self) -> SubredditSettings:
+        """
+        Retrieve the settings for the subreddit this helper works for.
+
+        Returns
+        -------
+        settings: SubredditSettings
+            The subreddit's settings with their data prefetched.
+        """
+        if not self._settings:
+            self._settings = SubredditSettings(self._reddit,
+                                               {"subreddit": self._subreddit.display_name},
+                                               self._subreddit)
+            await self._settings.fetch()
+        return self._settings
 
 
 class ModAction(aPRAWBase):
