@@ -37,8 +37,8 @@ Items in the modqueue can be fetched using the ``modqueue`` listing:
 .. autoclass:: apraw.models.SubredditModeration
     :members:
 
-SubredditModeration
--------------------
+SubredditSettings
+-----------------
 
 .. autoclass:: apraw.models.SubredditSettings
     :members:
