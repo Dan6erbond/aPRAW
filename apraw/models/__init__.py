@@ -13,6 +13,7 @@ from .reddit.submission import Submission, SubmissionModeration
 from .subreddit.moderation import ModAction, SubredditModerator, SubredditModeration
 from .subreddit.modmail import ModmailConversation, ModmailMessage, SubredditModmail
 from .subreddit.removal_reasons import SubredditRemovalReason, SubredditRemovalReasons
+from .subreddit.settings import SubredditSettings
 from .subreddit.subreddit import Subreddit
 from .subreddit.wiki import WikipageRevision, SubredditWiki, SubredditWikipage
 from .user import AuthenticatedUser, Karma, User
