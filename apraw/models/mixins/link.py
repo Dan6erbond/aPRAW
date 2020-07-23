@@ -1,4 +1,7 @@
-from ..reddit.submission import Submission
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from ..reddit.submission import Submission
 
 
 class LinkMixin:
@@ -6,10 +9,10 @@ class LinkMixin:
     Mixin for items belonging to a submission.
     """
 
-    def __init__(self, link: Submission = None):
+    def __init__(self, link: 'Submission' = None):
         self._link = link
 
-    async def link(self) -> Submission:
+    async def link(self) -> 'Submission':
         """
         Retrieve the submission this item belongs to as a :class:`~apraw.models.Submission`.
 

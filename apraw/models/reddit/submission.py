@@ -14,11 +14,11 @@ from ..mixins.savable import SavableMixin
 from ..mixins.spoilerable import SpoilerableMixin
 from ..mixins.subreddit import SubredditMixin
 from ..mixins.votable import VotableMixin
-from ..subreddit.subreddit import Subreddit
 from ...const import API_PATH
 from ...utils import prepend_kind
 
 if TYPE_CHECKING:
+    from ..subreddit.subreddit import Subreddit
     from ...reddit import Reddit
 
 URL_PATTERN = re.compile(r"/r(?:/(?P<subreddit>\w+))/comments(?:/(?P<submission>\w+))(?:/\w+/(?P<comment>\w+))?")
@@ -171,7 +171,7 @@ class Submission(aPRAWBase, DeletableMixin, HideableMixin, ReplyableMixin, NSFWa
 
     """
 
-    def __init__(self, reddit: 'Reddit', data: Dict, subreddit: Subreddit = None, author: Redditor = None):
+    def __init__(self, reddit: 'Reddit', data: Dict, subreddit: 'Subreddit' = None, author: Redditor = None):
         """
         Create an instance of a submission object.
 

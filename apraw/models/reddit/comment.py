@@ -16,12 +16,12 @@ from ..mixins.replyable import ReplyableMixin
 from ..mixins.savable import SavableMixin
 from ..mixins.subreddit import SubredditMixin
 from ..mixins.votable import VotableMixin
-from ..subreddit.subreddit import Subreddit
 from ...const import API_PATH
 from ...utils import prepend_kind, snake_case_keys, ExponentialCounter
 
 if TYPE_CHECKING:
     from ...reddit import Reddit
+    from ..subreddit.subreddit import Subreddit
     from .submission import Submission
     from ..helpers.comment_forest import CommentForest
 
@@ -130,7 +130,7 @@ class Comment(aPRAWBase, DeletableMixin, HideableMixin, ReplyableMixin, SavableM
     """
 
     def __init__(self, reddit: 'Reddit', data: Dict, submission: 'Submission' = None,
-                 author: Redditor = None, subreddit: Subreddit = None, replies: Union['CommentForest', List] = None):
+                 author: Redditor = None, subreddit: 'Subreddit' = None, replies: Union['CommentForest', List] = None):
         """
         Create an instance of a comment.
 

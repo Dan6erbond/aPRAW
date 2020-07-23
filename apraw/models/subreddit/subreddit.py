@@ -1,5 +1,6 @@
 from typing import TYPE_CHECKING, AsyncIterator, Dict, Union, Any
 
+from .banned import SubredditBanned
 from .moderation import SubredditModerator, SubredditModeration
 from .modmail import SubredditModmail
 from .removal_reasons import SubredditRemovalReasons
@@ -155,6 +156,7 @@ class Subreddit(aPRAWBase):
         self.modmail = SubredditModmail(self._reddit, self)
         self.wiki = SubredditWiki(self._reddit, self)
         self.removal_reasons = SubredditRemovalReasons(self._reddit, self)
+        self.banned = SubredditBanned(self._reddit, self)
 
     async def fetch(self):
         """

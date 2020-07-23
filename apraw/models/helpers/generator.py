@@ -1,13 +1,10 @@
 from typing import TYPE_CHECKING, AsyncIterator, Awaitable, List, Type
 
-from .apraw_base import aPRAWBase
-from ..reddit.comment import Comment
 from ..reddit.listing import Listing
-from ..reddit.submission import Submission
-from ..subreddit.moderation import ModAction
-from ..subreddit.subreddit import Subreddit
 
 if TYPE_CHECKING:
+    from .apraw_base import aPRAWBase
+    from ..subreddit.subreddit import Subreddit
     from ...reddit import Reddit
 
 
@@ -32,7 +29,7 @@ class ListingGenerator(AsyncIterator):
         ListingGenerator will automatically make requests until none more are found or the limit has been reached.
     """
 
-    def __init__(self, reddit: 'Reddit', endpoint: str, limit: int = 100, subreddit: Subreddit = None,
+    def __init__(self, reddit: 'Reddit', endpoint: str, limit: int = 100, subreddit: 'Subreddit' = None,
                  kind_filter: List[str] = None, listing_class: Type[Listing] = Listing, **kwargs):
         r"""
         Create a ``ListingGenerator`` instance.
@@ -62,7 +59,7 @@ class ListingGenerator(AsyncIterator):
         self._kind_filter = kind_filter
         self._yielded = 0
 
-    def __aiter__(self) -> AsyncIterator[aPRAWBase]:
+    def __aiter__(self) -> AsyncIterator['aPRAWBase']:
         """
         Permit ``ListingGenerator`` to operate as an iterator.
 
@@ -73,7 +70,7 @@ class ListingGenerator(AsyncIterator):
         """
         return self
 
-    async def __anext__(self) -> Awaitable[aPRAWBase]:
+    async def __anext__(self) -> Awaitable['aPRAWBase']:
         """
         Permit ``ListingGenerator`` to operate as a generator.
 
