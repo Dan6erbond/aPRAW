@@ -3,6 +3,7 @@ from typing import TYPE_CHECKING, Union, Optional, Dict
 
 from ..helpers.apraw_base import aPRAWBase
 from ..helpers.generator import ListingGenerator
+from ..helpers.streamable import streamable
 from ..mixins.redditor import RedditorMixin
 from ..reddit.listing import Listing
 from ..reddit.redditor import Redditor
@@ -84,6 +85,7 @@ class BannedListing(Listing):
 class SubredditBanned:
     """
     A helper class for interacting with a subreddit's banned users.
+
     """
 
     def __init__(self, reddit: 'Reddit', subreddit: 'Subreddit'):
@@ -100,9 +102,19 @@ class SubredditBanned:
         self._reddit = reddit
         self._subreddit = subreddit
 
+    #: Streamable listing endpoint.
+    @streamable
     async def __call__(self, redditor: Optional[Union[str, Redditor]] = None, limit: int = 100, **kwargs):
         r"""
         Returns an instance of :class:`~apraw.models.ListingGenerator` mapped to the subreddit's banned users.
+
+        .. note::
+            This listing can be streamed doing the following:
+
+            .. code-block:: python3
+
+                for comment in subreddit.banned.stream():
+                    print(comment)
 
         Parameters
         ----------
