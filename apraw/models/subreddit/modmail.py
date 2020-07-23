@@ -12,23 +12,43 @@ if TYPE_CHECKING:
 class SubredditModmail:
     """
     Helper class to aid in retrieving subreddit modmail.
-
-    Members
-    -------
-    subreddit: Subreddit
-        The subreddit this helper operates under.
     """
 
-    def __init__(self, subreddit: 'Subreddit'):
+    def __init__(self, reddit: 'Reddit', subreddit: 'Subreddit'):
         """
         Create an instance of SubredditModmail.
 
         Parameters
         ----------
+        reddit: Reddit
+            The :class:`~apraw.Reddit` instance with which requests are made.
         subreddit: Subreddit
             The subreddit this helper operates under.
         """
-        self.subreddit = subreddit
+        self._reddit = reddit
+        self._subreddit = subreddit
+
+    async def __call__(self, id: str) -> 'ModmailConversation':
+        """
+        Fetch a :class:`~apraw.models.ModmailConversation` by its ID.
+
+        Parameters
+        ----------
+        id: str
+            The conversation's ID.
+
+        Returns
+        -------
+        conversation: ModmailConversation
+            The conversation requested if it exists.
+        """
+        resp = await self._reddit.get(API_PATH["modmail_conversation"].format(id=id))
+        if "conversation" in resp:
+            return ModmailConversation(self._reddit, resp["conversation"])
+        elif "fields" in resp:
+            raise Exception("You are not authorized to view this modmail conversation or it doesn't exist.")
+        else:
+            raise Exception(f"Unexpected data: {resp}")
 
     async def conversations(self) -> 'ModmailConversation':
         """
@@ -39,10 +59,10 @@ class SubredditModmail:
         conversation: ModmailConversation
             A modmail conversation held in the subreddit.
         """
-        req = await self.subreddit._reddit.get(API_PATH["modmail_conversations"],
-                                               entity=self.subreddit.display_name)
-        for id in req["conversations"]:
-            yield ModmailConversation(self.subreddit._reddit, req["conversations"][id])
+        req = await self._reddit.get(API_PATH["modmail_conversations"],
+                                     entity=self._subreddit.display_name)
+        for _id in req["conversations"]:
+            yield ModmailConversation(self._reddit, req["conversations"][_id])
 
 
 class ModmailConversation(aPRAWBase):
