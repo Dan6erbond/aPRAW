@@ -1,7 +1,7 @@
 import asyncio
 from datetime import datetime, timedelta
 from functools import wraps
-from typing import Dict, Callable, Any, Awaitable
+from typing import Dict, Callable, Any, Awaitable, Optional
 
 from multidict import CIMultiDictProxy
 
@@ -74,11 +74,16 @@ class RequestHandler:
             return execute_request
 
     @Decorators.check_ratelimit
-    async def get(self, endpoint: str = "", **kwargs) -> Any:
+    async def get(self, endpoint: Optional[str] = "", _url: Optional[str] = "", **kwargs) -> Any:
         kwargs = {"raw_json": 1, "api_type": "json", **kwargs}
         params = ["{}={}".format(k, kwargs[k]) for k in kwargs]
 
-        url = BASE_URL.format(endpoint, "&".join(params))
+        if endpoint:
+            url = BASE_URL.format(endpoint, "&".join(params))
+        elif _url:
+            url = _url + "?" + "&".join(params)
+        else:
+            raise ValueError("One of endpoint or _url must be specified.")
 
         headers = await self.get_request_headers()
         session = await self.user.client_session()
