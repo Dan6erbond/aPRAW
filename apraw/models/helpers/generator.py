@@ -1,8 +1,8 @@
 from typing import TYPE_CHECKING, AsyncIterator, Awaitable, List, Type
 
 from .apraw_base import aPRAWBase
-from .. import Listing
 from ..reddit.comment import Comment
+from ..reddit.listing import Listing
 from ..reddit.submission import Submission
 from ..subreddit.moderation import ModAction
 from ..subreddit.subreddit import Subreddit
