@@ -1,4 +1,5 @@
 import asyncio
+import re
 from datetime import datetime
 from typing import TYPE_CHECKING, Dict, List, Any, Union
 
@@ -23,6 +24,8 @@ if TYPE_CHECKING:
     from ...reddit import Reddit
     from .submission import Submission
     from ..helpers.comment_forest import CommentForest
+
+URL_PATTERN = re.compile(r"/r(?:/(?P<subreddit>\w+))/comments(?:/(?P<submission>\w+))(?:/\w+/(?P<comment>\w+))?")
 
 
 @all_reactive(not_type=(aPRAWBase, datetime, PostModeration))
@@ -147,6 +150,7 @@ class Comment(aPRAWBase, DeletableMixin, HideableMixin, ReplyableMixin, SavableM
             A list of replies made to this comment.
         """
         self.replies = replies if replies else []
+        self._submission = None
 
         ReactiveOwner.__init__(self)
         aPRAWBase.__init__(self, reddit, data, reddit.comment_kind)
@@ -162,20 +166,30 @@ class Comment(aPRAWBase, DeletableMixin, HideableMixin, ReplyableMixin, SavableM
 
         Returns
         -------
-        self: Comment
-            The ``Comment`` model with updated data.
+        update: bool
+            Whether ReactivePy attributes have been changed.
         """
-        if ("link_id" in self._data and "id" in self._data and "subreddit" in self._data) or "permalink" in self._data:
-            permalink = self._data["permalink"] if "permalink" in self._data else API_PATH["comment"].format(
-                sub=self._data["subreddit"], submission=self._data["link_id"].replace(self._reddit.link_kind + "_", ""),
-                id=self._data["id"])
+        if all(k in self._data for k in
+               ("link_id", "id", "subreddit")) or "permalink" in self._data or "url" in self._data:
+            if "permalink" in self._data:
+                permalink = self._data["permalink"]
+            elif all(k in self._data for k in ("link_id", "id", "subreddit")):
+                permalink = API_PATH["comment"].format(
+                    sub=self._data["subreddit"],
+                    submission=self._data["link_id"].replace(self._reddit.link_kind + "_", ""),
+                    id=self._data["id"])
+            else:
+                match = URL_PATTERN.search(self._data["url"])
+                permalink = API_PATH["comment"].format(sub=match.group("subreddit"),
+                                                       submission=match.group("submission"),
+                                                       id=match.group("comment"))
             resp = await self._reddit.get(permalink)
             from .submission import Submission
             self._submission = Submission(self._reddit, resp[0]["data"]["children"][0]["data"])
             return await self._async_update(resp[1]["data"]["children"][0]["data"])
         elif "id" in self._data:
             resp = await self._reddit.get(API_PATH["info"],
-                                                  id=prepend_kind(self._data["id"], self._reddit.comment_kind))
+                                          id=prepend_kind(self._data["id"], self._reddit.comment_kind))
             return await self._async_update(resp["data"]["children"][0]["data"])
         else:
             raise ValueError(f"No data available to make request URL: {self._data}")

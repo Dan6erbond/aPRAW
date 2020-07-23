@@ -294,12 +294,13 @@ class Reddit:
             The requested submission.
         """
         if id != "":
-            async for link in self.info(prepend_kind(id, self.link_kind)):
-                return link
-        elif url != "":
-            async for link in self.info(url=url):
-                return link
-        return None
+            submission = Submission(self, {"id": id})
+            await submission.fetch()
+            return submission
+        else:
+            submission = Submission(self, {"url": url})
+            await submission.fetch()
+            return submission
 
     async def comment(self, id: str = "", url: str = "") -> Comment:
         """

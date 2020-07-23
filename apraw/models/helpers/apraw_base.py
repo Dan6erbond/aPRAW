@@ -95,4 +95,4 @@ class aPRAWBase:
         fullname: str
             The item's ID prepended with its kind such as `t1_`.
         """
-        return getattr(self, "name") or prepend_kind(self._data[self.ID_ATTRIBUTE], self.kind)
+        return getattr(self, "name", None) or prepend_kind(self._data[self.ID_ATTRIBUTE], self.kind)

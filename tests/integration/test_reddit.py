@@ -14,9 +14,15 @@ class TestReddit:
         submission = await reddit.submission("h7mna9")
         assert submission.title == "Test Post"
 
+        submission = await reddit.submission(url="https://www.reddit.com/r/aPRAWTest/comments/h7mna9/test_post/")
+        assert submission.title == "Test Post"
+
     @pytest.mark.asyncio
     async def test_reddit_comment(self, reddit: apraw.Reddit):
         comment = await reddit.comment("fuoew5r")
+        assert comment.body == "Test comment by bot."
+
+        comment = await reddit.comment(url="https://www.reddit.com/r/aPRAWTest/comments/h7mna9/test_post/fuoew5r")
         assert comment.body == "Test comment by bot."
 
     @pytest.mark.asyncio
