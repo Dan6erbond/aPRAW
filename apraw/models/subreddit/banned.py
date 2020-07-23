@@ -158,7 +158,7 @@ class SubredditBanned:
             The raw response JSON dictionary.
         """
         url = API_PATH["sub_friend"].format(sub=self._subreddit.display_name)
-        data = {"name": str(redditor)}
+        data = {"name": str(redditor), "type": "banned"}
         data.update(**kwargs)
         return await self._reddit.post(url, data=data)
 
@@ -177,4 +177,4 @@ class SubredditBanned:
             The raw response JSON dictionary.
         """
         url = API_PATH["sub_unfriend"].format(sub=self._subreddit.display_name)
-        return await self._reddit.post(url, data={"name": str(redditor)})
+        return await self._reddit.post(url, data={"name": str(redditor), "type": "banned"})
