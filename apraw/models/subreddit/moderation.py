@@ -4,6 +4,7 @@ from typing import Dict, TYPE_CHECKING
 from .settings import SubredditSettings
 from ..helpers.apraw_base import aPRAWBase
 from ..helpers.streamable import streamable
+from ..mixins.redditor import RedditorMixin
 from ..reddit.redditor import Redditor
 from ...const import API_PATH
 
@@ -12,9 +13,9 @@ if TYPE_CHECKING:
     from .subreddit import Subreddit
 
 
-class SubredditModerator(aPRAWBase):
+class SubredditModerator(aPRAWBase, RedditorMixin):
     """
-    The model representing subreddit moderators. Redditors can be retrieved via ``redditor()``.
+    The model representing subreddit moderators. Redditors can be retrieved via :meth:``~apraw.models.SubredditModerator.redditor()``.
 
     **Typical Attributes**
 
@@ -25,13 +26,15 @@ class SubredditModerator(aPRAWBase):
     ========================== ============================================================
     Attribute                  Description
     ========================== ============================================================
-    ``added``                  The date on which the moderator was added.
+    ``added``                  The parsed UTC date on which the moderator was added.
     ``author_flair_css_class`` The moderator's flair CSS class in the respective subreddit.
     ``author_flair_text``      The moderator's flair text in the respective subreddit.
+    ``date``                   The UTC timestamp on which the moderator was added.
     ``id``                     The Redditor's fullname (t2_ID).
     ``mod_permissions``        A list of all the moderator permissions or ``["all"]``.
     ``name``                   The Redditor's name.
     ========================== ============================================================
+
     """
 
     def __init__(self, reddit: 'Reddit', data: Dict):
@@ -45,31 +48,9 @@ class SubredditModerator(aPRAWBase):
         data: Dict
             The data obtained from the API.
         """
+        if "date" in data:
+            data["added"] = datetime.utcfromtimestamp(data["date"])
         super().__init__(reddit, data)
-
-        self.added = datetime.utcfromtimestamp(data["date"])
-
-    def __str__(self):
-        """
-        Returns the Redditor's name.
-
-        Returns
-        -------
-        name: str
-            The Redditor's name.
-        """
-        return self.name
-
-    async def redditor(self) -> Redditor:
-        """
-        Retrieve the Redditor this Moderator represents.
-
-        Returns
-        -------
-        redditor: Redditor
-            The Redditor that is represented by this object.
-        """
-        return await self._reddit.redditor(self.name)
 
 
 class SubredditModeration:
