@@ -238,10 +238,10 @@ class Reddit:
         -------
         subreddit: Subreddit
             The subreddit if found.
-        result: None
-            Returns None if subreddit not found.
         """
-        return await Subreddit(self, {"display_name": display_name}).fetch()
+        sub = Subreddit(self, {"display_name": display_name})
+        await sub.fetch()
+        return sub
 
     async def info(self, id: str = "", ids: List[str] = [], url: str = ""):
         """

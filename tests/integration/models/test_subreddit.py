@@ -125,3 +125,17 @@ class TestSubreddit:
 
         settings = await subreddit.mod.settings()
         assert settings.title.lower() == "aprawtest"
+
+    @pytest.mark.asyncio
+    async def test_subreddit_modmail(self, reddit: apraw.Reddit):
+        subreddit = await reddit.subreddit("aprawtest")
+
+        conv = None
+        async for conv in subreddit.modmail.conversations():
+            assert isinstance(conv, apraw.models.ModmailConversation)
+
+        assert conv
+
+        if conv:
+            c = await subreddit.modmail(conv.id)
+            assert isinstance(c, apraw.models.ModmailConversation)

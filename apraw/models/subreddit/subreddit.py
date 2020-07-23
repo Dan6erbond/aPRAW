@@ -152,7 +152,7 @@ class Subreddit(aPRAWBase):
         super().__init__(reddit, data, reddit.subreddit_kind)
 
         self.mod = SubredditModeration(self._reddit, self)
-        self.modmail = SubredditModmail(self)
+        self.modmail = SubredditModmail(self._reddit, self)
         self.wiki = SubredditWiki(self._reddit, self)
         self.removal_reasons = SubredditRemovalReasons(self._reddit, self)
 

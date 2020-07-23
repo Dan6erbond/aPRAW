@@ -18,6 +18,7 @@ SubredditModmail
 
 .. autoclass:: apraw.models.SubredditModmail
     :members:
+    :special-members: __call__
 
 ModmailConversation
 -------------------

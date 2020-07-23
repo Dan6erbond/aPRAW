@@ -101,3 +101,13 @@ GET {{baseUrl}}/r/{{subreddit}}/about/edit
 User-Agent: {{user_agent}}
 Content-Type: application/json
 Authorization: {{getToken.response.body.token_type}} {{getToken.response.body.access_token}}
+
+###
+
+@conversationId = eqjy3
+
+# @name getModmailConversation
+GET {{baseUrl}}/api/mod/conversations/{{conversationId}}
+User-Agent: {{user_agent}}
+Content-Type: application/json
+Authorization: {{getToken.response.body.token_type}} {{getToken.response.body.access_token}}
