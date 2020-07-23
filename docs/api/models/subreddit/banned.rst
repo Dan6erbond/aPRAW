@@ -14,6 +14,7 @@ A helper class to aid in interacting with a subreddit's banned users.
 
 .. autoclass:: apraw.models.SubredditBanned
     :members:
+   :special-members: __call__
 
 BannedUser
 ----------
