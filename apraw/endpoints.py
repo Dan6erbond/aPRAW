@@ -6,6 +6,8 @@ BASE_URL = "https://oauth.reddit.com{}?{}"
 API_PATH: Dict[str, str] = {
     "comment"                  : "/r/{sub}/comments/{submission}/_/{id}",
     "compose"                  : "/api/compose",
+    "sub_friend"               : "/r/{sub}/api/friend",
+    "sub_unfriend"             : "/r/{sub}/api/unfriend",
     "info"                     : "/api/info",
     "me"                       : "/api/v1/me",
     "me_karma"                 : "/api/v1/me/karma",
@@ -44,6 +46,7 @@ API_PATH: Dict[str, str] = {
     "submission"               : "/r/{sub}/comments/{id}",
     "subreddit"                : "/r/{sub}",
     "subreddit_about"          : "/r/{sub}/about",
+    "subreddit_banned"         : "/r/{sub}/about/banned",
     "subreddit_comments"       : "/r/{sub}/comments",
     "subreddit_edited"         : "/r/{sub}/about/edited",
     "subreddit_hot"            : "/r/{sub}/hot",

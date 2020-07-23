@@ -111,3 +111,11 @@ GET {{baseUrl}}/api/mod/conversations/{{conversationId}}
 User-Agent: {{user_agent}}
 Content-Type: application/json
 Authorization: {{getToken.response.body.token_type}} {{getToken.response.body.access_token}}
+
+###
+
+# @name getSubredditBanned
+GET {{baseUrl}}/r/{{subreddit}}/about/banned
+User-Agent: {{user_agent}}
+Content-Type: application/json
+Authorization: {{getToken.response.body.token_type}} {{getToken.response.body.access_token}}

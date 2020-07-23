@@ -6,10 +6,10 @@ from .more_comments import MoreComments
 from .submission import Submission
 from ..helpers.apraw_base import aPRAWBase
 from ..subreddit.moderation import ModAction
-from ..subreddit.subreddit import Subreddit
 from ..subreddit.wiki import WikipageRevision
 
 if TYPE_CHECKING:
+    from ..subreddit.subreddit import Subreddit
     from ...reddit import Reddit
 
 
@@ -21,7 +21,7 @@ class Listing(aPRAWBase, Iterator):
     CHILD_ATTRIBUTE = "children"
 
     def __init__(self, reddit: 'Reddit', data: Dict, kind_filter: List[str] = None,
-                 subreddit: Subreddit = None, link_id: str = ""):
+                 subreddit: 'Subreddit' = None, link_id: str = ""):
         """
         Create a ``Listing`` instance.
 
@@ -109,6 +109,7 @@ class Listing(aPRAWBase, Iterator):
         elif item["kind"] == self._reddit.link_kind:
             return Submission(self._reddit, item["data"], subreddit=self._subreddit)
         elif item["kind"] == self._reddit.subreddit_kind:
+            from ..subreddit.subreddit import Subreddit
             return Subreddit(self._reddit, item["data"])
         elif item["kind"] == self._reddit.comment_kind:
             if item["data"]["replies"] and item["data"]["replies"]["kind"] == self._reddit.listing_kind:

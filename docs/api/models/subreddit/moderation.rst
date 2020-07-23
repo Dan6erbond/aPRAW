@@ -21,6 +21,8 @@ Subreddit moderators are usually retrieved as follows:
 
 .. autoclass:: apraw.models.SubredditModerator
     :members:
+    :inherited-members: redditor, fullname
+    :special-members: __str__
 
 SubredditModeration
 -------------------

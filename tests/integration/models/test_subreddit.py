@@ -139,3 +139,33 @@ class TestSubreddit:
         if conv:
             c = await subreddit.modmail(conv.id)
             assert isinstance(c, apraw.models.ModmailConversation)
+
+    @pytest.mark.asyncio
+    async def test_subreddit_banned(self, reddit: apraw.Reddit):
+        subreddit = await reddit.subreddit("aprawtest")
+
+        async for banned_user in subreddit.banned():
+            if banned_user:
+                assert isinstance(banned_user, apraw.models.BannedUser)
+
+        found = False
+        async for _ in subreddit.banned(redditor="test"):
+            found = True
+
+        if found:
+            resp = await subreddit.banned.remove("test")
+            print(resp)
+
+            found = False
+            async for _ in subreddit.banned(redditor="test"):
+                found = True
+            assert not found
+        else:
+            resp = await subreddit.banned.add("test")
+            print(resp)
+
+            found = False
+            async for _ in subreddit.banned(redditor="test"):
+                found = True
+            assert found
+

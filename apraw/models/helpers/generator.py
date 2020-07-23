@@ -1,12 +1,10 @@
-from typing import TYPE_CHECKING, AsyncIterator, Awaitable, List
+from typing import TYPE_CHECKING, AsyncIterator, Awaitable, List, Type
 
-from .apraw_base import aPRAWBase
-from ..reddit.comment import Comment
-from ..reddit.submission import Submission
-from ..subreddit.moderation import ModAction
-from ..subreddit.subreddit import Subreddit
+from ..reddit.listing import Listing
 
 if TYPE_CHECKING:
+    from .apraw_base import aPRAWBase
+    from ..subreddit.subreddit import Subreddit
     from ...reddit import Reddit
 
 
@@ -31,8 +29,8 @@ class ListingGenerator(AsyncIterator):
         ListingGenerator will automatically make requests until none more are found or the limit has been reached.
     """
 
-    def __init__(self, reddit: 'Reddit', endpoint: str, limit: int = 100, subreddit: Subreddit = None,
-                 kind_filter: List[str] = None, **kwargs):
+    def __init__(self, reddit: 'Reddit', endpoint: str, limit: int = 100, subreddit: 'Subreddit' = None,
+                 kind_filter: List[str] = None, listing_class: Type[Listing] = Listing, **kwargs):
         r"""
         Create a ``ListingGenerator`` instance.
 
@@ -51,16 +49,17 @@ class ListingGenerator(AsyncIterator):
         kwargs: \*\*Dict
             Query parameters to append to the request URL.
         """
-        self.reddit = reddit
-        self.endpoint = endpoint
-        self.limit = limit if limit else 1024
-        self.subreddit = subreddit
-        self.params = {**kwargs, "limit": self.limit}
-        self.listing = None
-        self.kind_filter = kind_filter
+        self._reddit = reddit
+        self._endpoint = endpoint
+        self._limit = limit if limit else 1024
+        self._subreddit = subreddit
+        self._params = {**kwargs, "limit": self._limit}
+        self._listing = None
+        self._listing_class = listing_class
+        self._kind_filter = kind_filter
         self._yielded = 0
 
-    def __aiter__(self) -> AsyncIterator[aPRAWBase]:
+    def __aiter__(self) -> AsyncIterator['aPRAWBase']:
         """
         Permit ``ListingGenerator`` to operate as an iterator.
 
@@ -71,7 +70,7 @@ class ListingGenerator(AsyncIterator):
         """
         return self
 
-    async def __anext__(self) -> Awaitable[aPRAWBase]:
+    async def __anext__(self) -> Awaitable['aPRAWBase']:
         """
         Permit ``ListingGenerator`` to operate as a generator.
 
@@ -92,18 +91,18 @@ class ListingGenerator(AsyncIterator):
         item: aPRAWBase
             A model of the item's data if kind couldn't be identified.
         """
-        if self._yielded >= self.limit:
+        if self._yielded >= self._limit:
             raise StopAsyncIteration()
 
-        if self.listing is None:
+        if self._listing is None:
             await self._next_batch()
 
         try:
-            item = next(self.listing)
+            item = next(self._listing)
             self._yielded += 1
             return item
         except StopIteration:
-            if self._yielded < self.limit:
+            if self._yielded < self._limit:
                 await self._next_batch()
             else:
                 raise StopAsyncIteration()
@@ -112,12 +111,14 @@ class ListingGenerator(AsyncIterator):
         """
         Retrieve the next batch of items and store them in a :class:`~apraw.models.Listing`.
         """
-        kwargs = {**self.params}
+        kwargs = {**self._params}
 
-        if self.listing:
-            kwargs["after"] = self.listing.last.fullname
+        if self._listing:
+            kwargs["after"] = self._listing.last.fullname
 
-        self.listing = await self.reddit.get_listing(self.endpoint, self.subreddit, self.kind_filter, **kwargs)
+        resp = await self._reddit.get(self._endpoint, **kwargs)
+        self._listing = self._listing_class(self._reddit, resp["data"], kind_filter=self._kind_filter,
+                                            subreddit=self._subreddit)
 
-        if len(self.listing) <= 0:
+        if len(self._listing) <= 0:
             raise StopAsyncIteration()
