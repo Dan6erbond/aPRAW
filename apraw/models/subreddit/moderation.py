@@ -15,7 +15,8 @@ if TYPE_CHECKING:
 
 class SubredditModerator(aPRAWBase, RedditorMixin):
     """
-    The model representing subreddit moderators. Redditors can be retrieved via :meth:``~apraw.models.SubredditModerator.redditor()``.
+    The model representing subreddit moderators. Redditors can be retrieved via
+    :meth:`~apraw.models.SubredditModerator.redditor()`.
 
     **Typical Attributes**
 
@@ -50,7 +51,7 @@ class SubredditModerator(aPRAWBase, RedditorMixin):
         """
         if "date" in data:
             data["added"] = datetime.utcfromtimestamp(data["date"])
-        super().__init__(reddit, data)
+        super().__init__(reddit, data, reddit.account_kind)
 
 
 class SubredditModeration:
