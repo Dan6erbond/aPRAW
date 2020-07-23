@@ -1,3 +1,4 @@
+import re
 from enum import Enum
 from typing import TYPE_CHECKING, Dict, List, Any, Union
 
@@ -19,6 +20,8 @@ from ...utils import prepend_kind
 
 if TYPE_CHECKING:
     from ...reddit import Reddit
+
+URL_PATTERN = re.compile(r"/r(?:/(?P<subreddit>\w+))/comments(?:/(?P<submission>\w+))(?:/\w+/(?P<comment>\w+))?")
 
 
 class SubmissionKind(Enum):
@@ -202,15 +205,22 @@ class Submission(aPRAWBase, DeletableMixin, HideableMixin, ReplyableMixin, NSFWa
         self: Submission
             The updated model.
         """
-        if "subreddit" in self._data and "id" in self._data:
-            resp = await self._reddit.get(
-                API_PATH["submission"].format(sub=self._data["subreddit"], id=self._data["id"]))
+        if ("subreddit" in self._data and "id" in self._data) or "url" in self._data:
+            if "subreddit" in self._data and "id" in self._data:
+                permalink = API_PATH["submission"].format(sub=self._data["subreddit"], id=self._data["id"])
+            else:
+                match = URL_PATTERN.search(self._data["url"])
+                permalink = API_PATH["submission"].format(sub=match.group("subreddit"), id=match.group("submission"))
+            resp = await self._reddit.get(permalink)
             self._update(resp)
+            return self
         elif "id" in self._data:
             resp = await self._reddit.get(API_PATH["info"],
                                           id=prepend_kind(self._data["id"], self._reddit.link_kind))
             self._update(resp["data"]["children"][0]["data"])
-        return self
+            return self
+        else:
+            raise ValueError(f"No data available to make request URL: {self._data}")
 
     def _update(self, _data: Union[List, Dict[str, Any]]):
         """
@@ -221,16 +231,14 @@ class Submission(aPRAWBase, DeletableMixin, HideableMixin, ReplyableMixin, NSFWa
         _data: Dict
             The data obtained from the API.
         """
-        if isinstance(_data, dict) or isinstance(_data, list):
-            if isinstance(_data, dict):
-                data = _data
-            else:
-                from ..helpers.comment_forest import CommentForest
-                self.comments = CommentForest(self._reddit, _data[1]["data"], self.fullname)
-                data = _data[0]["data"]["children"][0]
-
+        if isinstance(_data, (dict, list)):
+            data = _data if isinstance(_data, dict) else _data[0]["data"]["children"][0]["data"]
             data["original_content"] = data.get("is_original_content", False)
             super()._update(data)
+
+            if isinstance(_data, list):
+                from ..helpers.comment_forest import CommentForest
+                self.comments = CommentForest(self._reddit, _data[1]["data"], self.fullname)
         else:
             raise ValueError("data is not of type 'dict' or 'list'.")
 
