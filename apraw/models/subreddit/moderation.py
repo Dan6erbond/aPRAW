@@ -57,6 +57,7 @@ class SubredditModerator(aPRAWBase, RedditorMixin):
 class SubredditModeration:
     """
     A helper class for grabbing listings to Subreddit moderation items.
+
     """
 
     def __init__(self, reddit: 'Reddit', subreddit: 'Subreddit'):
