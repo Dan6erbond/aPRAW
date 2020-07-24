@@ -1,6 +1,6 @@
 # aPRAW
 
-[![PyPI version](https://img.shields.io/pypi/v/aPRAW?style=flat-square)](https://pypi.org/project/apraw)
+[![PyPi version](https://img.shields.io/pypi/v/aPRAW?style=flat-square)](https://pypi.org/project/aPRAW)
 ![PyPi License](https://img.shields.io/pypi/l/aPRAW?style=flat-square)
 ![PyPi Python Versions](https://img.shields.io/pypi/pyversions/aPRAW?style=flat-square)
 [![aPRAW Discord](https://img.shields.io/discord/721693929195569172?color=7289da&label=Discord&logo=discord&style=flat-square)](https://discord.gg/66avTS7)
@@ -14,6 +14,7 @@ Asynchronous Python Reddit API Wrapper by [Dan6erbond](https://dan6erbond.github
 **aPRAW** is an asynchronous API wrapper written for the Reddit API that builds on the idea of [PRAW](https://github.com/praw-dev/praw) in many ways. It follows a very similar design, but adds features such as unlimited listings and, most importantly, support for asynchronous requests. This allows the library to be used in scenarios where the requests can take longer (such as with those unlimited listings and streams) and not block other tasks.
 
 **Table of Contents**
+
  - [Key Features](#key-features)
  - [Reporting Bugs](#installation)
  - [Pull Requests](#quickstart)
@@ -21,6 +22,7 @@ Asynchronous Python Reddit API Wrapper by [Dan6erbond](https://dan6erbond.github
    - [Contributing](#contributing)
  - [Documentation](#documentation)
  - [Roadmap](#roadmap)
+ - [Links](#links)
  - [License](#license)
 
 ## Key Features
@@ -94,6 +96,12 @@ The full API documentation can be found on [Read The Docs](http://apraw.readthed
 - [x] PyPi release.
 - [x] Never-ending streams.
 - [ ] Useful helper functions.
+
+## Links
+
+ - [Documentation](https://apraw.readthedocs.io/en/latest)
+ - [Official Discord server](https://discordapp.com/invite/66avTS7)
+ - [PyPi Release](https://pypi.org/project/aPRAW)
 
 ## License
 
