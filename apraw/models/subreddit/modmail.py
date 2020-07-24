@@ -119,11 +119,33 @@ class ModmailConversation(aPRAWBase):
         self._messages = list()
 
     async def fetch(self, mark_read=False):
+        """
+        Fetch this item's information from a suitable API endpoint.
+
+        Returns
+        -------
+        self: ModmailConversation
+            The updated model.
+        """
         url = API_PATH["modmail_conversation"].format(id=self._data["id"])
         resp = await self._reddit.get(url, mark_read=mark_read)
-        return self._update(resp)
+        self._update(resp)
+        return self
 
     def _update(self, data: Dict[str, Any]):
+        """
+        Update the base with new information.
+
+        Parameters
+        ----------
+        data: Dict
+            The data obtained from a suitable API endpoint.
+
+        Returns
+        -------
+        self: ModmailConversation
+            The updated model.
+        """
         if isinstance(data, Dict):
             if "fields" in data:
                 raise Exception(f"{data['message']}: {data['reason']}")
@@ -136,6 +158,23 @@ class ModmailConversation(aPRAWBase):
         return self
 
     async def reply(self, body: str, author_hidden: bool = False, internal: bool = False):
+        """
+        Reply to the modmail conversation.
+
+        Parameters
+        ----------
+        body: str
+            The markdown reply body.
+        author_hidden: bool
+            Whether the author of this reply should be hidden.
+        internal: bool
+            Whether the reply is internal.
+
+        Returns
+        -------
+        self: ModmailConversation
+            The updated model.
+        """
         url = API_PATH["modmail_conversation"].format(id=self._data["id"])
         resp = await self._reddit.post(url, data={
             "body": body,
@@ -145,30 +184,93 @@ class ModmailConversation(aPRAWBase):
         })
         return self._update(resp)
 
-    async def take_action(self, action: str, **kwargs):
+    async def _take_action(self, action: str, **kwargs):
+        r"""
+        Perform an action on the modmail conversation.
+
+        Parameters
+        ----------
+        action: str
+            The action to perform.
+        kwargs: \*\*Dict
+            Additional request data.
+
+        Returns
+        -------
+        self: ModmailConversation
+            The updated model.
+        """
         url = API_PATH["modmail_conversation_action"].format(id=self._data["id"], action=action)
         resp = await self._reddit.post(url, **kwargs)
         return self._update(resp) if resp else self
 
     async def archive(self):
-        return await self.take_action("archive")
+        """
+        Archive the modmail conversation.
+
+        Returns
+        -------
+        self: ModmailConversation
+            The updated model.
+        """
+        return await self._take_action("archive")
 
     async def unarchive(self):
-        return await self.take_action("unarchive")
+        """
+        Unarchive the modmail conversation.
+
+        Returns
+        -------
+        self: ModmailConversation
+            The updated model.
+        """
+        return await self._take_action("unarchive")
 
     async def highlight(self):
-        return await self.take_action("highlight")
+        """
+        Highlight the modmail conversation.
+
+        Returns
+        -------
+        self: ModmailConversation
+            The updated model.
+        """
+        return await self._take_action("highlight")
 
     async def remove_highlight(self):
+        """
+        Remove the highlight from the modmail conversation.
+
+        Returns
+        -------
+        self: ModmailConversation
+            The updated model.
+        """
         url = API_PATH["modmail_conversation_action"].format(id=self._data["id"], action="higlight")
         resp = await self._reddit.delete(url)
         return self._update(resp) if resp else self
 
     async def mute(self):
-        return await self.take_action("mute")
+        """
+        Mute the modmail conversation.
+
+        Returns
+        -------
+        self: ModmailConversation
+            The updated model.
+        """
+        return await self._take_action("mute")
 
     async def unmute(self):
-        return await self.take_action("unmute")
+        """
+        Unmute the modmail conversation.
+
+        Returns
+        -------
+        self: ModmailConversation
+            The updated model.
+        """
+        return await self._take_action("unmute")
 
     async def owner(self) -> 'Subreddit':
         """
