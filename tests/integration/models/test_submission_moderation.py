@@ -58,6 +58,10 @@ class TestSubmissionModeration:
         assert submission._data["spoiler"]
 
         await submission.mod.unmark_spoiler()
+    @pytest.mark.asyncio
+    async def test_submission_mod_flair(self, reddit: apraw.Reddit):
         submission = await reddit.submission("h7mna9")
+        await submission.mod.flair("Test Flair")
+        await submission.fetch()
 
-        assert not submission._data["spoiler"]
+        assert submission.link_flair_text == "Test Flair"
