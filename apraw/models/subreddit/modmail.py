@@ -127,6 +127,18 @@ class ModmailConversation(aPRAWBase):
         else:
             raise Exception(f"Unexpected data: {resp}")
 
+    async def reply(self, body: str, author_hidden: bool = False, internal: bool = False):
+        url = API_PATH["modmail_conversation"].format(id=self._data["id"])
+        resp = await self._reddit.post(url, data={
+            "body": body,
+            "conversation_id": self._data["id"],
+            "isAuthorHidden": author_hidden,
+            "isInternal": internal
+        })
+        if "conversation" in resp:
+            self._update(resp["conversation"])
+        return self
+
     async def owner(self) -> 'Subreddit':
         """
         Retrieve the owner subreddit of this conversation.
