@@ -303,3 +303,25 @@ class SubmissionModeration(PostModeration, NSFWableMixin, SpoilerableMixin):
             "state": False,
             "to_profile": to_profile
         })
+
+    async def flair(self, text: str, css_class: str = ""):
+        """
+        Flair a submission.
+
+        Parameters
+        ----------
+        text: str
+            The flair text string no longer than 64 characters.
+        css_class: str
+            A valid subreddit image name.
+
+        Returns
+        -------
+        resp: Dict
+            The API response JSON.
+        """
+        return await self._reddit.post(API_PATH["subreddit_flair"].format(sub=self._item._data["subreddit"]), **{
+            "link": self.fullname,
+            "text": text,
+            "css_class": css_class
+        })
