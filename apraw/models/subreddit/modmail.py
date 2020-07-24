@@ -42,13 +42,9 @@ class SubredditModmail:
         conversation: ModmailConversation
             The conversation requested if it exists.
         """
-        resp = await self._reddit.get(API_PATH["modmail_conversation"].format(id=id))
-        if "conversation" in resp:
-            return ModmailConversation(self._reddit, resp["conversation"])
-        elif "fields" in resp:
-            raise Exception("You are not authorized to view this modmail conversation or it doesn't exist.")
-        else:
-            raise Exception(f"Unexpected data: {resp}")
+        conv = ModmailConversation(self._reddit, {"id": id})
+        await conv.fetch()
+        return conv
 
     async def conversations(self) -> 'ModmailConversation':
         """
@@ -123,6 +119,15 @@ class ModmailConversation(aPRAWBase):
 
         self._data = None
         self._owner = owner
+
+    async def fetch(self):
+        resp = await self._reddit.get(API_PATH["modmail_conversation"].format(id=self._data["id"]))
+        if "conversation" in resp:
+            self._update(resp["conversation"])
+        elif "fields" in resp:
+            raise Exception("You are not authorized to view this modmail conversation or it doesn't exist.")
+        else:
+            raise Exception(f"Unexpected data: {resp}")
 
     async def owner(self) -> 'Subreddit':
         """
