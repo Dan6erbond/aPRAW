@@ -24,10 +24,45 @@ class TestModmail:
             assert isinstance(conv, apraw.models.ModmailConversation)
 
     @pytest.mark.asyncio
+    async def test_modmail_messages(self, reddit: apraw.Reddit):
+        subreddit = await reddit.subreddit("aprawtest")
+        conv = await subreddit.modmail("fqpoa")
+        assert conv
+
+        async for msg in conv.messages():
+            assert isinstance(msg, apraw.models.ModmailMessage)
+
+    @pytest.mark.asyncio
     async def test_modmail_conversation_reply(self, reddit: apraw.Reddit):
         subreddit = await reddit.subreddit("aprawtest")
         conv = await subreddit.modmail("fqpoa")
         assert conv
 
-        resp = await conv.reply("Test response.")
-        assert resp
+        assert await conv.reply("Test response.")
+
+    @pytest.mark.asyncio
+    async def test_modmail_conversation_archive(self, reddit: apraw.Reddit):
+        subreddit = await reddit.subreddit("aprawtest")
+        conv = await subreddit.modmail("eqk7l")
+        assert conv
+
+        assert await conv.archive()
+        assert await conv.unarchive()
+
+    @pytest.mark.asyncio
+    async def test_modmail_conversation_highlight(self, reddit: apraw.Reddit):
+        subreddit = await reddit.subreddit("aprawtest")
+        conv = await subreddit.modmail("eqk7l")
+        assert conv
+
+        assert await conv.highlight()
+        assert await conv.remove_highlight()
+
+    @pytest.mark.asyncio
+    async def test_modmail_conversation_mute(self, reddit: apraw.Reddit):
+        subreddit = await reddit.subreddit("aprawtest")
+        conv = await subreddit.modmail("fqpoa")
+        assert conv
+
+        assert await conv.mute()
+        assert await conv.unmute()
