@@ -116,8 +116,6 @@ class ModmailConversation(aPRAWBase):
             The subreddit this conversation was held in.
         """
         super().__init__(reddit, data)
-
-        self._data = None
         self._owner = owner
 
     async def fetch(self):
