@@ -22,3 +22,12 @@ class TestModmail:
 
         async for conv in subreddit.modmail.conversations():
             assert isinstance(conv, apraw.models.ModmailConversation)
+
+    @pytest.mark.asyncio
+    async def test_modmail_conversation_reply(self, reddit: apraw.Reddit):
+        subreddit = await reddit.subreddit("aprawtest")
+        conv = await subreddit.modmail("fqpoa")
+        assert conv
+
+        resp = await conv.reply("Test response.")
+        assert resp
