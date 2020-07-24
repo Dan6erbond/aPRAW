@@ -9,7 +9,7 @@ class TestSubmissionModeration:
     async def test_submission_mod_approve(self, reddit):
         submission = await reddit.submission("h7mna9")
         await submission.mod.approve()
-        submission = await reddit.submission("h7mna9")
+        await submission.fetch()
 
         assert submission.approved_by.lower() == reddit.user.username.lower()
 
@@ -17,7 +17,7 @@ class TestSubmissionModeration:
     async def test_submission_mod_remove(self, reddit):
         submission = await reddit.submission("h7mna9")
         await submission.mod.remove()
-        submission = await reddit.submission("h7mna9")
+        await submission.fetch()
 
         assert submission.removed_by.lower() == reddit.user.username.lower()
 
@@ -27,12 +27,12 @@ class TestSubmissionModeration:
     async def test_submission_mod_lock(self, reddit):
         submission = await reddit.submission("h7mna9")
         await submission.mod.lock()
-        submission = await reddit.submission("h7mna9")
+        await submission.fetch()
 
         assert submission.locked
 
         await submission.mod.unlock()
-        submission = await reddit.submission("h7mna9")
+        await submission.fetch()
 
         assert not submission.locked
 
@@ -40,12 +40,12 @@ class TestSubmissionModeration:
     async def test_submission_mod_nsfw(self, reddit):
         submission = await reddit.submission("h7mna9")
         await submission.mod.mark_nsfw()
-        submission = await reddit.submission("h7mna9")
+        await submission.fetch()
 
         assert submission.over_18
 
         await submission.mod.unmark_nsfw()
-        submission = await reddit.submission("h7mna9")
+        await submission.fetch()
 
         assert not submission.over_18
 
@@ -53,11 +53,19 @@ class TestSubmissionModeration:
     async def test_submission_mod_spoiler(self, reddit):
         submission = await reddit.submission("h7mna9")
         await submission.mod.mark_spoiler()
-        submission = await reddit.submission("h7mna9")
+        await submission.fetch()
 
-        assert submission._data["spoiler"]
+        assert submission.spoiler
 
         await submission.mod.unmark_spoiler()
-        submission = await reddit.submission("h7mna9")
+        await submission.fetch()
 
-        assert not submission._data["spoiler"]
+        assert not submission.spoiler
+
+    @pytest.mark.asyncio
+    async def test_submission_mod_flair(self, reddit: apraw.Reddit):
+        submission = await reddit.submission("h7mna9")
+        await submission.mod.flair("Test Flair")
+        await submission.fetch()
+
+        assert submission.link_flair_text == "Test Flair"

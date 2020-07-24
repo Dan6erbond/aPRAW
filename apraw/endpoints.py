@@ -50,6 +50,7 @@ API_PATH: Dict[str, str] = {
     "subreddit_banned"            : "/r/{sub}/about/banned",
     "subreddit_comments"          : "/r/{sub}/comments",
     "subreddit_edited"            : "/r/{sub}/about/edited",
+    "subreddit_flair"             : "/r/{sub}/api/flair",
     "subreddit_hot"               : "/r/{sub}/hot",
     "subreddit_log"               : "/r/{sub}/about/log",
     "subreddit_moderators"        : "/r/{sub}/about/moderators",

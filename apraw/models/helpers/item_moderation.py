@@ -158,7 +158,7 @@ class ItemModeration:
         fullname: str
             The ID prepended with the kind of the item this helper belongs to.
         """
-        return self.fullname
+        return self._item.fullname
 
 
 class PostModeration(ItemModeration):
