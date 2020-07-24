@@ -143,10 +143,32 @@ class ModmailConversation(aPRAWBase):
             "isAuthorHidden": author_hidden,
             "isInternal": internal
         })
-        if "conversation" in resp:
-            self._update(resp["conversation"])
-        return self
         return self._update(resp)
+
+    async def take_action(self, action: str, **kwargs):
+        url = API_PATH["modmail_conversation_action"].format(id=self._data["id"], action=action)
+        resp = await self._reddit.post(url, **kwargs)
+        return self._update(resp) if resp else self
+
+    async def archive(self):
+        return await self.take_action("archive")
+
+    async def unarchive(self):
+        return await self.take_action("unarchive")
+
+    async def highlight(self):
+        return await self.take_action("highlight")
+
+    async def remove_highlight(self):
+        url = API_PATH["modmail_conversation_action"].format(id=self._data["id"], action="higlight")
+        resp = await self._reddit.delete(url)
+        return self._update(resp) if resp else self
+
+    async def mute(self):
+        return await self.take_action("mute")
+
+    async def unmute(self):
+        return await self.take_action("unmute")
 
     async def owner(self) -> 'Subreddit':
         """
