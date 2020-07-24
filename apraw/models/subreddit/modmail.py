@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Dict
+from typing import TYPE_CHECKING, Dict, Any
 
 from ..helpers.apraw_base import aPRAWBase
 from ...const import API_PATH
@@ -28,7 +28,7 @@ class SubredditModmail:
         self._reddit = reddit
         self._subreddit = subreddit
 
-    async def __call__(self, id: str) -> 'ModmailConversation':
+    async def __call__(self, id: str, mark_read=False) -> 'ModmailConversation':
         """
         Fetch a :class:`~apraw.models.ModmailConversation` by its ID.
 
@@ -42,13 +42,7 @@ class SubredditModmail:
         conversation: ModmailConversation
             The conversation requested if it exists.
         """
-        resp = await self._reddit.get(API_PATH["modmail_conversation"].format(id=id))
-        if "conversation" in resp:
-            return ModmailConversation(self._reddit, resp["conversation"])
-        elif "fields" in resp:
-            raise Exception("You are not authorized to view this modmail conversation or it doesn't exist.")
-        else:
-            raise Exception(f"Unexpected data: {resp}")
+        return await ModmailConversation(self._reddit, {"id": id}).fetch(mark_read)
 
     async def conversations(self) -> 'ModmailConversation':
         """
@@ -82,27 +76,28 @@ class ModmailConversation(aPRAWBase):
     class. Attributes are dynamically provided by the :class:`~apraw.models.aPRAWBase` class
     and may vary depending on the status of the response and expected objects.
 
-    ================== ==========================================================================================
-    Attribute          Description
-    ================== ==========================================================================================
-    ``isAuto``         ``bool``
-    ``objIds``         A list of dictionaries containing the objects with their IDs and keys.
-    ``isRepliable``    Whether the conversation can be replied to.
-    ``lastUserUpdate`` A timestamp of the last user update or ``None``.
-    ``isInternal``     Whether it's an internal mod conversation.
-    ``lastModUpdate``  A timestamp of the last moderator update or ``None``.
-    ``lastUpdated``    A timestamp of the last update made overall.
-    ``authors``        A list of dictionaries containing authors by name with additional meta information such as
-                       ``isMod``, ``isAdmin``, ``isOp``, ``isParticipant``, ``isHidden``, ``id``, ``isDeleted``.
-    ``owner``          A dictionary describing the subreddit this conversation is held in.
-    ``id``             The ID of this conversation.
-    ``isHighlighted``  Whether the conversation has been highlighted.
-    ``subject``        The subject of this conversation.
-    ``participant``    ``Dict``
-    ``state``          ``int``
-    ``lastUnread``     ``None``
-    ``numMessages``    The number of messages in this conversation.
-    ================== ==========================================================================================
+    ==================== ==========================================================================================
+    Attribute            Description
+    ==================== ==========================================================================================
+    ``authors``          A list of dictionaries containing authors by name with additional meta information such as
+                         ``isMod``, ``isAdmin``, ``isOp``, ``isParticipant``, ``isHidden``, ``id``, ``isDeleted``.
+    ``id``               The ID of this conversation.
+    ``is_auto``          ``bool``
+    ``is_highlighted``   Whether the conversation has been highlighted.
+    ``is_internal``      Whether it's an internal mod conversation.
+    ``is_repliable``     Whether the conversation can be replied to.
+    ``last_mod_update``  A timestamp of the last moderator update or ``None``.
+    ``last_unread``      ``None``
+    ``last_updated``     A timestamp of the last update made overall.
+    ``last_user_update`` A timestamp of the last user update or ``None``.
+    ``num_messages``     The number of messages in this conversation.
+    ``obj_ids``          A list of dictionaries containing the objects with their IDs and keys.
+    ``owner``            A dictionary describing the subreddit this conversation is held in.
+    ``participant``      ``Dict``
+    ``state``            ``int``
+    ``subject``          The subject of this conversation.
+    ==================== ==========================================================================================
+
     """
 
     def __init__(self, reddit: 'Reddit', data: Dict,
@@ -120,9 +115,162 @@ class ModmailConversation(aPRAWBase):
             The subreddit this conversation was held in.
         """
         super().__init__(reddit, data)
-
-        self._data = None
         self._owner = owner
+        self._messages = list()
+
+    async def fetch(self, mark_read=False):
+        """
+        Fetch this item's information from a suitable API endpoint.
+
+        Returns
+        -------
+        self: ModmailConversation
+            The updated model.
+        """
+        url = API_PATH["modmail_conversation"].format(id=self._data["id"])
+        resp = await self._reddit.get(url, mark_read=mark_read)
+        self._update(resp)
+        return self
+
+    def _update(self, data: Dict[str, Any]):
+        """
+        Update the base with new information.
+
+        Parameters
+        ----------
+        data: Dict
+            The data obtained from a suitable API endpoint.
+
+        Returns
+        -------
+        self: ModmailConversation
+            The updated model.
+        """
+        if isinstance(data, Dict):
+            if "fields" in data:
+                raise Exception(f"{data['message']}: {data['reason']}")
+            _data = data.get("conversation", None) or data.get("conversations", None) or data
+            super()._update(_data)
+            if "messages" in data:
+                self._messages = [ModmailMessage(self, data["messages"][msg_id]) for msg_id in data["messages"]]
+        else:
+            raise Exception(f"Unexpected data: {data}")
+        return self
+
+    async def reply(self, body: str, author_hidden: bool = False, internal: bool = False):
+        """
+        Reply to the modmail conversation.
+
+        Parameters
+        ----------
+        body: str
+            The markdown reply body.
+        author_hidden: bool
+            Whether the author of this reply should be hidden.
+        internal: bool
+            Whether the reply is internal.
+
+        Returns
+        -------
+        self: ModmailConversation
+            The updated model.
+        """
+        url = API_PATH["modmail_conversation"].format(id=self._data["id"])
+        resp = await self._reddit.post(url, data={
+            "body": body,
+            "conversation_id": self._data["id"],
+            "isAuthorHidden": author_hidden,
+            "isInternal": internal
+        })
+        return self._update(resp)
+
+    async def _take_action(self, action: str, **kwargs):
+        r"""
+        Perform an action on the modmail conversation.
+
+        Parameters
+        ----------
+        action: str
+            The action to perform.
+        kwargs: \*\*Dict
+            Additional request data.
+
+        Returns
+        -------
+        self: ModmailConversation
+            The updated model.
+        """
+        url = API_PATH["modmail_conversation_action"].format(id=self._data["id"], action=action)
+        resp = await self._reddit.post(url, **kwargs)
+        return self._update(resp) if resp else self
+
+    async def archive(self):
+        """
+        Archive the modmail conversation.
+
+        Returns
+        -------
+        self: ModmailConversation
+            The updated model.
+        """
+        return await self._take_action("archive")
+
+    async def unarchive(self):
+        """
+        Unarchive the modmail conversation.
+
+        Returns
+        -------
+        self: ModmailConversation
+            The updated model.
+        """
+        return await self._take_action("unarchive")
+
+    async def highlight(self):
+        """
+        Highlight the modmail conversation.
+
+        Returns
+        -------
+        self: ModmailConversation
+            The updated model.
+        """
+        return await self._take_action("highlight")
+
+    async def remove_highlight(self):
+        """
+        Remove the highlight from the modmail conversation.
+
+        Returns
+        -------
+        self: ModmailConversation
+            The updated model.
+        """
+        url = API_PATH["modmail_conversation_action"].format(id=self._data["id"], action="higlight")
+        resp = await self._reddit.delete(url)
+        return self._update(resp) if resp else self
+
+    async def mute(self):
+        """
+        Mute the modmail conversation.
+
+        Returns
+        -------
+        self: ModmailConversation
+            The updated model.
+        """
+        return await self._take_action("mute")
+
+    async def unmute(self):
+        """
+        Unmute the modmail conversation.
+
+        Returns
+        -------
+        self: ModmailConversation
+            The updated model.
+        """
+        return await self._take_action("unmute")
 
     async def owner(self) -> 'Subreddit':
         """
@@ -146,22 +294,11 @@ class ModmailConversation(aPRAWBase):
         message: ModmailMessage
             A message sent in this conversation.
         """
-        full_data = await self.full_data()
-        for msg_id in full_data["messages"]:
-            yield ModmailMessage(self, full_data["messages"][msg_id])
+        if not self._messages:
+            await self.fetch()
 
-    async def full_data(self) -> Dict:
-        """
-        Retrieve the raw full data from the ``/api/mod/conversations/{id}`` endpoint.
-
-        Returns
-        -------
-        full_data: Dict
-            The full data retrieved from the endpoint.
-        """
-        if self._data is None:
-            self._data = await self._reddit.get(API_PATH["modmail_conversation"].format(id=self.id))
-        return self._data
+        for msg in self._messages:
+            yield msg
 
 
 class ModmailMessage:
