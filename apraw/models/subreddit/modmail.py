@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Dict
+from typing import TYPE_CHECKING, Dict, Any
 
 from ..helpers.apraw_base import aPRAWBase
 from ...const import API_PATH
@@ -28,7 +28,7 @@ class SubredditModmail:
         self._reddit = reddit
         self._subreddit = subreddit
 
-    async def __call__(self, id: str) -> 'ModmailConversation':
+    async def __call__(self, id: str, mark_read=False) -> 'ModmailConversation':
         """
         Fetch a :class:`~apraw.models.ModmailConversation` by its ID.
 
@@ -42,9 +42,7 @@ class SubredditModmail:
         conversation: ModmailConversation
             The conversation requested if it exists.
         """
-        conv = ModmailConversation(self._reddit, {"id": id})
-        await conv.fetch()
-        return conv
+        return await ModmailConversation(self._reddit, {"id": id}).fetch(mark_read)
 
     async def conversations(self) -> 'ModmailConversation':
         """
@@ -117,15 +115,24 @@ class ModmailConversation(aPRAWBase):
         """
         super().__init__(reddit, data)
         self._owner = owner
+        self._messages = list()
 
-    async def fetch(self):
-        resp = await self._reddit.get(API_PATH["modmail_conversation"].format(id=self._data["id"]))
-        if "conversation" in resp:
-            self._update(resp["conversation"])
-        elif "fields" in resp:
-            raise Exception("You are not authorized to view this modmail conversation or it doesn't exist.")
+    async def fetch(self, mark_read=False):
+        url = API_PATH["modmail_conversation"].format(id=self._data["id"])
+        resp = await self._reddit.get(url, mark_read=mark_read)
+        return self._update(resp)
+
+    def _update(self, data: Dict[str, Any]):
+        if isinstance(data, Dict):
+            if "fields" in data:
+                raise Exception(f"{data['message']}: {data['reason']}")
+            _data = data.get("conversation", None) or data.get("conversations", None) or data
+            super()._update(_data)
+            if "messages" in data:
+                self._messages = [ModmailMessage(self, data["messages"][msg_id]) for msg_id in data["messages"]]
         else:
-            raise Exception(f"Unexpected data: {resp}")
+            raise Exception(f"Unexpected data: {data}")
+        return self
 
     async def reply(self, body: str, author_hidden: bool = False, internal: bool = False):
         url = API_PATH["modmail_conversation"].format(id=self._data["id"])
@@ -138,6 +145,7 @@ class ModmailConversation(aPRAWBase):
         if "conversation" in resp:
             self._update(resp["conversation"])
         return self
+        return self._update(resp)
 
     async def owner(self) -> 'Subreddit':
         """
@@ -161,22 +169,11 @@ class ModmailConversation(aPRAWBase):
         message: ModmailMessage
             A message sent in this conversation.
         """
-        full_data = await self.full_data()
-        for msg_id in full_data["messages"]:
-            yield ModmailMessage(self, full_data["messages"][msg_id])
+        if not self._messages:
+            await self.fetch()
 
-    async def full_data(self) -> Dict:
-        """
-        Retrieve the raw full data from the ``/api/mod/conversations/{id}`` endpoint.
-
-        Returns
-        -------
-        full_data: Dict
-            The full data retrieved from the endpoint.
-        """
-        if self._data is None:
-            self._data = await self._reddit.get(API_PATH["modmail_conversation"].format(id=self.id))
-        return self._data
+        for msg in self._messages:
+            yield msg
 
 
 class ModmailMessage:
