@@ -67,7 +67,7 @@ class ItemModeration:
             "mod_note": mod_note,
             "reason_id": str(reason),
         }
-        return self._reddit.post(API_PATH["removal_reasons"], data={"json": json.dumps(data)})
+        return await self._reddit.post(API_PATH["removal_reasons"], data={"json": json.dumps(data)})
 
     async def remove(self, spam: bool = False, mod_note: Optional[str] = "",
                      reason: Union[str, SubredditRemovalReason] = None):
