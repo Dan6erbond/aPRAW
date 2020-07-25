@@ -40,7 +40,7 @@ class ItemModeration:
         """
         return await self._reddit.post(API_PATH["mod_approve"], id=self.fullname)
 
-    def _add_removal_reason(self, mod_note: Optional[str] = "", reason: Union[str, SubredditRemovalReason] = None):
+    async def _add_removal_reason(self, mod_note: Optional[str] = "", reason: Union[str, SubredditRemovalReason] = None):
         """
         Add a removal reason to a comment or submission.
 
@@ -92,7 +92,7 @@ class ItemModeration:
         res = await self._reddit.post(API_PATH["mod_remove"], data=data)
 
         if any([reason, mod_note]):
-            res1 = self._add_removal_reason(mod_note, reason)
+            res1 = await self._add_removal_reason(mod_note, reason)
             return res, res1
 
         return res
