@@ -1,7 +1,7 @@
 from typing import TYPE_CHECKING, Any, Dict, Optional
 
-from ...const import API_PATH
 from ..helpers.apraw_base import aPRAWBase
+from ...const import API_PATH
 
 if TYPE_CHECKING:
     from .subreddit import Subreddit
@@ -145,7 +145,8 @@ class ModmailConversation(aPRAWBase):
             _data = data.get("conversation", None) or data.get("conversations", None) or data
             super()._update(_data)
             if "messages" in data:
-                self._messages = [ModmailMessage(self._reddit, data["messages"][msg_id], self) for msg_id in data["messages"]]
+                self._messages = [ModmailMessage(self._reddit, data["messages"][msg_id], self) for msg_id in
+                                  data["messages"]]
         else:
             raise Exception(f"Unexpected data: {data}")
         return self
@@ -338,6 +339,19 @@ class ModmailMessage(aPRAWBase):
         self._author = None
 
     def _update(self, data: Dict[str, Any]):
+        """
+        Update the base with new information.
+
+        Parameters
+        ----------
+        data: Dict
+            The data obtained from a suitable API endpoint.
+
+        Returns
+        -------
+        self: ModmailMessage
+            The updated model.
+        """
         data["body_md"] = data.get("bodyMarkdown", "")
         super()._update(data)
 
