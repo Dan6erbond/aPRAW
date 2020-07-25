@@ -64,5 +64,8 @@ class TestModmail:
         conv = await subreddit.modmail("fqpoa")
         assert conv
 
-        assert await conv.mute()
-        assert await conv.unmute()
+        try:
+            assert await conv.mute()
+            assert await conv.unmute()
+        except Exception as e:
+            assert "CANT_RESTRICT_MODERATOR" in str(e)
