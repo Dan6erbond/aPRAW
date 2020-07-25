@@ -63,13 +63,6 @@ class ModmailConversation(aPRAWBase):
     """
     The model for modmail conversations.
 
-    Members
-    -------
-    reddit: Reddit
-        The :class:`~apraw.Reddit` instance with which requests are made.
-    data: Dict
-        The data obtained from the /about endpoint.
-
     **Typical Attributes**
 
     This table describes attributes that typically belong to objects of this
