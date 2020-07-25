@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Dict, Any
+from typing import TYPE_CHECKING, Any, Dict, Optional
 
 from ..helpers.apraw_base import aPRAWBase
 from ...const import API_PATH
@@ -62,13 +62,6 @@ class SubredditModmail:
 class ModmailConversation(aPRAWBase):
     """
     The model for modmail conversations.
-
-    Members
-    -------
-    reddit: Reddit
-        The :class:`~apraw.Reddit` instance with which requests are made.
-    data: Dict
-        The data obtained from the /about endpoint.
 
     **Typical Attributes**
 
@@ -152,7 +145,8 @@ class ModmailConversation(aPRAWBase):
             _data = data.get("conversation", None) or data.get("conversations", None) or data
             super()._update(_data)
             if "messages" in data:
-                self._messages = [ModmailMessage(self, data["messages"][msg_id]) for msg_id in data["messages"]]
+                self._messages = [ModmailMessage(self._reddit, data["messages"][msg_id], self) for msg_id in
+                                  data["messages"]]
         else:
             raise Exception(f"Unexpected data: {data}")
         return self
@@ -301,7 +295,7 @@ class ModmailConversation(aPRAWBase):
             yield msg
 
 
-class ModmailMessage:
+class ModmailMessage(aPRAWBase):
     """
     The model for modmail messages.
 
@@ -309,26 +303,27 @@ class ModmailMessage:
     -------
     conversation: ModmailConversation
         The :class:`~apraw.models.ModmailConversation` instance this message belongs to.
-    data: Dict
-        The data obtained from the API.
-    id: str
-        The ID of this message.
-    body: str
-        The HTML body of this message.
-    body_md: str
-        The raw body of this message.
-    is_internal: str
-        Whether the message was sent internally.
-    date: str
-        A timestamp on which the message was sent.
 
-    .. note::
-        ``ModmailMessage`` attributes are loaded statically, meaning they will always be present under the
-        abovementioned names.
+    **Typical Attributes**
+
+    This table describes attributes that typically belong to objects of this
+    class. Attributes are dynamically provided by the :class:`~apraw.models.aPRAWBase` class
+    and may vary depending on the status of the response and expected objects.
+
+    ==================== ==================================================
+    Attribute            Description
+    ==================== ==================================================
+    ``id``               The ID of this message.
+    ``body``             The HTML body of this message.
+    ``body_markdown``    The raw body of this message.
+    ``body_md``          An alias to ``body_markdown``.
+    ``is_internal``      Whether the message was sent internally.
+    ``date``             The datetime string on which the message was sent.
+    ==================== ==================================================
 
     """
 
-    def __init__(self, conversation: ModmailConversation, data: Dict):
+    def __init__(self, reddit: 'Reddit', data: Dict, conversation: ModmailConversation):
         """
         Create an instance of a modmail message.
 
@@ -339,30 +334,39 @@ class ModmailMessage:
         data: Dict
             The data obtained from the API.
         """
+        super().__init__(reddit, data)
         self.conversation = conversation
-        self.data = data
-
-        self.id = data["id"]
-
-        self.body = data["body"]
-        self.body_md = data["bodyMarkdown"]
         self._author = None
-        self.is_internal = data["isInternal"]
-        self.date = data["date"]
 
-    async def author(self) -> 'Redditor':
+    def _update(self, data: Dict[str, Any]):
+        """
+        Update the base with new information.
+
+        Parameters
+        ----------
+        data: Dict
+            The data obtained from a suitable API endpoint.
+
+        Returns
+        -------
+        self: ModmailMessage
+            The updated model.
+        """
+        data["body_md"] = data.get("bodyMarkdown", "")
+        super()._update(data)
+
+    async def author(self) -> Optional['Redditor']:
         """
         Retrieve the author of this message as a :class:`~apraw.models.Redditor`.
 
         Returns
         -------
-        author: Redditor
-            The author of this modmail message.
+        author: Redditor or None
+            The author of this modmail message if they haven't been deleted yet.
         """
         if self._author is None:
-            if not self.data["author"]["isDeleted"]:
-                self._author = self.conversation._reddit.redditor(  # TODO: Add 'await'
-                    self.data["author"]["name"])
+            if not self._data["author"]["isDeleted"]:
+                self._author = await self.conversation._reddit.redditor(self._data["author"]["name"])
             else:
                 return None
         return self._author

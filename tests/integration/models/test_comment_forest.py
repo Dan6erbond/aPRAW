@@ -4,9 +4,9 @@ import apraw
 from apraw import Reddit
 
 
-class TestCommentForrest:
+class TestCommentForest:
     @pytest.mark.asyncio
-    async def test_comment_forrest_replace_more(self, reddit: Reddit):
+    async def test_comment_forest_replace_more(self, reddit: Reddit):
         submission = await reddit.submission("hneroz")
 
         await submission.fetch()
