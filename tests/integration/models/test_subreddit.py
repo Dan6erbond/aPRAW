@@ -169,3 +169,13 @@ class TestSubreddit:
                 found = True
             assert found
 
+    @pytest.mark.asyncio
+    async def test_subreddit_mod_log(self, reddit: apraw.Reddit):
+        subreddit = await reddit.subreddit("aprawtest")
+
+        async for action in subreddit.mod.log():
+            assert isinstance(action, apraw.models.ModAction)
+
+        assert action
+
+        assert isinstance(await action.mod(), apraw.models.Redditor)
