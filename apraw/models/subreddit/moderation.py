@@ -330,4 +330,4 @@ class ModAction(aPRAWBase):
         redditor: Redditor
             The Redditor who performed this action.
         """
-        return await self.subreddit._reddit.redditor(self.mod)
+        return await self.subreddit._reddit.redditor(self._data["mod"])
