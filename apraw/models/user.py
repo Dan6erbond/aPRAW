@@ -128,8 +128,12 @@ class User:
         return self._client_session
 
     async def close(self):
-        await self.auth_session.close()
-        await self.client_session.close()
+        auth_session = await self.auth_session()
+        if auth_session:
+            await auth_session.close()
+        client_session = await self.client_session()
+        if client_session:
+            await client_session.close()
 
     async def me(self) -> 'AuthenticatedUser':
         """
