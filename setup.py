@@ -1,12 +1,22 @@
 import setuptools
-from apraw import __version__, __tag__
+import re
 
 with open("README.md", "r", encoding="utf8") as fh:
     long_description = fh.read()
 
+version = ''
+with open('apraw/const.py') as f:
+    version = re.search(r'^__version__\s*=\s*[\'"]([^\'"]*)[\'"]', f.read(), re.MULTILINE).group(1)
+tag = ''
+with open('apraw/const.py') as f:
+    tag = re.search(r'^__version__\s*=\s*[\'"]([^\'"]*)[\'"]', f.read(), re.MULTILINE).group(1)
+
+if not version:
+    raise RuntimeError("version is not set")
+
 setuptools.setup(
     name="aPRAW",
-    version="{}-{}".format(__version__, __tag__) if __tag__ else __version__,
+    version="{}-{}".format(version, tag) if tag else version,
     author="Dan6erbond",
     author_email="moravrav@gmail.com",
     description="aPRAW is an asynchronous Reddit API wrapper written in Python.",
