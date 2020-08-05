@@ -9,7 +9,7 @@ with open('apraw/const.py') as f:
     version = re.search(r'^__version__\s*=\s*[\'"]([^\'"]*)[\'"]', f.read(), re.MULTILINE).group(1)
 tag = ''
 with open('apraw/const.py') as f:
-    tag = re.search(r'^__version__\s*=\s*[\'"]([^\'"]*)[\'"]', f.read(), re.MULTILINE).group(1)
+    tag = re.search(r'^__tag__\s*=\s*[\'"]([^\'"]*)[\'"]', f.read(), re.MULTILINE).group(1)
 
 if not version:
     raise RuntimeError("version is not set")
