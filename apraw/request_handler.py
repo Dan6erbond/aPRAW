@@ -130,12 +130,10 @@ class RequestHandler:
 
         if endpoint:
             url_post = BASE_URL.format(endpoint, "&".join(params))
-            print(url_post, "GAY RL")
         else:
             raise Exception("OH OH! Looks like endpoint is not presenet, kindly make an issue on github") 
         if url:
             url_post = "{}?{}".format(url_post, f"&url={url}")
-            print(url_post, "URL 2.0")
 
         headers = await self.get_request_headers()
         session = await self.user.client_session()
