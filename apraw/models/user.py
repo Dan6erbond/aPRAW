@@ -1,13 +1,14 @@
 from datetime import datetime
 from typing import TYPE_CHECKING, Dict, List
+from urllib.parse import quote as urlencode
 
 import aiohttp
 
+from ..endpoints import API_PATH
 from .helpers.apraw_base import aPRAWBase
 from .helpers.generator import ListingGenerator
 from .helpers.streamable import streamable
 from .reddit.redditor import Redditor
-from ..endpoints import API_PATH
 
 if TYPE_CHECKING:
     from ..reddit import Reddit
@@ -84,7 +85,7 @@ class User:
                 "No login information given or login information incomplete.")
 
         self.password_grant = "grant_type=password&username={}&password={}".format(
-            self.username, self.password)
+            urlencode(self.username), urlencode(self.password))
 
         self._auth_session = None
         self._client_session = None
