@@ -129,9 +129,11 @@ class RequestHandler:
         params = ["{}={}".format(k, kwargs[k]) for k in kwargs]
 
         if endpoint:
-            url = BASE_URL.format(endpoint, "&".join(params))
-        elif url:
-            url = "{}?{}".format(url, "&".join(params))
+            url_post = BASE_URL.format(endpoint, "&".join(params))
+        else:
+            raise Exception("OH OH! Looks like endpoint is not presenet, kindly make an issue on github") 
+        if url:
+            url_post = "{}?{}".format(url_post, f"&url={url}")
 
         headers = await self.get_request_headers()
         session = await self.user.client_session()
